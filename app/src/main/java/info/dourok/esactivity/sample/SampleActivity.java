@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 @EasyActivity
 public class SampleActivity extends AppCompatActivity {
 
-  @ActivityParameter
+  @ActivityParameter(key = "wtf")
   String text;
 
   @Override
@@ -37,6 +37,7 @@ public class SampleActivity extends AppCompatActivity {
   public static class Helper {
     public static void inject(SampleActivity activity) {
       Intent intent = activity.getIntent();
+
       activity.text = intent.getStringExtra("text");
     }
 
