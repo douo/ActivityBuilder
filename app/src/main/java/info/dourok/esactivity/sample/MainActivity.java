@@ -40,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
               })
-              .forOk(intent -> {
-              })
+              .text("hahah")
               .forOk(this::handleOk)
               .asIntent()
               .asBuilder()
