@@ -97,28 +97,4 @@ public class EasyUtils {
     if (s.length() == 0) return s;
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
   }
-
-  public static String getDefaultValue(TypeMirror typeMirror) {
-    switch (typeMirror.getKind()) {
-      case BOOLEAN:
-        return "false";
-      case BYTE:
-      case SHORT:
-      case INT:
-      case LONG:
-      case CHAR:
-        return "0";
-      case FLOAT:
-        return ".0f";
-      case DOUBLE:
-        return ".0";
-      default:
-        try {
-          PrimitiveType primitiveType = getTypes().unboxedType(typeMirror);
-          return getDefaultValue(primitiveType);
-        } catch (IllegalArgumentException e) {
-          return "null";
-        }
-    }
-  }
 }

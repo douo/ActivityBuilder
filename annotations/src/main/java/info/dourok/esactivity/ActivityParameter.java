@@ -23,7 +23,6 @@ public @interface ActivityParameter {
   String key() default USE_VARIABLE_NAME;
 
   TransmitType transmit() default TransmitType.Auto;
-
   /**
    *
    * @return

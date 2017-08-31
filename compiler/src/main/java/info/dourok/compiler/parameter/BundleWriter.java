@@ -12,8 +12,6 @@ import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.util.SimpleTypeVisitor8;
 
 import static info.dourok.compiler.EasyUtils.capitalize;
-import static info.dourok.compiler.EasyUtils.getDefaultValue;
-import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.getTypes;
 import static info.dourok.compiler.EasyUtils.isArrayList;
 import static info.dourok.compiler.EasyUtils.isCharSequence;
@@ -23,6 +21,7 @@ import static info.dourok.compiler.EasyUtils.isString;
 import static info.dourok.compiler.EasyUtils.log;
 
 /**
+ * 生成 Bundle 支持类型的写入读取代码
  * Created by tiaolins on 2017/8/30.
  */
 class BundleWriter extends ActivityParameterWriter {
@@ -124,7 +123,8 @@ class BundleWriter extends ActivityParameterWriter {
 
   @Override
   public void writeInject(MethodSpec.Builder paper, String activityName, String intentName) {
-    if (isPrimitive() || isBoxed()) {
+    String defaultValue = getDefaultValue(getTypeMirror());
+    if (defaultValue != null) {// isPrimitive() || isBoxed()
       paper.addStatement("$L.$L = $L.get$LExtra($S,$L)", activityName, getName(), intentName,
           prefix,
           getKey(), getDefaultValue(getTypeMirror()));
@@ -150,5 +150,34 @@ class BundleWriter extends ActivityParameterWriter {
     paper.addStatement("getIntent().putExtra($S,$L)",
         getKey(),
         getName());
+  }
+
+  /**
+   *
+   * @param typeMirror
+   * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null
+   */
+  private static String getDefaultValue(TypeMirror typeMirror) {
+    switch (typeMirror.getKind()) {
+      case BOOLEAN:
+        return "false";
+      case BYTE:
+      case SHORT:
+      case INT:
+      case LONG:
+      case CHAR:
+        return "0";
+      case FLOAT:
+        return ".0f";
+      case DOUBLE:
+        return ".0";
+      default:
+        try {
+          PrimitiveType primitiveType = getTypes().unboxedType(typeMirror);
+          return getDefaultValue(primitiveType);
+        } catch (IllegalArgumentException e) {
+          return null;
+        }
+    }
   }
 }

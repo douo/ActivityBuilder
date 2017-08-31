@@ -51,6 +51,7 @@ public abstract class ActivityParameterWriter {
     return getTypeMirror() instanceof PrimitiveType;
   }
 
+
   public boolean isBoxed() {
     try {
       PrimitiveType primitiveType = getTypes().unboxedType(getTypeMirror());
