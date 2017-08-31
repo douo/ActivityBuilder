@@ -11,6 +11,7 @@ import android.widget.TextView;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.BaseActivityBuilder;
 import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.TransmitType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.Consumer;
@@ -19,12 +20,12 @@ import java.util.function.Consumer;
 @EasyActivity
 public class SampleActivity extends AppCompatActivity {
 
-  @ActivityParameter(key = "wtf", keep = true)
+  @ActivityParameter(key = "wtf", keep = true, transmit = TransmitType.Ref)
   String text;
   @ActivityParameter Double dd;
   @ActivityParameter byte[] bytes;
   @ActivityParameter ArrayList<Integer> ids;
-  @ActivityParameter HashSet set;
+  @ActivityParameter(transmit = TransmitType.Ref) HashSet set;
   SampleActivityHelper mHelper = new SampleActivityHelper();
 
   @Override

@@ -51,7 +51,6 @@ public abstract class ActivityParameterWriter {
     return getTypeMirror() instanceof PrimitiveType;
   }
 
-
   public boolean isBoxed() {
     try {
       PrimitiveType primitiveType = getTypes().unboxedType(getTypeMirror());
@@ -93,15 +92,14 @@ public abstract class ActivityParameterWriter {
     //TODO
     switch (annotation.transmit()) {
       case Ref:
-        //TODO
-        return null;
+        return new RefWriter(annotation, parameter);
       case Auto:
         String prefix =
             BundleWriter.generatePrefix(parameter.asType(), ActivityParameterWriter.TYPE_UNKNOWN);
         if (prefix != null) {
           return new BundleWriter(annotation, parameter, prefix);
         } else {
-          return null;//TODO
+          return new RefWriter(annotation, parameter);
         }
       case Bundle:
         return new BundleWriter(annotation, parameter);

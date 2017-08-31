@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.SparseArray;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -16,6 +19,7 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T>> impl
   MessengerFragment fragment;
   IntentWrapper<T> intentWrapper;
   InnerConsumer consumer;
+  private Map<String, Object> refMap;
 
   public BaseActivityBuilder(Activity activity) {
     context = activity;
@@ -64,5 +68,12 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T>> impl
     } else {
       fragment.startActivity(getIntent());
     }
+  }
+
+  public Map<String, Object> getRefMap() {
+    if (refMap == null) {
+      refMap = RefManager.getInstance().getRefMap(this);
+    }
+    return refMap;
   }
 }
