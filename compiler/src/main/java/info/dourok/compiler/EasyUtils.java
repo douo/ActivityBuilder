@@ -58,23 +58,32 @@ public class EasyUtils {
   }
 
   public static boolean isString(TypeMirror mirror) {
-    return instance.types.isAssignable(mirror, instance.string);
+    return instance.types.isSameType(mirror, instance.string);
   }
 
   public static boolean isCharSequence(TypeMirror mirror) {
-    return instance.types.isAssignable(mirror, instance.charSequence);
+    return instance.types.isSameType(mirror, instance.charSequence);
   }
 
   public static boolean isArrayList(TypeMirror mirror) {
+    //XXX 类型擦除后的 ArrayList<T> 类不能等价于 ArrayList，所以不能用 isSame 判断
     return instance.types.isAssignable(getTypes().erasure(mirror), instance.arrayList);
   }
 
-  public static boolean isParcelable(TypeMirror mirror) {
-    return instance.types.isAssignable(mirror, instance.parcelable);
+  public static boolean isParcelable(TypeMirror mirror, boolean same) {
+    if (same) {
+      return instance.types.isSameType(mirror, instance.parcelable);
+    } else {
+      return instance.types.isAssignable(mirror, instance.parcelable);
+    }
   }
 
-  public static boolean isSerializable(TypeMirror mirror) {
-    return instance.types.isAssignable(mirror, instance.serializable);
+  public static boolean isSerializable(TypeMirror mirror, boolean same) {
+    if (same) {
+      return instance.types.isSameType(mirror, instance.serializable);
+    } else {
+      return instance.types.isAssignable(mirror, instance.serializable);
+    }
   }
 
   public static void log(String msg) {
@@ -91,6 +100,14 @@ public class EasyUtils {
 
   public static void warn(String msg, Element element) {
     instance.messager.printMessage(Diagnostic.Kind.WARNING, msg, element);
+  }
+
+  public static void error(String msg) {
+    instance.messager.printMessage(Diagnostic.Kind.ERROR, msg);
+  }
+
+  public static void error(String msg, Element element) {
+    instance.messager.printMessage(Diagnostic.Kind.ERROR, msg, element);
   }
 
   public static String capitalize(String s) {

@@ -12,6 +12,7 @@ import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.util.SimpleTypeVisitor8;
 
 import static info.dourok.compiler.EasyUtils.capitalize;
+import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getTypes;
 import static info.dourok.compiler.EasyUtils.isArrayList;
 import static info.dourok.compiler.EasyUtils.isCharSequence;
@@ -36,9 +37,12 @@ class BundleWriter extends ActivityParameterWriter {
     }
     this.prefix = prefix;
     if (prefix == null) {
-      throw new IllegalArgumentException(
-          String.format("prefix can not be null the type of %s is %s not supported by Bundle",
-              parameter.getSimpleName().toString(), parameter.asType().toString()));
+      String msg =
+          String.format(
+              "prefix can not be null cause by the type of %s is %s not supported by Bundle",
+              parameter.getSimpleName().toString(), parameter.asType().toString());
+      error(msg, parameter);
+      throw new IllegalArgumentException(msg);
     }
   }
 
@@ -76,13 +80,12 @@ class BundleWriter extends ActivityParameterWriter {
       }
 
       @Override public String visitDeclared(DeclaredType declaredType, Integer type) {
-        log("isArrayList:" + isArrayList(declaredType) + " " + declaredType.toString());
         String prefix = null;
         if (isString(declaredType)) {
           prefix = "String";
         } else if (isCharSequence(declaredType)) {
           prefix = "CharSequence";
-        } else if (isParcelable(declaredType)) {
+        } else if (isParcelable(declaredType, false)) {
           prefix = "Parcelable";
         }
         if (prefix != null) {
@@ -110,7 +113,7 @@ class BundleWriter extends ActivityParameterWriter {
             // ignore;
           }
 
-          if (isSerializable(declaredType)) {
+          if (isSerializable(declaredType, false)) {
             return "Serializable";
           } else {
             return null;
@@ -129,15 +132,28 @@ class BundleWriter extends ActivityParameterWriter {
           prefix,
           getKey(), getDefaultValue(getTypeMirror()));
     } else {
-      paper.addStatement("$L.$L = $L.get$LExtra($S)", activityName, getName(), intentName, prefix,
-          getKey());
+      if (isSubTypeOfParcelableOrSerializable()) {
+        paper.addStatement("$L.$L =($T) $L.get$LExtra($S)", activityName, getName(), parameter,
+            intentName,
+            prefix,
+            getKey());
+      } else {
+        paper.addStatement("$L.$L = $L.get$LExtra($S)", activityName, getName(), intentName, prefix,
+            getKey());
+      }
     }
   }
 
   @Override
   public void doWriteRestore(MethodSpec.Builder paper, String activityName, String bundleName) {
-    paper.addStatement("$L.$L = $L.get$L($S)", activityName, getName(), bundleName, prefix,
-        getKey());
+    if (isSubTypeOfParcelableOrSerializable()) {
+      paper.addStatement("$L.$L = ($T) $L.get$L($S)", activityName, getName(), parameter,
+          bundleName, prefix,
+          getKey());
+    } else {
+      paper.addStatement("$L.$L = $L.get$L($S)", activityName, getName(), bundleName, prefix,
+          getKey());
+    }
   }
 
   @Override
@@ -152,9 +168,12 @@ class BundleWriter extends ActivityParameterWriter {
         getName());
   }
 
+  private boolean isSubTypeOfParcelableOrSerializable() {
+    return (prefix.equals("Parcelable") && !isParcelable(getTypeMirror(), true))
+        || (prefix.equals("Serializable")) && (!isSerializable(getTypeMirror(), true));
+  }
+
   /**
-   *
-   * @param typeMirror
    * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null
    */
   private static String getDefaultValue(TypeMirror typeMirror) {

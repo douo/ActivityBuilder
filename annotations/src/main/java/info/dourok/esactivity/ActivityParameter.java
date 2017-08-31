@@ -24,8 +24,7 @@ public @interface ActivityParameter {
 
   TransmitType transmit() default TransmitType.Auto;
   /**
-   *
-   * @return
+   * 参数声明为 Keep 会在 restore 和 helper 中生成代码，用于 Activity#onSaveInstanceState
    */
   boolean keep() default false;
 }

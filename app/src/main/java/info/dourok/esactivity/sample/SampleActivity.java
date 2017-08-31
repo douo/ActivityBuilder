@@ -12,6 +12,7 @@ import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.BaseActivityBuilder;
 import info.dourok.esactivity.EasyActivity;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -23,16 +24,19 @@ public class SampleActivity extends AppCompatActivity {
   @ActivityParameter Double dd;
   @ActivityParameter byte[] bytes;
   @ActivityParameter ArrayList<Integer> ids;
+  @ActivityParameter HashSet set;
   SampleActivityHelper mHelper = new SampleActivityHelper();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (savedInstanceState == null) {
-      mHelper.inject(this);
-    } else {
+
+    mHelper.inject(this);
+
+    if (savedInstanceState != null) {
       mHelper.restore(this, savedInstanceState);
     }
+
     setContentView(R.layout.activity_sample);
     TextView tv = findViewById(R.id.text);
     tv.setText(text);
