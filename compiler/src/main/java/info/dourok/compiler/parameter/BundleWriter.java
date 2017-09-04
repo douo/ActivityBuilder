@@ -1,8 +1,6 @@
 package info.dourok.compiler.parameter;
 
 import com.squareup.javapoet.MethodSpec;
-import info.dourok.esactivity.ActivityParameter;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
@@ -19,35 +17,33 @@ import static info.dourok.compiler.EasyUtils.isCharSequence;
 import static info.dourok.compiler.EasyUtils.isParcelable;
 import static info.dourok.compiler.EasyUtils.isSerializable;
 import static info.dourok.compiler.EasyUtils.isString;
-import static info.dourok.compiler.EasyUtils.log;
 
 /**
  * 生成 Bundle 支持类型的写入读取代码
  * Created by tiaolins on 2017/8/30.
  */
-class BundleWriter extends ActivityParameterWriter {
+class BundleWriter extends ParameterWriter {
 
   private String prefix;
 
-  public BundleWriter(ActivityParameter annotation,
-      VariableElement parameter, String prefix) {
-    super(annotation, parameter);
+  public BundleWriter(ParameterModel parameter, String prefix) {
+    super(parameter);
     if (prefix == null) {
-      prefix = generatePrefix(parameter.asType(), TYPE_UNKNOWN);
+      prefix = generatePrefix(parameter.getType(), TYPE_UNKNOWN);
     }
     this.prefix = prefix;
     if (prefix == null) {
       String msg =
           String.format(
               "prefix can not be null cause by the type of %s is %s not supported by Bundle",
-              parameter.getSimpleName().toString(), parameter.asType().toString());
-      error(msg, parameter);
+              parameter.getName(), parameter.getType().toString());
+      error(msg, parameter.getElement());
       throw new IllegalArgumentException(msg);
     }
   }
 
-  public BundleWriter(ActivityParameter annotation, VariableElement parameter) {
-    this(annotation, parameter, null);
+  public BundleWriter(ParameterModel parameter) {
+    this(parameter, null);
   }
 
   static String generatePrefix(final TypeMirror mirror, int type) {
@@ -125,23 +121,58 @@ class BundleWriter extends ActivityParameterWriter {
   }
 
   @Override
-  public void writeInject(MethodSpec.Builder paper, String activityName, String intentName) {
-    String defaultValue = getDefaultValue(getTypeMirror());
+  public void writeInjectActivity(MethodSpec.Builder paper, String activityName) {
+    String defaultValue = getDefaultValue(parameter.getType());
     if (defaultValue != null) {// isPrimitive() || isBoxed()
-      paper.addStatement("$L.$L = $L.get$LExtra($S,$L)", activityName, getName(), intentName,
+      paper.addStatement("$L.$L = intent.get$LExtra($S,$L)", activityName,
+          parameter.getName(),
           prefix,
-          getKey(), getDefaultValue(getTypeMirror()));
+          parameter.getKey(), getDefaultValue(parameter.getType()));
     } else {
       if (isSubTypeOfParcelableOrSerializable()) {
-        paper.addStatement("$L.$L =($T) $L.get$LExtra($S)", activityName, getName(), parameter,
-            intentName,
+        paper.addStatement("$L.$L =($T) intent.get$LExtra($S)", activityName,
+            getName(), parameter,
             prefix,
             getKey());
       } else {
-        paper.addStatement("$L.$L = $L.get$LExtra($S)", activityName, getName(), intentName, prefix,
+        paper.addStatement("$L.$L = intent.get$LExtra($S)", activityName,
+            getName(), prefix,
             getKey());
       }
     }
+  }
+
+  @Override public void writeConsumerGetter(MethodSpec.Builder paper) {
+    String defaultValue = getDefaultValue(parameter.getType());
+    if (defaultValue != null) {// isPrimitive() || isBoxed()
+      paper.addStatement("$T $L = intent.get$LExtra($S,$L)", getType(),
+          parameter.getName(),
+          prefix,
+          parameter.getKey(), getDefaultValue(parameter.getType()));
+    } else {
+      if (isSubTypeOfParcelableOrSerializable()) {
+        paper.addStatement("$T $L =($T) intent.get$LExtra($S)", getType(),
+            getName(), parameter,
+            prefix,
+            getKey());
+      } else {
+        paper.addStatement("$T $L = intent.get$LExtra($S)", getType(),
+            getName(), prefix,
+            getKey());
+      }
+    }
+  }
+
+  @Override public void writeConsumerSetter(MethodSpec.Builder paper) {
+    paper.addStatement("intent.putExtra($S,$L)",
+        getKey(),
+        getName());
+  }
+
+  @Override public void writeSetter(MethodSpec.Builder paper) {
+    paper.addStatement("getIntent().putExtra($S,$L)",
+        getKey(),
+        getName());
   }
 
   @Override
@@ -162,15 +193,9 @@ class BundleWriter extends ActivityParameterWriter {
         getKey(), activityName, getName());
   }
 
-  @Override public void writeSetter(MethodSpec.Builder paper) {
-    paper.addStatement("getIntent().putExtra($S,$L)",
-        getKey(),
-        getName());
-  }
-
   private boolean isSubTypeOfParcelableOrSerializable() {
-    return (prefix.equals("Parcelable") && !isParcelable(getTypeMirror(), true))
-        || (prefix.equals("Serializable")) && (!isSerializable(getTypeMirror(), true));
+    return (prefix.equals("Parcelable") && !isParcelable(getType(), true))
+        || (prefix.equals("Serializable")) && (!isSerializable(getType(), true));
   }
 
   /**

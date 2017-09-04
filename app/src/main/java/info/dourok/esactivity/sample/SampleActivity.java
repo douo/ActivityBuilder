@@ -11,6 +11,7 @@ import android.widget.TextView;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.BaseActivityBuilder;
 import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.RefManager;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
@@ -58,8 +59,8 @@ public class SampleActivity extends AppCompatActivity {
     mHelper.save(this, outState);
   }
 
-  public <T> void finishWithWtf(ArrayList<T> ids) {
-
+  @Result
+  public void resultText(String text) {
   }
 
   public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {

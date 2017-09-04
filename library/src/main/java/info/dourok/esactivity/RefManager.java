@@ -22,7 +22,11 @@ public class RefManager {
   }
 
   public <T> T get(Activity context, String key) {
-    Map<String, Object> refMap = getRefMap(context);
+    return get(context.getIntent(), key);
+  }
+
+  public <T> T get(Intent intent, String key) {
+    Map<String, Object> refMap = getRefMap(intent);
     if (refMap != null) {
       return (T) refMap.get(key);
     } else {
@@ -32,6 +36,18 @@ public class RefManager {
 
   public <T> void put(BaseBuilder builder, String key, T value) {
     Map<String, Object> refMap = getRefMap(builder);
+    refMap.put(key, value);
+  }
+
+  /**
+   * 用于 setResult 的 Intent
+   * @param intent
+   * @param key
+   * @param value
+   * @param <T>
+   */
+  public <T> void put(Intent intent, String key, T value) {
+    Map<String, Object> refMap = createRefMap(intent);
     refMap.put(key, value);
   }
 
@@ -50,8 +66,25 @@ public class RefManager {
     return refMap;
   }
 
+  /**
+   * 用于 setResult 的 Intent
+   */
+  public @NonNull Map<String, Object> createRefMap(Intent intent) {
+    int keyOfMap = intent.hashCode();
+    Map<String, Object> refMap = sGlobalRefMap.get(keyOfMap);
+    if (refMap == null) {
+      refMap = new HashMap<>();
+      sGlobalRefMap.put(keyOfMap, refMap);
+      intent.putExtra(KEY_OF_MAP, keyOfMap);
+    }
+    return refMap;
+  }
+
   public @Nullable Map<String, Object> getRefMap(Activity context) {
-    Intent intent = context.getIntent();
+    return getRefMap(context.getIntent());
+  }
+
+  public @Nullable Map<String, Object> getRefMap(Intent intent) {
     if (intent.hasExtra(KEY_OF_MAP)) {
       int keyOfMap = intent.getIntExtra(KEY_OF_MAP, 0);
       return sGlobalRefMap.get(keyOfMap);

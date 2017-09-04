@@ -32,7 +32,7 @@ public class BaseResultConsumer<A extends Activity>
     RefManager.getInstance().clearRefs(context);
   }
 
-  protected boolean handleResult(A context, Integer result, Intent intent) {
+  protected boolean handleResult(A context, int result, Intent intent) {
     return false;
   }
 
