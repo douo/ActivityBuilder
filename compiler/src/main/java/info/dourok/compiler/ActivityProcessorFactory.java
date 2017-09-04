@@ -123,9 +123,18 @@ public class ActivityProcessorFactory {
           ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
 
       MethodSpec constructor = MethodSpec.constructorBuilder()
+          .addModifiers(Modifier.PRIVATE)
           .addParameter(TypeVariableName.get("A"), "activity")
           .addStatement("super($L)", "activity")
           .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", easyActivity)
+          .build();
+
+      MethodSpec create = MethodSpec.methodBuilder("create")
+          .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+          .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
+          .returns(builderWithParameter)
+          .addParameter(TypeVariableName.get("A"), "activity")
+          .addStatement("return new $T(activity)", builderWithParameter)
           .build();
 
       MethodSpec self = MethodSpec.methodBuilder("self")
@@ -141,7 +150,9 @@ public class ActivityProcessorFactory {
               builderWithParameter,
               TypeVariableName.get("A")))
           .addMethod(constructor)
+          .addMethod(create)
           .addMethod(self);
+
       for (ActivityParameterWriter parameterWriter : parameters) {
         MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getName())
             .returns(builderWithParameter)

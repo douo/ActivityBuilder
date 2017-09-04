@@ -2,8 +2,6 @@ package info.dourok.esactivity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.function.TriConsumer;
 
