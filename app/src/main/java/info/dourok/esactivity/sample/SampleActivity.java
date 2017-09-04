@@ -11,6 +11,8 @@ import android.widget.TextView;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.BaseActivityBuilder;
 import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.Result;
+import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,10 +20,16 @@ import java.util.function.Consumer;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 @EasyActivity
+
+@Result(name = "wtf", parameters = {
+    @ResultParameter(name = "ids", type = ArrayList.class)
+})
 public class SampleActivity extends AppCompatActivity {
 
   @ActivityParameter(key = "wtf", keep = true, transmit = TransmitType.Ref)
   String text;
+  @ActivityParameter float f;
+  @ActivityParameter(transmit = TransmitType.Ref) double d;
   @ActivityParameter Double dd;
   @ActivityParameter byte[] bytes;
   @ActivityParameter ArrayList<Integer> ids;
@@ -31,9 +39,7 @@ public class SampleActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     mHelper.inject(this);
-
     if (savedInstanceState != null) {
       mHelper.restore(this, savedInstanceState);
     }
@@ -52,13 +58,24 @@ public class SampleActivity extends AppCompatActivity {
     mHelper.save(this, outState);
   }
 
-  public static class Builder extends BaseActivityBuilder<Builder> {
-    public Builder(Activity activity) {
+  public <T> void finishWithWtf(ArrayList<T> ids) {
+
+  }
+
+  public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {
+    Builder<SampleActivity> builder = new Builder<>(this);
+    builder = builder.asIntent().asBuilder();
+  }
+
+  public static class Builder<A extends Activity> extends BaseActivityBuilder<Builder<A>, A> {
+    public Builder(A activity) {
       super(activity);
       setIntent(new Intent(activity, SampleActivity.class));
     }
 
     public Builder text(String text) {
+      Builder<A> b = asIntent().asBuilder();
+
       getIntent().putExtra("text", text);
       return this;
     }

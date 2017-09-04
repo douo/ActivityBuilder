@@ -35,13 +35,12 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton fab = findViewById(R.id.fab);
     fab.setOnClickListener(
         view -> {
-          new SampleActivityBuilder(this)
+          SampleActivityBuilder.create(this)
               .forCancel(data -> {
                 Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
               })
               .text("hahah")
-              .forOk(this::handleOk)
               .asIntent()
               .asBuilder()
               .start();

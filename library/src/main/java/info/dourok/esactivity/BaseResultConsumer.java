@@ -4,29 +4,38 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import info.dourok.esactivity.function.BiConsumer;
+import info.dourok.esactivity.function.TriConsumer;
 
 /**
+ * @param <A> the starter activity
  * Created by tiaolins on 2017/8/6.
  */
 
-@RequiresApi(api = Build.VERSION_CODES.N) class InnerConsumer
-    implements BiConsumer<Integer, Intent> {
-  BiConsumer<Integer, Intent> biConsumer;
-  Consumer<Intent> okConsumer;
-  Consumer<Intent> cancelConsumer;
+public class BaseResultConsumer<A extends Activity>
+    implements TriConsumer<Activity, Integer, Intent> {
+  TriConsumer<A, Integer, Intent> biConsumer;
+  BiConsumer<A, Intent> okConsumer;
+  BiConsumer<A,Intent> cancelConsumer;
 
-  @Override public void accept(Integer result, Intent intent) {
-    if (result == Activity.RESULT_OK && okConsumer != null) {
-      okConsumer.accept(intent);
+  @Override public final void accept(Activity context, Integer result, Intent intent) {
+    A starter = (A) context;
+    if (!handleResult(starter, result, intent)) {
+      if (result == Activity.RESULT_OK && okConsumer != null) {
+        okConsumer.accept(starter, intent);
+      }
+      if (result == Activity.RESULT_CANCELED && cancelConsumer != null) {
+        cancelConsumer.accept(starter, intent);
+      }
+      if (biConsumer != null) {
+        biConsumer.accept(starter, result, intent);
+      }
     }
-    if (result == Activity.RESULT_CANCELED && cancelConsumer != null) {
-      cancelConsumer.accept(intent);
-    }
-    if (biConsumer != null) {
-      biConsumer.accept(result, intent);
-    }
+    RefManager.getInstance().clearRefs(context);
+  }
+
+  protected boolean handleResult(A context, Integer result, Intent intent) {
+    return false;
   }
 
   public boolean hasConsumer() {

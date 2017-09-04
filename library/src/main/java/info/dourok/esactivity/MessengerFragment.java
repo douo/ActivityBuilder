@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -19,14 +20,14 @@ public class MessengerFragment extends Fragment {
   public static final String FRAGMENT_TAG = "info.dourok.esactivity:MessengerFragment";
   private static final String TAG = "MessengerFragment";
   private BiConsumer<Integer, Intent> consumer;
-  private SparseArray<InnerConsumer> consumerMap;
+  private SparseArray<BaseResultConsumer<?>> consumerMap;
 
   public MessengerFragment() {
     consumerMap = new SparseArray<>();
     setRetainInstance(true);
   }
 
-  private int addConsumer(InnerConsumer consumer) {
+  private int addConsumer(BaseResultConsumer<?> consumer) {
     int requestCode = generateRequestCode();
     consumerMap.put(requestCode, consumer);
     return requestCode;
@@ -43,19 +44,16 @@ public class MessengerFragment extends Fragment {
   @TargetApi(Build.VERSION_CODES.N) @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     Log.d(TAG, "onActivityResult:" + requestCode + " " + resultCode);
-    InnerConsumer consumer = consumerMap.get(requestCode);
-    try {
-      Field f = consumer.okConsumer.getClass().getField("arg$1");
-      Log.d(TAG, f.toGenericString());
-
-      //MethodHandles.Lookup lookup = MethodHandles.lookup();
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
-    }
-
-    if (consumer != null) {
-      consumer.accept(resultCode, data);
-    }
+    //try {
+    //  Field f = consumer.okConsumer.getClass().getField("arg$1");
+    //  Log.d(TAG, f.toGenericString());
+    //
+    //  //MethodHandles.Lookup lookup = MethodHandles.lookup();
+    //} catch (NoSuchFieldException e) {
+    //  e.printStackTrace();
+    //}
+    Optional.of(consumerMap.get(requestCode)).get()
+        .accept(getActivity(), resultCode, data);
   }
 
   public static MessengerFragment addIfNeed(Activity activity) {
@@ -71,7 +69,7 @@ public class MessengerFragment extends Fragment {
     return fragment;
   }
 
-  public void startActivityForResult(Intent intent, InnerConsumer consumer) {
+  public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer) {
     int requestCode = addConsumer(consumer);
     startActivityForResult(intent, requestCode);
   }

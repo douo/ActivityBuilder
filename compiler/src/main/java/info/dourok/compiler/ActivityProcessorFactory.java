@@ -7,10 +7,13 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import info.dourok.compiler.parameter.ActivityParameterWriter;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.Result;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,17 +71,25 @@ public class ActivityProcessorFactory {
     public ActivityProcessor(TypeElement element) {
       easyActivity = element;
       packageElement = elements.getPackageOf(element);
-      parameters = findParameters();
+      parameters = findAnnotations();
     }
 
-    private List<ActivityParameterWriter> findParameters() {
+    private List<ActivityParameterWriter> findAnnotations() {
       List<ActivityParameterWriter> list = new LinkedList<>();
       for (Element element : easyActivity.getEnclosedElements()) {
+        //find paramters
         if (element.getKind() == ElementKind.FIELD) {
           ActivityParameter activityParameter = element.getAnnotation(ActivityParameter.class);
           if (activityParameter != null) {
             list.add(ActivityParameterWriter.newWriter(activityParameter,
                 (VariableElement) element));
+          }
+        }
+
+        if (element.getKind() == ElementKind.METHOD) {
+          Result result = element.getAnnotation(Result.class);
+          if (result != null) {
+
           }
         }
       }
@@ -106,30 +117,34 @@ public class ActivityProcessorFactory {
      * @throws IOException
      */
     private TypeSpec.Builder generateBuilder() {
-      ClassName builderClass =
-          ClassName.get(packageElement.getQualifiedName().toString(),
-              easyActivity.getSimpleName() + "Builder");
+      ClassName builderClass = ClassName.get(packageElement.getQualifiedName().toString(),
+          easyActivity.getSimpleName() + "Builder");
+      ParameterizedTypeName builderWithParameter =
+          ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
 
       MethodSpec constructor = MethodSpec.constructorBuilder()
-          .addParameter(ClassName.get(Activity.class), "activity")
+          .addParameter(TypeVariableName.get("A"), "activity")
           .addStatement("super($L)", "activity")
           .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", easyActivity)
           .build();
 
       MethodSpec self = MethodSpec.methodBuilder("self")
           .addAnnotation(Override.class)
-          .returns(builderClass)
+          .returns(builderWithParameter)
           .addModifiers(Modifier.PROTECTED)
           .addStatement("return this")
           .build();
 
       TypeSpec.Builder builder = TypeSpec.classBuilder(builderClass)
-          .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder), builderClass))
+          .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
+          .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
+              builderWithParameter,
+              TypeVariableName.get("A")))
           .addMethod(constructor)
           .addMethod(self);
       for (ActivityParameterWriter parameterWriter : parameters) {
         MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getName())
-            .returns(builderClass)
+            .returns(builderWithParameter)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(ClassName.get(parameterWriter.getTypeMirror()),
                 parameterWriter.getName());
