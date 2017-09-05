@@ -111,7 +111,8 @@ public class ActivityProcessorFactory {
       BuilderGenerator builderGenerator =
           new BuilderGenerator(activity, easyActivity, packageElement,
               parameterList,
-              resultList, baseActivityBuilder);
+              resultList, baseActivityBuilder,
+              needCustomConsumer ? consumerGenerator.getTypeSpec() : null);
       try {
         builderGenerator.write();
         helperGenerator.write();

@@ -25,6 +25,7 @@ public class RefManager {
     return get(context.getIntent(), key);
   }
 
+  //FIXME 考虑装箱类型 null 拆箱报错的情况
   public <T> T get(Intent intent, String key) {
     Map<String, Object> refMap = getRefMap(intent);
     if (refMap != null) {

@@ -1,8 +1,13 @@
 package info.dourok.compiler.result;
 
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeVariableName;
+import info.dourok.compiler.ConsumerHelper;
 import info.dourok.compiler.parameter.ParameterModel;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.TransmitType;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -61,7 +66,32 @@ public class ResultModel {
     return "RESULT_" + getName().toUpperCase();
   }
 
-  public String getFieldName() {
+  public String getConsumerName() {
     return getName() + "Consumer";
+  }
+
+  public TypeName getConsumerType() throws IOException {
+    int count = getParameters().size();
+    if (count > 0) {
+      TypeName types[] = new TypeName[count];
+      for (int i = 0; i < count; i++) {
+        types[i] = TypeName.get(getParameters().get(i).getType());
+      }
+      return ParameterizedTypeName
+          .get(ConsumerHelper.get(count), types);
+    } else {
+      return ConsumerHelper.get(0);
+    }
+  }
+
+  public TypeName getConsumerTypeWithContext() throws IOException {
+    int count = getParameters().size() + 1;
+    TypeName types[] = new TypeName[count];
+    types[0] = TypeVariableName.get("A");
+    for (int i = 1; i < count; i++) {
+      types[i] = TypeName.get(getParameters().get(i - 1).getType());
+    }
+    return ParameterizedTypeName
+        .get(ConsumerHelper.get(count), types);
   }
 }

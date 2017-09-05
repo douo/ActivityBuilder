@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import info.dourok.esactivity.EasyActivity;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
               .forCancel(data -> {
                 Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+              })
+              .forText((s) -> {
+                Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
               })
               .text("hahah")
               .asIntent()

@@ -9,7 +9,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import info.dourok.compiler.ConsumerHelper;
 import info.dourok.compiler.EasyUtils;
 import info.dourok.compiler.parameter.ParameterModel;
 import info.dourok.compiler.parameter.ParameterWriter;
@@ -88,7 +87,7 @@ public class ConsumerGenerator extends Generator {
       }
       consumer.addMethod(buildResultProcessor(result));
 
-      literal.append(result.getFieldName())
+      literal.append(result.getConsumerName())
           .append(" != null ||");
     }
     literal.append("super.hasConsumer()");
@@ -103,20 +102,7 @@ public class ConsumerGenerator extends Generator {
   }
 
   private FieldSpec buildField(ResultModel result) throws IOException {
-    int count = result.getParameters().size() + 1;
-    TypeName typeName;
-    if (count > 0) {
-      TypeName types[] = new TypeName[count];
-      types[0] = TypeVariableName.get("A");
-      for (int i = 1; i < count; i++) {
-        types[i] = TypeName.get(result.getParameters().get(i - 1).getType());
-      }
-      typeName = ParameterizedTypeName
-          .get(ConsumerHelper.get(count), types);
-    } else {
-      typeName = ConsumerHelper.get(0);
-    }
-    return FieldSpec.builder(typeName, result.getFieldName())
+    return FieldSpec.builder(result.getConsumerTypeWithContext(), result.getConsumerName())
         .build();
   }
 
@@ -126,9 +112,9 @@ public class ConsumerGenerator extends Generator {
         .returns(boolean.class)
         .addParameter(TypeVariableName.get("A"), "activity")
         .addParameter(Intent.class, "intent")
-        .beginControlFlow("if($L != null)", result.getFieldName());
+        .beginControlFlow("if($L != null)", result.getConsumerName());
     if (!result.getParameters().isEmpty()) {
-      StringBuilder literal = new StringBuilder(result.getFieldName()).append(".accept(activity");
+      StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(activity");
       String[] names = new String[result.getParameters().size()];
       for (int i = 0; i < result.getParameters().size(); i++) {
         ParameterModel parameter = result.getParameters().get(i);
@@ -141,7 +127,7 @@ public class ConsumerGenerator extends Generator {
       literal.append(")");
       builder.addStatement(literal.toString(), (Object[]) names);
     } else {
-      builder.addStatement("$L.run()", result.getFieldName());
+      builder.addStatement("$L.run()", result.getConsumerName());
     }
     builder.addStatement("return true");
     builder.endControlFlow();

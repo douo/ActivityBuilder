@@ -9,6 +9,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import info.dourok.compiler.parameter.ParameterWriter;
 import info.dourok.compiler.result.ResultModel;
+import java.io.IOException;
 import java.util.List;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
@@ -23,21 +24,27 @@ public class BuilderGenerator extends Generator {
   private List<ResultModel> resultList;
   private final TypeElement baseActivityBuilder;
 
+  private final TypeSpec consumer;
+  private final ClassName builderClass;
+  private final ParameterizedTypeName builderWithParameter;
+
   public BuilderGenerator(TypeElement activity, TypeElement easyActivity,
       PackageElement activityPackage,
       List<ParameterWriter> parameterList,
-      List<ResultModel> resultList, TypeElement baseActivityBuilder) {
+      List<ResultModel> resultList, TypeElement baseActivityBuilder,
+      TypeSpec consumer) {
     super(activity, easyActivity, activityPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
     this.baseActivityBuilder = baseActivityBuilder;
+
+    builderClass = ClassName.get(activityPackage.getQualifiedName().toString(),
+        easyActivity.getSimpleName() + "Builder");
+    builderWithParameter = ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
+    this.consumer = consumer;
   }
 
   @Override protected TypeSpec generate() {
-    ClassName builderClass = ClassName.get(activityPackage.getQualifiedName().toString(),
-        easyActivity.getSimpleName() + "Builder");
-    ParameterizedTypeName builderWithParameter =
-        ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
 
     MethodSpec constructor = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PRIVATE)
@@ -81,6 +88,70 @@ public class BuilderGenerator extends Generator {
       builder.addMethod(setter.build());
     }
 
+    if (consumer != null) {
+      builder.addMethod(buildGetConsumer());
+      resultList.forEach(resultModel -> {
+        try {
+          builder.addMethod(buildResultCallback(resultModel));
+          builder.addMethod(buildResultCallbackWithContext(resultModel));
+        } catch (IOException e) {
+          e.printStackTrace();
+          //FIXME
+        }
+      });
+    }
+
     return builder.build();
+  }
+
+  private MethodSpec buildGetConsumer() {
+    TypeName consumerType = ParameterizedTypeName.get(
+        ClassName.get(activityPackage.getQualifiedName().toString(), consumer.name),
+        TypeVariableName.get("A"));
+
+    return MethodSpec.methodBuilder("getConsumer")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PROTECTED)
+        .returns(consumerType)
+        .beginControlFlow("if($L == null)", "consumer")
+        .addStatement("$L = new $L<>()", "consumer", consumer.name)
+        .endControlFlow()
+        .addStatement("return ($T) $L", consumerType, "consumer").build();
+  }
+
+  private MethodSpec buildResultCallbackWithContext(ResultModel result) throws IOException {
+    return MethodSpec.methodBuilder("for" + result.getCapitalizeName())
+        .returns(builderWithParameter)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(result.getConsumerTypeWithContext(), result.getConsumerName())
+        .addStatement("getConsumer().$L = $L", result.getConsumerName(), result.getConsumerName())
+        .addStatement("return this")
+        .build();
+  }
+
+  private MethodSpec buildResultCallback(ResultModel result) throws IOException {
+    StringBuilder literal = new StringBuilder("getConsumer().").append(result.getConsumerName())
+        .append(" = (activity");
+
+    StringBuilder parameters = result.getParameters().stream().reduce(new StringBuilder()
+        , (stringBuilder, parameterModel) -> stringBuilder.append(", ")
+            .append(parameterModel.getName()),
+        (stringBuilder, stringBuilder2) -> stringBuilder2);
+    String accept;
+    if (result.getParameters().isEmpty()) {
+      accept = "$L.run()";
+    } else {
+      accept = "$L.accept(" +
+          parameters.substring(2) + ")";
+    }
+
+    return MethodSpec.methodBuilder("for" + result.getCapitalizeName())
+        .returns(builderWithParameter)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(result.getConsumerType(), result.getConsumerName())
+        .addCode(literal.append(parameters).append(") -> ").toString())
+        .addStatement(accept, result.getConsumerName())
+        .addStatement("return this")
+        .build();
   }
 }

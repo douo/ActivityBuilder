@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.BaseActivityBuilder;
+import info.dourok.esactivity.BaseResultConsumer;
 import info.dourok.esactivity.EasyActivity;
 import info.dourok.esactivity.RefManager;
 import info.dourok.esactivity.Result;
@@ -30,7 +31,6 @@ public class SampleActivity extends AppCompatActivity {
   @ActivityParameter(key = "wtf", keep = true, transmit = TransmitType.Ref)
   String text;
   @ActivityParameter float f;
-  @ActivityParameter(transmit = TransmitType.Ref) double d;
   @ActivityParameter Double dd;
   @ActivityParameter byte[] bytes;
   @ActivityParameter ArrayList<Integer> ids;
@@ -49,8 +49,7 @@ public class SampleActivity extends AppCompatActivity {
     TextView tv = findViewById(R.id.text);
     tv.setText(text);
     tv.setOnClickListener(view -> {
-      setResult(RESULT_OK);
-      finish();
+      mHelper.finishText(this, "123");
     });
   }
 
@@ -61,8 +60,7 @@ public class SampleActivity extends AppCompatActivity {
 
   @Result
   public void resultText(String text) {
-    Intent intent =new Intent();
-    intent.putExtra(text,"text");
+    mHelper.resultText(this, text);
   }
 
   public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {
@@ -70,7 +68,11 @@ public class SampleActivity extends AppCompatActivity {
     builder = builder.asIntent().asBuilder();
   }
 
+  public static class MyConsumer<A extends Activity> extends BaseResultConsumer<A> {
+  }
+
   public static class Builder<A extends Activity> extends BaseActivityBuilder<Builder<A>, A> {
+
     public Builder(A activity) {
       super(activity);
       setIntent(new Intent(activity, SampleActivity.class));
@@ -84,6 +86,13 @@ public class SampleActivity extends AppCompatActivity {
     }
 
     public void forText(Consumer<String> consumer) {
+    }
+
+    @Override public MyConsumer<A> getConsumer() {
+      if (consumer != null) {
+        consumer = new MyConsumer<A>();
+      }
+      return (MyConsumer<A>) consumer;
     }
 
     @Override public Builder self() {

@@ -18,13 +18,19 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
   A context;
   MessengerFragment fragment;
   private IntentWrapper<T> intentWrapper;
-  BaseResultConsumer<A> consumer;
+  protected BaseResultConsumer<A> consumer;
   private Map<String, Object> refMap;
 
   public BaseActivityBuilder(A activity) {
     context = activity;
     fragment = MessengerFragment.addIfNeed(activity);
-    consumer = new BaseResultConsumer<>();
+  }
+
+  protected BaseResultConsumer<A> getConsumer() {
+    if (consumer == null) {
+      consumer = new BaseResultConsumer<>();
+    }
+    return consumer;
   }
 
   public void setIntent(Intent intent) {
@@ -48,38 +54,38 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
   protected abstract T self();
 
   public T result(TriConsumer<A, Integer, Intent> resultConsumer) {
-    consumer.biConsumer = resultConsumer;
+    getConsumer().biConsumer = resultConsumer;
     return self();
   }
 
   public T forCancel(BiConsumer<A, Intent> cancelConsumer) {
-    consumer.cancelConsumer = cancelConsumer;
+    getConsumer().cancelConsumer = cancelConsumer;
     return self();
   }
 
   public T forOk(BiConsumer<A, Intent> okConsumer) {
-    consumer.okConsumer = okConsumer;
+    getConsumer().okConsumer = okConsumer;
     return self();
   }
 
   public T result(BiConsumer<Integer, Intent> resultConsumer) {
-    consumer.biConsumer = (context, i, intent) -> resultConsumer.accept(i, intent);
+    getConsumer().biConsumer = (context, i, intent) -> resultConsumer.accept(i, intent);
     return self();
   }
 
   public T forCancel(Consumer<Intent> cancelConsumer) {
-    consumer.cancelConsumer = (context, intent) -> cancelConsumer.accept(intent);
+    getConsumer().cancelConsumer = (context, intent) -> cancelConsumer.accept(intent);
     return self();
   }
 
   public T forOk(Consumer<Intent> okConsumer) {
-    consumer.okConsumer = (context, intent) -> okConsumer.accept(intent);
+    getConsumer().okConsumer = (context, intent) -> okConsumer.accept(intent);
     return self();
   }
 
   public void start() {
-    if (consumer.hasConsumer()) {
-      fragment.startActivityForResult(getIntent(), consumer);
+    if (getConsumer().hasConsumer()) {
+      fragment.startActivityForResult(getIntent(), getConsumer());
     } else {
       fragment.startActivity(getIntent());
     }
