@@ -2,9 +2,7 @@ package info.dourok.compiler;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -104,174 +102,31 @@ public class ActivityProcessorFactory {
     }
 
     public void generate() {
-      TypeSpec consumer = null;
+      boolean needCustomConsumer = !resultList.isEmpty();
+      ConsumerGenerator consumerGenerator = null;
+      HelperGenerator helperGenerator = new HelperGenerator(activity, easyActivity, packageElement,
+          parameterList,
+          resultList);
       //需要自定义结果时，才需要子类化 BaseResultConsumer
-      if (!resultList.isEmpty()) {
-        consumer = generateConsumer().build();
+      if (needCustomConsumer) {
+        consumerGenerator =
+            new ConsumerGenerator(activity, easyActivity, packageElement, baseResultConsumer,
+                helperGenerator.getTypeSpec(),
+                resultList);
       }
-
-      TypeSpec.Builder builder = generateBuilder(consumer);
-      TypeSpec.Builder helper = generateHelper();
-
+      BuilderGenerator builderGenerator =
+          new BuilderGenerator(activity, easyActivity, packageElement,
+              parameterList,
+              resultList, baseActivityBuilder);
       try {
-        JavaFile.builder(packageElement.getQualifiedName().toString(), builder.build())
-            .build()
-            .writeTo(filer);
-        JavaFile.builder(packageElement.getQualifiedName().toString(), helper.build())
-            .build()
-            .writeTo(filer);
-        if (consumer != null) {
-          JavaFile.builder(packageElement.getQualifiedName().toString(), consumer)
-              .addStaticImport(ClassName.get(packageElement.getQualifiedName().toString(),
-                  easyActivity.getSimpleName() + "Helper"), "*") //FIXME
-              .build()
-              .writeTo(filer);
+        builderGenerator.write();
+        helperGenerator.write();
+        if (needCustomConsumer) {
+          consumerGenerator.write();
         }
       } catch (IOException e) {
         e.printStackTrace();
       }
-    }
-
-    /**
-     * 创建 Builder 的基本骨架
-     *
-     * @throws IOException
-     */
-    private TypeSpec.Builder generateBuilder(TypeSpec consumer) {
-      ClassName builderClass = ClassName.get(packageElement.getQualifiedName().toString(),
-          easyActivity.getSimpleName() + "Builder");
-      ParameterizedTypeName builderWithParameter =
-          ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
-
-      MethodSpec constructor = MethodSpec.constructorBuilder()
-          .addModifiers(Modifier.PRIVATE)
-          .addParameter(TypeVariableName.get("A"), "activity")
-          .addStatement("super($L)", "activity")
-          .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", easyActivity)
-          .build();
-
-      MethodSpec create = MethodSpec.methodBuilder("create")
-          .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-          .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
-          .returns(builderWithParameter)
-          .addParameter(TypeVariableName.get("A"), "activity")
-          .addStatement("return new $T(activity)", builderWithParameter)
-          .build();
-
-      MethodSpec self = MethodSpec.methodBuilder("self")
-          .addAnnotation(Override.class)
-          .returns(builderWithParameter)
-          .addModifiers(Modifier.PROTECTED)
-          .addStatement("return this")
-          .build();
-
-      TypeSpec.Builder builder = TypeSpec.classBuilder(builderClass)
-          .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
-          .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
-              builderWithParameter,
-              TypeVariableName.get("A")))
-          .addMethod(constructor)
-          .addMethod(create)
-          .addMethod(self);
-
-      for (ParameterWriter parameterWriter : parameterList) {
-        MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getName())
-            .returns(builderWithParameter)
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(ClassName.get(parameterWriter.getType()),
-                parameterWriter.getName());
-        parameterWriter.writeSetter(setter);
-        setter.addStatement("return this");
-        builder.addMethod(setter.build());
-      }
-
-      return builder;
-    }
-
-    private TypeSpec.Builder generateConsumer() {
-      TypeSpec.Builder consumer =
-          TypeSpec.classBuilder(ClassName.get(packageElement.getQualifiedName().toString(),
-              easyActivity.getSimpleName() + "Consumer"))
-              .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
-              .superclass(ParameterizedTypeName.get(ClassName.get(baseResultConsumer),
-                  TypeVariableName.get("A")));
-
-      MethodSpec.Builder hasConsumer = MethodSpec.methodBuilder("hasConsumer")
-          .addAnnotation(Override.class)
-          .addModifiers(Modifier.PUBLIC)
-          .returns(boolean.class);
-
-      MethodSpec.Builder handleResult = MethodSpec.methodBuilder("handleResult")
-          .addAnnotation(Override.class)
-          .addModifiers(Modifier.PROTECTED)
-          .returns(boolean.class)
-          .addParameter(TypeVariableName.get("A"), "activity")
-          .addParameter(int.class, "result")
-          .addParameter(Intent.class, "intent");
-
-      handleResult.beginControlFlow("switch ($L)", "result");
-
-      StringBuilder literal = new StringBuilder("return ");
-      for (ResultWriter resultWriter : resultList) {
-        resultWriter.writeHandleResult(handleResult);
-        try {
-          consumer.addField(resultWriter.buildField());
-        } catch (IOException e) {
-          //TODO 生成 consumer 接口失败
-          e.printStackTrace();
-        }
-        consumer.addMethod(resultWriter.buildMethod());
-
-        literal.append(resultWriter.getFieldName())
-            .append(" != null ||");
-      }
-      literal.append("super.hasConsumer()");
-      hasConsumer.addStatement(literal.toString());
-      handleResult.addStatement("default:")
-          .addStatement("return false").endControlFlow();
-
-      consumer.addMethod(handleResult.build())
-          .addMethod(hasConsumer.build());
-
-      return consumer;
-    }
-
-    private TypeSpec.Builder generateHelper() {
-      TypeSpec.Builder helper =
-          TypeSpec.classBuilder(ClassName.get(packageElement.getQualifiedName().toString(),
-              easyActivity.getSimpleName() + "Helper"));
-
-      MethodSpec.Builder helperInject = MethodSpec.methodBuilder("inject")
-          .addModifiers(Modifier.PUBLIC)
-          .addParameter(ClassName.get(easyActivity), "activity")
-          .addStatement("$T intent = $L.getIntent()", Intent.class, "activity");
-
-      MethodSpec.Builder helperRestore = MethodSpec.methodBuilder("restore")
-          .addModifiers(Modifier.PUBLIC)
-          .addParameter(ClassName.get(easyActivity), "activity")
-          .addParameter(Bundle.class, "savedInstanceState");
-
-      MethodSpec.Builder helperSave = MethodSpec.methodBuilder("save")
-          .addModifiers(Modifier.PUBLIC)
-          .addParameter(ClassName.get(easyActivity), "activity")
-          .addParameter(Bundle.class, "savedInstanceState");
-
-      for (ParameterWriter parameterWriter : parameterList) {
-        parameterWriter.writeInjectActivity(helperInject, "activity");
-        parameterWriter.writeRestore(helperRestore, "activity", "savedInstanceState");
-        parameterWriter.writeSave(helperSave, "activity", "savedInstanceState");
-      }
-      for (int i = 0; i < resultList.size(); i++) {
-        ResultWriter resultWriter = resultList.get(i);
-        helper.addField(
-            FieldSpec.builder(int.class, resultWriter.getResultConstant(), Modifier.PUBLIC,
-                Modifier.FINAL, Modifier.STATIC)
-                .initializer("$T.RESULT_FIRST_USER + $L", Activity.class, i + 1).build());
-      }
-      helper.addMethod(helperInject.build())
-          .addMethod(helperRestore.build())
-          .addMethod(helperSave.build());
-      return helper;
     }
   }
 }
