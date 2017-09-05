@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
+import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.log;
 
@@ -50,5 +51,17 @@ public class ResultModel {
 
   public String getName() {
     return name;
+  }
+
+  public String getCapitalizeName() {
+    return capitalize(getName());
+  }
+
+  public String getResultConstant() {
+    return "RESULT_" + getName().toUpperCase();
+  }
+
+  public String getFieldName() {
+    return getName() + "Consumer";
   }
 }

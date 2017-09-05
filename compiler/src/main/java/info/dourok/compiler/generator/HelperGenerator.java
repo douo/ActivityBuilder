@@ -1,4 +1,4 @@
-package info.dourok.compiler;
+package info.dourok.compiler.generator;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import info.dourok.compiler.parameter.ParameterWriter;
-import info.dourok.compiler.result.ResultWriter;
+import info.dourok.compiler.result.ResultModel;
 import java.util.List;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
@@ -20,12 +20,12 @@ import javax.lang.model.element.TypeElement;
 
 public class HelperGenerator extends Generator {
   private List<ParameterWriter> parameterList;
-  private List<ResultWriter> resultList;
+  private List<ResultModel> resultList;
 
   public HelperGenerator(TypeElement activity,
       TypeElement easyActivity,
       PackageElement activityPackage, List<ParameterWriter> parameterList,
-      List<ResultWriter> resultList) {
+      List<ResultModel> resultList) {
     super(activity, easyActivity, activityPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
@@ -56,13 +56,15 @@ public class HelperGenerator extends Generator {
       parameterWriter.writeRestore(helperRestore, "activity", "savedInstanceState");
       parameterWriter.writeSave(helperSave, "activity", "savedInstanceState");
     }
+
     for (int i = 0; i < resultList.size(); i++) {
-      ResultWriter resultWriter = resultList.get(i);
+      ResultModel result = resultList.get(i);
       helper.addField(
-          FieldSpec.builder(int.class, resultWriter.getResultConstant(), Modifier.PUBLIC,
+          FieldSpec.builder(int.class, result.getResultConstant(), Modifier.PUBLIC,
               Modifier.FINAL, Modifier.STATIC)
               .initializer("$T.RESULT_FIRST_USER + $L", Activity.class, i + 1).build());
     }
+
     helper.addMethod(helperInject.build())
         .addMethod(helperRestore.build())
         .addMethod(helperSave.build());

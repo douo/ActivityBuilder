@@ -1,7 +1,8 @@
-package info.dourok.compiler;
+package info.dourok.compiler.generator;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import info.dourok.compiler.EasyUtils;
 import java.io.IOException;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;

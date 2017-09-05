@@ -1,16 +1,11 @@
 package info.dourok.compiler;
 
 import android.app.Activity;
-import android.content.Intent;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
+import info.dourok.compiler.generator.BuilderGenerator;
+import info.dourok.compiler.generator.ConsumerGenerator;
+import info.dourok.compiler.generator.HelperGenerator;
 import info.dourok.compiler.parameter.ParameterWriter;
-import info.dourok.compiler.result.ResultWriter;
+import info.dourok.compiler.result.ResultModel;
 import info.dourok.esactivity.ActivityParameter;
 import info.dourok.esactivity.EasyActivity;
 import info.dourok.esactivity.Result;
@@ -23,7 +18,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -71,7 +65,7 @@ public class ActivityProcessorFactory {
     private TypeElement easyActivity;
     private PackageElement packageElement;
     private List<ParameterWriter> parameterList;
-    private List<ResultWriter> resultList;
+    private List<ResultModel> resultList;
 
     public ActivityProcessor(TypeElement element) {
       easyActivity = element;
@@ -83,7 +77,7 @@ public class ActivityProcessorFactory {
       parameterList = new LinkedList<>();
       resultList = new LinkedList<>();
       for (Element element : easyActivity.getEnclosedElements()) {
-        //find paramters
+        //find parameters
         if (element.getKind() == ElementKind.FIELD) {
           ActivityParameter activityParameter = element.getAnnotation(ActivityParameter.class);
           if (activityParameter != null) {
@@ -95,7 +89,7 @@ public class ActivityProcessorFactory {
         if (element.getKind() == ElementKind.METHOD) {
           Result result = element.getAnnotation(Result.class);
           if (result != null) {
-            resultList.add(ResultWriter.newWriter(result, (ExecutableElement) element));
+            resultList.add(new ResultModel(result, (ExecutableElement) element));
           }
         }
       }

@@ -1,4 +1,4 @@
-package info.dourok.compiler;
+package info.dourok.compiler.generator;
 
 import android.content.Intent;
 import com.squareup.javapoet.ClassName;
@@ -8,7 +8,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import info.dourok.compiler.parameter.ParameterWriter;
-import info.dourok.compiler.result.ResultWriter;
+import info.dourok.compiler.result.ResultModel;
 import java.util.List;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
@@ -20,13 +20,13 @@ import javax.lang.model.element.TypeElement;
 
 public class BuilderGenerator extends Generator {
   private List<ParameterWriter> parameterList;
-  private List<ResultWriter> resultList;
+  private List<ResultModel> resultList;
   private final TypeElement baseActivityBuilder;
 
   public BuilderGenerator(TypeElement activity, TypeElement easyActivity,
       PackageElement activityPackage,
       List<ParameterWriter> parameterList,
-      List<ResultWriter> resultList, TypeElement baseActivityBuilder) {
+      List<ResultModel> resultList, TypeElement baseActivityBuilder) {
     super(activity, easyActivity, activityPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
