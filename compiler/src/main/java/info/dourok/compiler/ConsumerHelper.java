@@ -11,6 +11,8 @@ import java.util.HashMap;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 
+import static info.dourok.compiler.EasyUtils.log;
+
 /**
  * Created by tiaolins on 2017/9/5.
  */
@@ -38,19 +40,20 @@ public class ConsumerHelper {
 
   private static ClassName writeConsumer(int count) throws IOException {
     String packageName = "info.dourok.esactivity.function";
-    MethodSpec.Builder method = MethodSpec.methodBuilder("accept");
+    MethodSpec.Builder method = MethodSpec.methodBuilder("accept")
+        .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
 
     TypeSpec.Builder type = TypeSpec.interfaceBuilder("Consumer" + count)
         .addModifiers(Modifier.PUBLIC);
     for (int i = 0; i < count; i++) {
-      type.addTypeVariable(TypeVariableName.get("T" + count));
+      type.addTypeVariable(TypeVariableName.get("T" + i));
       method.addParameter(
-          TypeVariableName.get("T" + count), "t" + count);
+          TypeVariableName.get("T" + i), "t" + i);
     }
     type.addMethod(method.build());
     JavaFile.builder(packageName, type.build())
         .build()
         .writeTo(EasyUtils.getFiler());
-    return ClassName.get(packageName, ".Consumer" + count);
+    return ClassName.get(packageName, "Consumer" + count);
   }
 }
