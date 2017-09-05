@@ -61,6 +61,8 @@ public class SampleActivity extends AppCompatActivity {
 
   @Result
   public void resultText(String text) {
+    Intent intent =new Intent();
+    intent.putExtra(text,"text");
   }
 
   public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {

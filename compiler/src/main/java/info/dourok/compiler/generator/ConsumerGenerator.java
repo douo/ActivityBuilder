@@ -78,7 +78,7 @@ public class ConsumerGenerator extends Generator {
     StringBuilder literal = new StringBuilder("return ");
     for (ResultModel result : resultList) {
       handleResult.addCode("case $L:\n", result.getResultConstant());
-      handleResult.addStatement("return handle$L($L,$L)", result.getCapitalizeName(), "activity",
+      handleResult.addStatement("return process$L($L,$L)", result.getCapitalizeName(), "activity",
           "intent");
       try {
         consumer.addField(buildField(result));
@@ -132,7 +132,7 @@ public class ConsumerGenerator extends Generator {
       String[] names = new String[result.getParameters().size()];
       for (int i = 0; i < result.getParameters().size(); i++) {
         ParameterModel parameter = result.getParameters().get(i);
-        //FIXME
+        //FIXME 重构 parameter writer
         ParameterWriter writer = ParameterWriter.newWriter(parameter);
         writer.writeConsumerGetter(builder);
         names[i] = parameter.getName();
