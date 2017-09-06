@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -73,6 +76,13 @@ public class MessengerFragment extends Fragment {
       fm.executePendingTransactions();
     }
     return fragment;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer,
+      Bundle options) {
+    int requestCode = addConsumer(consumer);
+    startActivityForResult(intent, requestCode, options);
   }
 
   public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer) {

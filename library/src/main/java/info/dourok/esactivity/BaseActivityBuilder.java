@@ -1,8 +1,10 @@
 package info.dourok.esactivity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.function.Consumer;
@@ -12,11 +14,10 @@ import java.util.Map;
 /**
  * Created by tiaolins on 2017/8/15.
  */
-@RequiresApi(api = Build.VERSION_CODES.N)
 public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity>
     implements BaseBuilder {
   A context;
-  protected MessengerFragment fragment;
+  private MessengerFragment fragment;
   private IntentWrapper<T> intentWrapper;
   protected BaseResultConsumer<A> consumer;
   private Map<String, Object> refMap;
@@ -95,6 +96,10 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return self();
   }
 
+  /**
+   * 启动目标 Activity，Builder 会根据有没有回调，选择 {@link Fragment#startActivityForResult(Intent, int)} 或者
+   * {@link Fragment#startActivity(Intent)}
+   */
   public void start() {
     if (getConsumer().hasConsumer()) {
       fragment.startActivityForResult(getIntent(), getConsumer());
@@ -104,6 +109,68 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     if (hasRefMap()) {
       fragment.registerUselessReMapKey(RefManager.getKeyOfMap(getIntent()));
     }
+  }
+
+  /**
+   * See {@link BaseActivityBuilder#start()}
+   *
+   * @param options Additional options for how the Activity should be started.
+   * See {@link android.content.Context#startActivity(Intent, Bundle)
+   * Context.startActivity(Intent, Bundle)} for more details.
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public void start(Bundle options) {
+    if (getConsumer().hasConsumer()) {
+      fragment.startActivityForResult(getIntent(), getConsumer(), options);
+    } else {
+      fragment.startActivity(getIntent(), options);
+    }
+    if (hasRefMap()) {
+      fragment.registerUselessReMapKey(RefManager.getKeyOfMap(getIntent()));
+    }
+  }
+
+  /**
+   * same as {@link Activity#startActivityForResult(Intent, int)}
+   */
+  public void startForResult(int requestCode) {
+    context.startActivityForResult(getIntent(), requestCode);
+  }
+
+  /**
+   * same as {@link Fragment#startActivityForResult(Intent, int)}
+   */
+  public void startForResult(Fragment f, int requestCode) {
+    f.startActivityForResult(getIntent(), requestCode);
+  }
+
+  /**
+   * same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int)}
+   */
+  public void startForResult(android.support.v4.app.Fragment f, int requestCode) {
+    f.startActivityForResult(getIntent(), requestCode);
+  }
+
+  /**
+   * same as {@link Activity#startActivityForResult(Intent, int, Bundle)}
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void startForResult(int requestCode, Bundle options) {
+    context.startActivityForResult(getIntent(), requestCode, options);
+  }
+
+  /**
+   * same as {@link Fragment#startActivityForResult(Intent, int, Bundle)}
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public void startForResult(Fragment f,
+      int requestCode, Bundle options) {
+    f.startActivityForResult(getIntent(), requestCode, options);
+  }
+
+  /**
+   * same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int, Bundle)}
+   */
+  public void startForResult(android.support.v4.app.Fragment f, int requestCode, Bundle options) {
+    f.startActivityForResult(getIntent(), requestCode, options);
   }
 
   public boolean hasRefMap() {
