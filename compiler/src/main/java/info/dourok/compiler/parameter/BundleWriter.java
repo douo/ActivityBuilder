@@ -1,6 +1,7 @@
 package info.dourok.compiler.parameter;
 
 import com.squareup.javapoet.MethodSpec;
+import java.util.List;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
@@ -97,7 +98,12 @@ class BundleWriter extends ParameterWriter {
         } else {
 
           if (isArrayList(declaredType)) {
-            return generatePrefix(declaredType.getTypeArguments().get(0), TYPE_ARRAY_LIST);
+            List<? extends TypeMirror> list = declaredType.getTypeArguments();
+            if (list.isEmpty()) {//无泛型参数的 ArrayList 处理不了
+              return null;
+            } else {
+              return generatePrefix(declaredType.getTypeArguments().get(0), TYPE_ARRAY_LIST);
+            }
           }
           //拆箱
           try {

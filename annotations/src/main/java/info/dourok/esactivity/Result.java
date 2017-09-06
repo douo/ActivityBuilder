@@ -7,6 +7,13 @@ import java.lang.annotation.Target;
 
 /**
  * 表示返回给请求者 Activity 的结果
+ * 可用于 Activity 类或者方法
+ * 用于 Activity 时，name 不能为空
+ * 用于方法时 name 会被忽略
+ * 方法命名需满足 result[Name] 的形式
+ *
+ * 对于参数类型没有泛型类的话，可直接注解于 Activity
+ * 如果需要支持泛型只能通过注解方法来实现
  * Created by tiaolins on 2017/9/1.
  */
 @Retention(RetentionPolicy.SOURCE)

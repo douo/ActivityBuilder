@@ -12,11 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 
 import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.error;
+import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.log;
 
 /**
@@ -47,6 +53,36 @@ public class ResultModel {
     for (VariableElement variableElement : variableElements) {
       parameters.add(
           new ParameterModel(variableElement, TransmitType.Auto));
+    }
+  }
+
+  public ResultModel(AnnotationMirror result) {
+    //FIXME 优化，可提取为全局变量
+    TypeElement element = getElements().getTypeElement(Result.class.getName());
+    List<? extends Element> elements = element.getEnclosedElements();
+    ExecutableElement name = null;
+    ExecutableElement parameters = null;
+    for (Element e : elements) {
+      if ("name".equals(e.getSimpleName().toString())) {
+        name = (ExecutableElement) e;
+      }
+      if ("parameters".equals(e.getSimpleName().toString())) {
+        parameters = (ExecutableElement) e;
+      }
+    }
+    // 见  com.sun.tools.javac.code.Attribute
+    // 常量就直接返回常量
+    // 类 返回 TypeMirror
+    // 枚举 返回 VariableElement
+    // 注解 返回 AnnotationMirror
+    //
+    this.name = (String) result.getElementValues().get(name).getValue();
+    log(this.name);
+    AnnotationValue ps = result.getElementValues().get(parameters);
+    List list = (List) ps.getValue();
+    this.parameters = new ArrayList<>(list.size());
+    for (Object o : list) {
+      this.parameters.add(new ParameterModel((AnnotationMirror) o));
     }
   }
 
