@@ -36,20 +36,18 @@ public class HelperGenerator extends Generator {
   @Override protected TypeSpec generate() {
     TypeSpec.Builder helper =
         TypeSpec.classBuilder(ClassName.get(activityPackage.getQualifiedName().toString(),
-            easyActivity.getSimpleName() + "Helper"));
+            easyActivity.getSimpleName() + "Helper"))
+            .addModifiers(Modifier.PUBLIC);
 
     MethodSpec.Builder helperInject = MethodSpec.methodBuilder("inject")
-        .addModifiers(Modifier.PUBLIC)
         .addParameter(ClassName.get(easyActivity), "activity")
         .addStatement("$T intent = $L.getIntent()", Intent.class, "activity");
 
     MethodSpec.Builder helperRestore = MethodSpec.methodBuilder("restore")
-        .addModifiers(Modifier.PUBLIC)
         .addParameter(ClassName.get(easyActivity), "activity")
         .addParameter(Bundle.class, "savedInstanceState");
 
     MethodSpec.Builder helperSave = MethodSpec.methodBuilder("save")
-        .addModifiers(Modifier.PUBLIC)
         .addParameter(ClassName.get(easyActivity), "activity")
         .addParameter(Bundle.class, "savedInstanceState");
 
@@ -80,7 +78,6 @@ public class HelperGenerator extends Generator {
 
   private MethodSpec buildFinishWithResult(ResultModel result, MethodSpec resultSetter) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("finish" + result.getCapitalizeName())
-        .addModifiers(Modifier.PUBLIC)
         .addParameter(ClassName.get(easyActivity), "activity");
     StringBuilder literal = new StringBuilder(resultSetter.name).append("(activity");
     String[] names = new String[result.getParameters().size()];
@@ -105,7 +102,6 @@ public class HelperGenerator extends Generator {
 
   private MethodSpec buildResultSetter(ResultModel result) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("result" + result.getCapitalizeName())
-        .addModifiers(Modifier.PUBLIC)
         .addParameter(ClassName.get(easyActivity), "activity");
     if (!result.getParameters().isEmpty()) {
       builder.addStatement("$T intent = new $T()", Intent.class, Intent.class);
