@@ -115,4 +115,10 @@ public class RefManager {
   public void clearRefs(int keyOfMap) {
     sGlobalRefMap.remove(keyOfMap);
   }
+
+  public void clearRefs(@Nullable Intent intent) {
+    if (intent != null && hasRefMap(intent)) {
+      sGlobalRefMap.remove(getKeyOfMap(intent));
+    }
+  }
 }
