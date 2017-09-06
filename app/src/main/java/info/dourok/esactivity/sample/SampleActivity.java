@@ -49,7 +49,9 @@ public class SampleActivity extends AppCompatActivity {
     TextView tv = findViewById(R.id.text);
     tv.setText(text);
     tv.setOnClickListener(view -> {
-      mHelper.finishText(this, "123");
+      ArrayList<Double> ids = new ArrayList<>();
+      ids.add(0.1);
+      mHelper.finishText(this, ids);
     });
   }
 
@@ -59,8 +61,13 @@ public class SampleActivity extends AppCompatActivity {
   }
 
   @Result
-  public void resultText(String text) {
+  public void resultText(ArrayList<Double> text) {
     mHelper.resultText(this, text);
+  }
+
+  @Result
+  public void resultAbcd(String a, String b, String c, String d) {
+    mHelper.resultAbcd(this, a, b, c, d);
   }
 
   public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {

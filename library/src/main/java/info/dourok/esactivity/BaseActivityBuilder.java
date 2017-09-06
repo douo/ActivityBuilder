@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity>
     implements BaseBuilder {
   A context;
-  MessengerFragment fragment;
+  protected MessengerFragment fragment;
   private IntentWrapper<T> intentWrapper;
   protected BaseResultConsumer<A> consumer;
   private Map<String, Object> refMap;
@@ -26,6 +26,11 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     fragment = MessengerFragment.addIfNeed(activity);
   }
 
+  public BaseActivityBuilder(A activity, Intent intent) {
+    this(activity);
+    setIntent(intent);
+  }
+
   protected BaseResultConsumer<A> getConsumer() {
     if (consumer == null) {
       consumer = new BaseResultConsumer<>();
@@ -33,13 +38,20 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return consumer;
   }
 
+  /**
+   * intent 应该在构造函数的时候就初始化
+   * 因为 Intent 可能会和 RefMap 绑定在一起
+   */
   public void setIntent(Intent intent) {
+    if (intentWrapper != null) {
+      RefManager.getInstance().rebindRefMap(intentWrapper.getIntent(), intent);
+    }
     intentWrapper = new IntentWrapper<>(self(), intent);
   }
 
   public Intent getIntent() {
     if (intentWrapper == null) {
-      setIntent(new Intent());
+      intentWrapper = new IntentWrapper<>(self(), new Intent());
     }
     return intentWrapper.getIntent();
   }
@@ -89,11 +101,18 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     } else {
       fragment.startActivity(getIntent());
     }
+    if (hasRefMap()) {
+      fragment.registerUselessReMapKey(RefManager.getKeyOfMap(getIntent()));
+    }
+  }
+
+  public boolean hasRefMap() {
+    return refMap != null;
   }
 
   public Map<String, Object> getRefMap() {
     if (refMap == null) {
-      refMap = RefManager.getInstance().getRefMap(this);
+      refMap = RefManager.getInstance().getOrCreateRefMap(this);
     }
     return refMap;
   }

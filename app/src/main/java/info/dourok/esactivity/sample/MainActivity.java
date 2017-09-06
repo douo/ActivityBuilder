@@ -42,7 +42,10 @@ public class MainActivity extends AppCompatActivity {
                     .setAction("Action", null).show();
               })
               .forText((s) -> {
-                Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + s.get(0), Toast.LENGTH_SHORT).show();
+              })
+              .forAbcd((s, s2, s3, s4) -> {
+
               })
               .text("hahah")
               .asIntent()

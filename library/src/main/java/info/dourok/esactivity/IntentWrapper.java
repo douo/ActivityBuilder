@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 
 public class IntentWrapper<T extends BaseBuilder> {
   private T baseBuilder;
-  private Intent intent;
+  private final Intent intent;
 
   public IntentWrapper(T baseBuilder, Intent intent) {
     this.baseBuilder = baseBuilder;
@@ -42,7 +44,7 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  public IntentWrapper<T> setDataAndNormalize(Uri data) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public IntentWrapper<T> setDataAndNormalize(Uri data) {
     intent.setDataAndNormalize(data);
     return this;
   }
@@ -52,7 +54,7 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  public IntentWrapper<T> setTypeAndNormalize(String type) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public IntentWrapper<T> setTypeAndNormalize(String type) {
     intent.setTypeAndNormalize(type);
     return this;
   }
@@ -62,6 +64,7 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
   public IntentWrapper<T> setDataAndTypeAndNormalize(Uri data, String type) {
     intent.setDataAndTypeAndNormalize(data, type);
     return this;
@@ -268,6 +271,4 @@ public class IntentWrapper<T extends BaseBuilder> {
     intent.setClass(packageContext, cls);
     return this;
   }
-
-
 }

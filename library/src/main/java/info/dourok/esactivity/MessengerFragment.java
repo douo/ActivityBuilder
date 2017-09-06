@@ -1,15 +1,11 @@
 package info.dourok.esactivity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
-import android.os.Build;
-import android.util.Log;
 import android.util.SparseArray;
-import java.lang.reflect.Field;
-import java.util.Optional;
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 /**
@@ -21,10 +17,28 @@ public class MessengerFragment extends Fragment {
   private static final String TAG = "MessengerFragment";
   private BiConsumer<Integer, Intent> consumer;
   private SparseArray<BaseResultConsumer<?>> consumerMap;
+  private ArrayList<Integer> uselessRefMapKeys = new ArrayList<>();
 
   public MessengerFragment() {
     consumerMap = new SparseArray<>();
     setRetainInstance(true);
+  }
+
+  @Override public void onResume() {
+    super.onResume();
+    // 清空无用的 RefMap
+    // Builder 启动 Activity 后，再回到当前 Activity。RefMap 就已经没用了
+    for (Integer key : uselessRefMapKeys) {
+      RefManager.getInstance().clearRefs(key);
+    }
+    uselessRefMapKeys.clear();
+  }
+
+  /**
+   * 注册无用的 RefMapKey，{@link MessengerFragment} 需要对无用 RefMap 进行清理
+   */
+  void registerUselessReMapKey(int keyOfMap) {
+    uselessRefMapKeys.add(keyOfMap);
   }
 
   private int addConsumer(BaseResultConsumer<?> consumer) {
@@ -41,19 +55,11 @@ public class MessengerFragment extends Fragment {
     return key;
   }
 
-  @TargetApi(Build.VERSION_CODES.N) @Override
+  @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.d(TAG, "onActivityResult:" + requestCode + " " + resultCode);
-    //try {
-    //  Field f = consumer.okConsumer.getClass().getField("arg$1");
-    //  Log.d(TAG, f.toGenericString());
-    //
-    //  //MethodHandles.Lookup lookup = MethodHandles.lookup();
-    //} catch (NoSuchFieldException e) {
-    //  e.printStackTrace();
-    //}
-    Optional.of(consumerMap.get(requestCode)).get()
-        .accept(getActivity(), resultCode, data);
+    if (consumerMap.get(requestCode) != null) {
+      consumerMap.get(requestCode).accept(getActivity(), resultCode, data);
+    }
   }
 
   public static MessengerFragment addIfNeed(Activity activity) {
