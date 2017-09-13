@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.FIELD })
 @Inherited
-public @interface ActivityParameter {
+public @interface BuilderParameter {
 
   String USE_VARIABLE_NAME = "";
 

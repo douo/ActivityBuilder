@@ -6,19 +6,17 @@ import info.dourok.compiler.generator.ConsumerGenerator;
 import info.dourok.compiler.generator.HelperGenerator;
 import info.dourok.compiler.parameter.ParameterWriter;
 import info.dourok.compiler.result.ResultModel;
-import info.dourok.esactivity.ActivityParameter;
-import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.BuilderParameter;
+import info.dourok.esactivity.Builder;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultSet;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -26,7 +24,6 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
@@ -61,7 +58,7 @@ public class ActivityProcessorFactory {
   }
 
   public boolean isEasyActivity(Element element) {
-    return element.getAnnotation(EasyActivity.class) != null
+    return element.getAnnotation(Builder.class) != null
         && element instanceof TypeElement
         && types.isSubtype(element.asType(), activity.asType());
   }
@@ -88,7 +85,7 @@ public class ActivityProcessorFactory {
       for (Element element : easyActivity.getEnclosedElements()) {
         //find parameters
         if (element.getKind() == ElementKind.FIELD) {
-          ActivityParameter activityParameter = element.getAnnotation(ActivityParameter.class);
+          BuilderParameter activityParameter = element.getAnnotation(BuilderParameter.class);
           if (activityParameter != null) {
             parameterList.add(ParameterWriter.newWriter(activityParameter,
                 (VariableElement) element));

@@ -1,7 +1,7 @@
 import android.app.Activity;
-import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.Builder;
 
-@EasyActivity
+@Builder
 public class EmptyActivity extends Activity {
 
 }

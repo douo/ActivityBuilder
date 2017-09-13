@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.function.Consumer;
@@ -182,5 +183,15 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
       refMap = RefManager.getInstance().getOrCreateRefMap(this);
     }
     return refMap;
+  }
+
+  @NonNull public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
+      Class<? extends Activity> clazz) {
+    return new ActivityBuilderImpl<>(activity, clazz);
+  }
+
+  @NonNull public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
+      Intent intent) {
+    return new ActivityBuilderImpl<>(activity, intent);
   }
 }

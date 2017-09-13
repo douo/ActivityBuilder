@@ -1,7 +1,7 @@
 package info.dourok.compiler.parameter;
 
 import com.squareup.javapoet.MethodSpec;
-import info.dourok.esactivity.ActivityParameter;
+import info.dourok.esactivity.BuilderParameter;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -70,7 +70,7 @@ public abstract class ParameterWriter {
 
   public abstract void writeSetter(MethodSpec.Builder paper);
 
-  public static ParameterWriter newWriter(ActivityParameter annotation,
+  public static ParameterWriter newWriter(BuilderParameter annotation,
       VariableElement variable) {
     return newWriter(new ParameterModel(annotation, variable));
   }

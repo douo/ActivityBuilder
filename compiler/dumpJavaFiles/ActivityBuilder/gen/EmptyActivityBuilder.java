@@ -3,7 +3,7 @@ import android.content.Intent;
 import info.dourok.esactivity.BaseActivityBuilder;
 import java.lang.Override;
 
-class EmptyActivityBuilder<A extends Activity> extends BaseActivityBuilder<EmptyActivityBuilder<A>, A> {
+public class EmptyActivityBuilder<A extends Activity> extends BaseActivityBuilder<EmptyActivityBuilder<A>, A> {
   private EmptyActivityBuilder(A activity) {
     super(activity);
     setIntent(new Intent(activity, EmptyActivity.class));

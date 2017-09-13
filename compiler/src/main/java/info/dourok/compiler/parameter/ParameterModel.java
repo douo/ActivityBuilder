@@ -1,6 +1,6 @@
 package info.dourok.compiler.parameter;
 
-import info.dourok.esactivity.ActivityParameter;
+import info.dourok.esactivity.BuilderParameter;
 import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
 import java.util.List;
@@ -30,10 +30,10 @@ public class ParameterModel {
   private TransmitType transmit;
   protected VariableElement element;
 
-  public ParameterModel(ActivityParameter annotation, VariableElement element) {
+  public ParameterModel(BuilderParameter annotation, VariableElement element) {
     this.element = element;
     name = element.getSimpleName().toString();
-    key = annotation.key().equals(ActivityParameter.USE_VARIABLE_NAME) ?
+    key = annotation.key().equals(BuilderParameter.USE_VARIABLE_NAME) ?
         getName() : annotation.key();
     keep = annotation.keep();
     type = element.asType();

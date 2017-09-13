@@ -1,7 +1,7 @@
 package info.dourok.compiler;
 
 import com.google.auto.service.AutoService;
-import info.dourok.esactivity.EasyActivity;
+import info.dourok.esactivity.Builder;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -14,7 +14,7 @@ import javax.lang.model.element.TypeElement;
 
 import static info.dourok.compiler.EasyUtils.warn;
 
-@SupportedAnnotationTypes("info.dourok.esactivity.EasyActivity")
+@SupportedAnnotationTypes("info.dourok.esactivity.Builder")
 @AutoService(Processor.class)
 public class EasyStartActivityProcessor extends AbstractProcessor {
 
@@ -31,14 +31,14 @@ public class EasyStartActivityProcessor extends AbstractProcessor {
       Set<? extends TypeElement> annotations,
       RoundEnvironment env) {
 
-    for (Element element : env.getElementsAnnotatedWith(EasyActivity.class)) {
+    for (Element element : env.getElementsAnnotatedWith(Builder.class)) {
       if (mFactory.isEasyActivity(element)) {
         ActivityProcessorFactory.ActivityProcessor processor = mFactory.create(
             (TypeElement) element);
         processor.generate();
       } else {
         warn("annotate "
-            + EasyActivity.class.getName()
+            + Builder.class.getName()
             + " to not Activity subclass make no sense!", element);
       }
     }
