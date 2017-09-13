@@ -5,7 +5,6 @@ import static com.google.testing.compile.Compiler.javac;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
-import javax.tools.JavaFileObject;
 import org.junit.Test;
 
 /**
@@ -16,13 +15,8 @@ public class EasyUtilsTest {
   public void isArrayList() throws Exception {
     Compilation compilation =
         javac()
-            .withProcessors(new EasyStartActivityProcessor())
+            .withProcessors(new ActivityBuilderProcessor())
             .compile(JavaFileObjects.forResource("ActivityBuilder/EmptyActivity.java"));
-    assertThat(compilation).generatedSourceFile("EmptyActivityBuilder")
-        .hasSourceEquivalentTo(
-            JavaFileObjects.forResource("ActivityBuilder/gen/EmptyActivityBuilder.java"));
-    assertThat(compilation).generatedSourceFile("EmptyActivityHelper")
-        .hasSourceEquivalentTo(
-            JavaFileObjects.forResource("ActivityBuilder/gen/EmptyActivityHelper.java"));
+    assertThat(compilation).succeeded();
   }
 }

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import info.dourok.esactivity.BuilderUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +27,10 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton fab = findViewById(R.id.fab);
     fab.setOnClickListener(
         view -> {
-          SampleActivityBuilder.create(this)
+          SampleActivityBuilder<MainActivity> builder =
+              BuilderUtils.smallCreate(this, SampleActivity.class);
+          builder
+              //SampleActivityBuilder.create(this)
               .forCancel(data -> {
                 Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();

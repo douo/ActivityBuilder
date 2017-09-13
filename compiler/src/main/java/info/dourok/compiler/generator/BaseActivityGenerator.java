@@ -5,16 +5,21 @@ import com.squareup.javapoet.TypeSpec;
 import info.dourok.compiler.EasyUtils;
 import java.io.IOException;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 
 /**
- * Created by tiaolins on 2017/9/13.
+ * Created by tiaolins on 2017/9/5.
  */
 
-public abstract class Generator {
-  protected PackageElement targetPackage;
-  protected TypeSpec typeSpec;
+public abstract class BaseActivityGenerator extends Generator {
+  protected TypeElement activity;
+  protected TypeElement targetActivity;
 
-  public Generator(PackageElement targetPackage) {
+  public BaseActivityGenerator(TypeElement activity, TypeElement targetActivity,
+      PackageElement targetPackage) {
+    super(targetPackage);
+    this.activity = activity;
+    this.targetActivity = targetActivity;
     this.targetPackage = targetPackage;
   }
 

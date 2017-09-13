@@ -2,6 +2,7 @@ package info.dourok.compiler;
 
 import android.app.Activity;
 import info.dourok.compiler.generator.BuilderGenerator;
+import info.dourok.compiler.generator.BuilderUtilsGenerator;
 import info.dourok.compiler.generator.ConsumerGenerator;
 import info.dourok.compiler.generator.HelperGenerator;
 import info.dourok.compiler.parameter.ParameterWriter;
@@ -43,6 +44,8 @@ public class ActivityProcessorFactory {
   private final TypeElement baseResultConsumer;
   private final TypeElement activity;
 
+  private List<TypeElement> targetActivityList;
+
   public ActivityProcessorFactory(ProcessingEnvironment processingEnvironment) {
 
     filer = processingEnvironment.getFiler();
@@ -55,6 +58,8 @@ public class ActivityProcessorFactory {
         elements.getTypeElement("info.dourok.esactivity.BaseActivityBuilder");
     baseResultConsumer =
         elements.getTypeElement("info.dourok.esactivity.BaseResultConsumer");
+
+    targetActivityList = new LinkedList<>();
   }
 
   public boolean isEasyActivity(Element element) {
@@ -64,18 +69,29 @@ public class ActivityProcessorFactory {
   }
 
   public ActivityProcessor create(TypeElement element) {
+    targetActivityList.add(element);
     return new ActivityProcessor(element);
+  }
+
+  public void generateBuilderUtil(PackageElement targetPackage) {
+    BuilderUtilsGenerator generator = new BuilderUtilsGenerator(targetActivityList, targetPackage
+        , activity, baseActivityBuilder);
+    try {
+      generator.write();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public class ActivityProcessor {
     private TypeElement targetActivity;
-    private PackageElement packageElement;
+    private PackageElement targetPackage;
     private List<ParameterWriter> parameterList;
     private List<ResultModel> resultList;
 
     public ActivityProcessor(TypeElement element) {
       targetActivity = element;
-      packageElement = elements.getPackageOf(element);
+      targetPackage = elements.getPackageOf(element);
       findAnnotations();
     }
 
@@ -99,7 +115,6 @@ public class ActivityProcessorFactory {
           }
         }
       }
-
 
       //处理直接注解于 Activity 的 Result 注解
       TypeMirror result = getElements().getTypeElement(
@@ -127,18 +142,19 @@ public class ActivityProcessorFactory {
     public void generate() {
       boolean needCustomConsumer = !resultList.isEmpty();
       ConsumerGenerator consumerGenerator = null;
-      HelperGenerator helperGenerator = new HelperGenerator(activity, targetActivity, packageElement,
-          parameterList,
-          resultList);
+      HelperGenerator helperGenerator =
+          new HelperGenerator(activity, targetActivity, targetPackage,
+              parameterList,
+              resultList);
       //需要自定义结果时，才需要子类化 BaseResultConsumer
       if (needCustomConsumer) {
         consumerGenerator =
-            new ConsumerGenerator(activity, targetActivity, packageElement, baseResultConsumer,
+            new ConsumerGenerator(activity, targetActivity, targetPackage, baseResultConsumer,
                 helperGenerator.getTypeSpec(),
                 resultList);
       }
       BuilderGenerator builderGenerator =
-          new BuilderGenerator(activity, targetActivity, packageElement,
+          new BuilderGenerator(activity, targetActivity, targetPackage,
               parameterList,
               resultList, baseActivityBuilder,
               needCustomConsumer ? consumerGenerator.getTypeSpec() : null);

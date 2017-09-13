@@ -2,6 +2,8 @@ package info.dourok.compiler;
 
 import com.google.auto.service.AutoService;
 import info.dourok.esactivity.Builder;
+import info.dourok.esactivity.BuilderUtilsPackage;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -10,13 +12,15 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
+import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.warn;
 
 @SupportedAnnotationTypes("info.dourok.esactivity.Builder")
 @AutoService(Processor.class)
-public class EasyStartActivityProcessor extends AbstractProcessor {
+public class ActivityBuilderProcessor extends AbstractProcessor {
 
   private ActivityProcessorFactory mFactory;
 
@@ -42,6 +46,12 @@ public class EasyStartActivityProcessor extends AbstractProcessor {
             + " to not Activity subclass make no sense!", element);
       }
     }
+
+    OptionalConsumer.of(
+        env.getElementsAnnotatedWith(BuilderUtilsPackage.class).stream().findFirst())
+        .ifPresent(o -> mFactory.generateBuilderUtil((PackageElement) o))
+        .ifNotPresent(() -> mFactory.generateBuilderUtil(
+            getElements().getPackageElement("info.dourok.esactivity")));
 
     return false;
   }

@@ -18,6 +18,7 @@ import info.dourok.esactivity.TransmitType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.Consumer;
+import info.dourok.esactivity.BuilderUtils;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Builder
@@ -34,14 +35,14 @@ public class SampleActivity extends AppCompatActivity {
   @BuilderParameter byte[] bytes;
   @BuilderParameter ArrayList<Integer> ids;
   @BuilderParameter(transmit = TransmitType.Ref) HashSet set;
-  SampleActivityHelper mHelper = new SampleActivityHelper();
+  SampleActivityHelper mHelper = BuilderUtils.createHelper(this);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mHelper.inject(this);
+    mHelper.inject();
     if (savedInstanceState != null) {
-      mHelper.restore(this, savedInstanceState);
+      mHelper.restore(savedInstanceState);
     }
 
     setContentView(R.layout.activity_sample);
@@ -50,23 +51,23 @@ public class SampleActivity extends AppCompatActivity {
     tv.setOnClickListener(view -> {
       ArrayList<Double> ids = new ArrayList<>();
       ids.add(0.1);
-      mHelper.finishText(this, ids);
+      mHelper.finishText(ids);
     });
   }
 
   @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
     super.onSaveInstanceState(outState, outPersistentState);
-    mHelper.save(this, outState);
+    mHelper.save(outState);
   }
 
   @Result
   public void resultText(ArrayList<Double> text) {
-    mHelper.resultText(this, text);
+    mHelper.resultText(text);
   }
 
   @Result
   public void resultAbcd(String a, String b, String c, String d) {
-    mHelper.resultAbcd(this, a, b, c, d);
+    mHelper.resultAbcd(a, b, c, d);
   }
 
   public void forWtf(Consumer<ArrayList<? super Integer>> consumer) {

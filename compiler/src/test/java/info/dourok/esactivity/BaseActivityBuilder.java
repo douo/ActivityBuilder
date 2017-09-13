@@ -17,4 +17,14 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
   }
 
   protected abstract T self();
+
+  public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
+      Class<? extends Activity> clazz) {
+    return null;
+  }
+
+  public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
+      Intent intent) {
+    return null;
+  }
 }

@@ -1,3 +1,4 @@
+package test;
 import android.app.Activity;
 import android.content.Intent;
 import info.dourok.esactivity.BaseActivityBuilder;

@@ -19,7 +19,7 @@ import javax.lang.model.element.TypeElement;
  * Created by tiaolins on 2017/9/5.
  */
 
-public class BuilderGenerator extends Generator {
+public class BuilderGenerator extends BaseActivityGenerator {
   private List<ParameterWriter> parameterList;
   private List<ResultModel> resultList;
   private final TypeElement baseActivityBuilder;
@@ -29,16 +29,16 @@ public class BuilderGenerator extends Generator {
   private final ParameterizedTypeName builderWithParameter;
 
   public BuilderGenerator(TypeElement activity, TypeElement targetActivity,
-      PackageElement activityPackage,
+      PackageElement targetPackage,
       List<ParameterWriter> parameterList,
       List<ResultModel> resultList, TypeElement baseActivityBuilder,
       TypeSpec consumer) {
-    super(activity, targetActivity, activityPackage);
+    super(activity, targetActivity, targetPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
     this.baseActivityBuilder = baseActivityBuilder;
 
-    builderClass = ClassName.get(activityPackage.getQualifiedName().toString(),
+    builderClass = ClassName.get(targetPackage.getQualifiedName().toString(),
         targetActivity.getSimpleName() + "Builder");
     builderWithParameter = ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
     this.consumer = consumer;
@@ -70,7 +70,7 @@ public class BuilderGenerator extends Generator {
 
     TypeSpec.Builder builder = TypeSpec.classBuilder(builderClass)
         .addModifiers(Modifier.PUBLIC)
-        .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
+        .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
         .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
             builderWithParameter,
             TypeVariableName.get("A")))
@@ -107,7 +107,7 @@ public class BuilderGenerator extends Generator {
 
   private MethodSpec buildGetConsumer() {
     TypeName consumerType = ParameterizedTypeName.get(
-        ClassName.get(activityPackage.getQualifiedName().toString(), consumer.name),
+        ClassName.get(targetPackage.getQualifiedName().toString(), consumer.name),
         TypeVariableName.get("A"));
 
     return MethodSpec.methodBuilder("getConsumer")

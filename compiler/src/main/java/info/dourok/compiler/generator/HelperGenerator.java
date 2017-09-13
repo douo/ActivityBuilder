@@ -20,28 +20,30 @@ import javax.lang.model.element.TypeElement;
  * Created by tiaolins on 2017/9/5.
  */
 
-public class HelperGenerator extends Generator {
+public class HelperGenerator extends BaseActivityGenerator {
   public static final String TARGET_ACTIVITY_VARIABLE_NAME = "activity";
   private List<ParameterWriter> parameterList;
   private List<ResultModel> resultList;
 
   public HelperGenerator(TypeElement activity,
       TypeElement targetActivity,
-      PackageElement activityPackage, List<ParameterWriter> parameterList,
+      PackageElement targetPackage, List<ParameterWriter> parameterList,
       List<ResultModel> resultList) {
-    super(activity, targetActivity, activityPackage);
+    super(activity, targetActivity, targetPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
   }
 
   @Override protected TypeSpec generate() {
     TypeSpec.Builder helper =
-        TypeSpec.classBuilder(ClassName.get(activityPackage.getQualifiedName().toString(),
+        TypeSpec.classBuilder(ClassName.get(targetPackage.getQualifiedName().toString(),
             targetActivity.getSimpleName() + "Helper"))
+            .addModifiers(Modifier.PUBLIC) //PUBLIC is not safe, but BuilderUtils need it.
             .addField(FieldSpec.builder(ClassName.get(targetActivity),
                 TARGET_ACTIVITY_VARIABLE_NAME,
                 Modifier.PRIVATE, Modifier.FINAL).build())
             .addMethod(MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
                 .addStatement("this.$L = $L", TARGET_ACTIVITY_VARIABLE_NAME,
                     TARGET_ACTIVITY_VARIABLE_NAME).build());
@@ -83,7 +85,7 @@ public class HelperGenerator extends Generator {
 
   private MethodSpec buildFinishWithResult(ResultModel result, MethodSpec resultSetter) {
     MethodSpec.Builder builder = MethodSpec.methodBuilder("finish" + result.getCapitalizeName());
-    StringBuilder literal = new StringBuilder(resultSetter.name).append("(activity");
+    StringBuilder literal = new StringBuilder(resultSetter.name).append("(");
     String[] names = new String[result.getParameters().size()];
     if (!result.getParameters().isEmpty()) {
       for (int i = 0; i < result.getParameters().size(); i++) {
@@ -91,11 +93,11 @@ public class HelperGenerator extends Generator {
         builder.addParameter(TypeName.get(parameter.getType()), parameter.getName());
         //FIXME 重构 parameter writer
         names[i] = parameter.getName();
-        //if (i == 0) {
-        //  literal.append("$L");
-        //} else {
-        literal.append(", $L");
-        //}
+        if (i == 0) {
+          literal.append("$L");
+        } else {
+          literal.append(", $L");
+        }
       }
     }
     literal.append(")");

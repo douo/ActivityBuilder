@@ -23,7 +23,7 @@ import javax.lang.model.element.TypeElement;
  * Created by tiaolins on 2017/9/5.
  */
 
-public class ConsumerGenerator extends Generator {
+public class ConsumerGenerator extends BaseActivityGenerator {
 
   private TypeElement baseResultConsumer;
 
@@ -32,10 +32,10 @@ public class ConsumerGenerator extends Generator {
   private TypeSpec helper;
 
   public ConsumerGenerator(TypeElement activity, TypeElement targetActivity,
-      PackageElement activityPackage, TypeElement baseResultConsumer,
+      PackageElement targetPackage, TypeElement baseResultConsumer,
       TypeSpec helper,
       List<ResultModel> resultList) {
-    super(activity, targetActivity, activityPackage);
+    super(activity, targetActivity, targetPackage);
     this.baseResultConsumer = baseResultConsumer;
     this.resultList = resultList;
     this.helper = helper;
@@ -43,8 +43,8 @@ public class ConsumerGenerator extends Generator {
 
   @Override
   public void write() throws IOException {
-    JavaFile.builder(activityPackage.getQualifiedName().toString(), getTypeSpec())
-        .addStaticImport(ClassName.get(activityPackage.getQualifiedName().toString(),
+    JavaFile.builder(targetPackage.getQualifiedName().toString(), getTypeSpec())
+        .addStaticImport(ClassName.get(targetPackage.getQualifiedName().toString(),
             helper.name), "*")
         .build()
         .writeTo(EasyUtils.getFiler());
@@ -53,7 +53,7 @@ public class ConsumerGenerator extends Generator {
   @Override
   protected TypeSpec generate() {
     TypeSpec.Builder consumer =
-        TypeSpec.classBuilder(ClassName.get(activityPackage.getQualifiedName().toString(),
+        TypeSpec.classBuilder(ClassName.get(targetPackage.getQualifiedName().toString(),
             targetActivity.getSimpleName() + "Consumer"))
             .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
             .superclass(ParameterizedTypeName.get(ClassName.get(baseResultConsumer),
