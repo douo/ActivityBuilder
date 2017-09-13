@@ -1,5 +1,5 @@
 apply plugin: 'java-library'
-
+apply plugin: 'project-report'
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation project(':annotations')
@@ -7,6 +7,17 @@ dependencies {
   implementation 'com.squareup:javapoet:1.9.0'
   implementation 'com.google.auto.service:auto-service:1.0-rc3'
   implementation 'com.google.android:android:4.1.1.4'
+  implementation 'com.google.guava:guava:23.0-android'
+  testImplementation "com.google.truth:truth:0.35"
+  testImplementation 'com.google.testing.compile:compile-testing:0.11'
+}
+
+sourceSets{
+  test {
+    resources {
+      srcDir 'dumpJavaFiles'
+    }
+  }
 }
 
 sourceCompatibility = "1.8"
