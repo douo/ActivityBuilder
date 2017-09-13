@@ -2,14 +2,14 @@ package info.dourok.esactivity;
 
 import android.app.Activity;
 import android.content.Intent;
-import test.EmptyActivityBuilder;
-import test.EmptyActivityHelper;
-import test.EmptyActivity;
 import java.lang.Class;
 import java.lang.IllegalAccessException;
 import java.lang.NoSuchMethodException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import test.EmptyActivity;
+import test.EmptyActivityBuilder;
+import test.EmptyActivityHelper;
 
 public class BuilderUtils {
   private static final HashMap<Class<? extends Activity>, Class<? extends BaseActivityBuilder>> sBuilderMap = new HashMap<>();

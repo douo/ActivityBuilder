@@ -3,10 +3,10 @@ package test;
 import android.content.Intent;
 import android.os.Bundle;
 
-class EmptyActivityHelper {
+public class EmptyActivityHelper {
   private final EmptyActivity activity;
 
-  EmptyActivityHelper(EmptyActivity activity) {
+  public EmptyActivityHelper(EmptyActivity activity) {
     this.activity = activity;
   }
 
