@@ -69,6 +69,7 @@ public class BuilderGenerator extends Generator {
         .build();
 
     TypeSpec.Builder builder = TypeSpec.classBuilder(builderClass)
+        .addModifiers(Modifier.PUBLIC)
         .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
         .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
             builderWithParameter,
