@@ -77,7 +77,6 @@ public class ResultModel {
     // 注解 返回 AnnotationMirror
     //
     this.name = (String) result.getElementValues().get(name).getValue();
-    log(this.name);
     AnnotationValue ps = result.getElementValues().get(parameters);
     List list = (List) ps.getValue();
     this.parameters = new ArrayList<>(list.size());
