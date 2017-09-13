@@ -19,6 +19,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
+import static info.dourok.compiler.EasyUtils.error;
+
 /**
  * Created by tiaolins on 2017/9/5.
  */
@@ -83,7 +85,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
         consumer.addField(buildField(result));
       } catch (IOException e) {
         //TODO 生成 consumer 接口失败
-        e.printStackTrace();
+        error("create consumer failed:" + e.getMessage());
       }
       consumer.addMethod(buildResultProcessor(result));
 
@@ -114,7 +116,8 @@ public class ConsumerGenerator extends BaseActivityGenerator {
         .addParameter(Intent.class, "intent")
         .beginControlFlow("if($L != null)", result.getConsumerName());
     if (!result.getParameters().isEmpty()) {
-      StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(activity");
+      StringBuilder literal =
+          new StringBuilder(result.getConsumerName()).append(".accept(activity");
       String[] names = new String[result.getParameters().size()];
       for (int i = 0; i < result.getParameters().size(); i++) {
         ParameterModel parameter = result.getParameters().get(i);

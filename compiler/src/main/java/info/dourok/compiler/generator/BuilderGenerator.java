@@ -15,6 +15,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
+import static info.dourok.compiler.EasyUtils.error;
+
 /**
  * Created by tiaolins on 2017/9/5.
  */
@@ -96,8 +98,7 @@ public class BuilderGenerator extends BaseActivityGenerator {
           builder.addMethod(buildResultCallback(resultModel));
           builder.addMethod(buildResultCallbackWithContext(resultModel));
         } catch (IOException e) {
-          e.printStackTrace();
-          //FIXME
+          error("create builder consumer failed:" + e.getMessage());
         }
       });
     }
