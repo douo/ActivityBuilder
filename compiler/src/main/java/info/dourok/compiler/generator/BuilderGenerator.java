@@ -28,18 +28,18 @@ public class BuilderGenerator extends Generator {
   private final ClassName builderClass;
   private final ParameterizedTypeName builderWithParameter;
 
-  public BuilderGenerator(TypeElement activity, TypeElement easyActivity,
+  public BuilderGenerator(TypeElement activity, TypeElement targetActivity,
       PackageElement activityPackage,
       List<ParameterWriter> parameterList,
       List<ResultModel> resultList, TypeElement baseActivityBuilder,
       TypeSpec consumer) {
-    super(activity, easyActivity, activityPackage);
+    super(activity, targetActivity, activityPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
     this.baseActivityBuilder = baseActivityBuilder;
 
     builderClass = ClassName.get(activityPackage.getQualifiedName().toString(),
-        easyActivity.getSimpleName() + "Builder");
+        targetActivity.getSimpleName() + "Builder");
     builderWithParameter = ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
     this.consumer = consumer;
   }
@@ -50,7 +50,7 @@ public class BuilderGenerator extends Generator {
         .addModifiers(Modifier.PRIVATE)
         .addParameter(TypeVariableName.get("A"), "activity")
         .addStatement("super($L)", "activity")
-        .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", easyActivity)
+        .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", targetActivity)
         .build();
 
     MethodSpec create = MethodSpec.methodBuilder("create")

@@ -68,13 +68,13 @@ public class ActivityProcessorFactory {
   }
 
   public class ActivityProcessor {
-    private TypeElement easyActivity;
+    private TypeElement targetActivity;
     private PackageElement packageElement;
     private List<ParameterWriter> parameterList;
     private List<ResultModel> resultList;
 
     public ActivityProcessor(TypeElement element) {
-      easyActivity = element;
+      targetActivity = element;
       packageElement = elements.getPackageOf(element);
       findAnnotations();
     }
@@ -82,7 +82,7 @@ public class ActivityProcessorFactory {
     private void findAnnotations() {
       parameterList = new LinkedList<>();
       resultList = new LinkedList<>();
-      for (Element element : easyActivity.getEnclosedElements()) {
+      for (Element element : targetActivity.getEnclosedElements()) {
         //find parameters
         if (element.getKind() == ElementKind.FIELD) {
           BuilderParameter activityParameter = element.getAnnotation(BuilderParameter.class);
@@ -107,7 +107,7 @@ public class ActivityProcessorFactory {
       TypeMirror resultSet = getElements().getTypeElement(
           ResultSet.class.getName()).asType();
 
-      for (AnnotationMirror annotationMirror : easyActivity.getAnnotationMirrors()) {
+      for (AnnotationMirror annotationMirror : targetActivity.getAnnotationMirrors()) {
         if (annotationMirror.getAnnotationType().equals(result)) {
           resultList.add(new ResultModel(annotationMirror));
         }
@@ -127,18 +127,18 @@ public class ActivityProcessorFactory {
     public void generate() {
       boolean needCustomConsumer = !resultList.isEmpty();
       ConsumerGenerator consumerGenerator = null;
-      HelperGenerator helperGenerator = new HelperGenerator(activity, easyActivity, packageElement,
+      HelperGenerator helperGenerator = new HelperGenerator(activity, targetActivity, packageElement,
           parameterList,
           resultList);
       //需要自定义结果时，才需要子类化 BaseResultConsumer
       if (needCustomConsumer) {
         consumerGenerator =
-            new ConsumerGenerator(activity, easyActivity, packageElement, baseResultConsumer,
+            new ConsumerGenerator(activity, targetActivity, packageElement, baseResultConsumer,
                 helperGenerator.getTypeSpec(),
                 resultList);
       }
       BuilderGenerator builderGenerator =
-          new BuilderGenerator(activity, easyActivity, packageElement,
+          new BuilderGenerator(activity, targetActivity, packageElement,
               parameterList,
               resultList, baseActivityBuilder,
               needCustomConsumer ? consumerGenerator.getTypeSpec() : null);

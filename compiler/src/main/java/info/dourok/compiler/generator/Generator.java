@@ -13,14 +13,14 @@ import javax.lang.model.element.TypeElement;
 
 public abstract class Generator {
   protected TypeElement activity;
-  protected TypeElement easyActivity;
+  protected TypeElement targetActivity;
   protected PackageElement activityPackage;
   protected TypeSpec typeSpec;
 
-  public Generator(TypeElement activity, TypeElement easyActivity,
+  public Generator(TypeElement activity, TypeElement targetActivity,
       PackageElement activityPackage) {
     this.activity = activity;
-    this.easyActivity = easyActivity;
+    this.targetActivity = targetActivity;
     this.activityPackage = activityPackage;
   }
 

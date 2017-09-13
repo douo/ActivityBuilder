@@ -31,11 +31,11 @@ public class ConsumerGenerator extends Generator {
 
   private TypeSpec helper;
 
-  public ConsumerGenerator(TypeElement activity, TypeElement easyActivity,
+  public ConsumerGenerator(TypeElement activity, TypeElement targetActivity,
       PackageElement activityPackage, TypeElement baseResultConsumer,
       TypeSpec helper,
       List<ResultModel> resultList) {
-    super(activity, easyActivity, activityPackage);
+    super(activity, targetActivity, activityPackage);
     this.baseResultConsumer = baseResultConsumer;
     this.resultList = resultList;
     this.helper = helper;
@@ -54,7 +54,7 @@ public class ConsumerGenerator extends Generator {
   protected TypeSpec generate() {
     TypeSpec.Builder consumer =
         TypeSpec.classBuilder(ClassName.get(activityPackage.getQualifiedName().toString(),
-            easyActivity.getSimpleName() + "Consumer"))
+            targetActivity.getSimpleName() + "Consumer"))
             .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
             .superclass(ParameterizedTypeName.get(ClassName.get(baseResultConsumer),
                 TypeVariableName.get("A")));

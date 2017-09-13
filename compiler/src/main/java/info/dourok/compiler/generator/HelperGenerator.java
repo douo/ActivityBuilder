@@ -21,14 +21,15 @@ import javax.lang.model.element.TypeElement;
  */
 
 public class HelperGenerator extends Generator {
+  public static final String TARGET_ACTIVITY_VARIABLE_NAME = "activity";
   private List<ParameterWriter> parameterList;
   private List<ResultModel> resultList;
 
   public HelperGenerator(TypeElement activity,
-      TypeElement easyActivity,
+      TypeElement targetActivity,
       PackageElement activityPackage, List<ParameterWriter> parameterList,
       List<ResultModel> resultList) {
-    super(activity, easyActivity, activityPackage);
+    super(activity, targetActivity, activityPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
   }
@@ -36,25 +37,29 @@ public class HelperGenerator extends Generator {
   @Override protected TypeSpec generate() {
     TypeSpec.Builder helper =
         TypeSpec.classBuilder(ClassName.get(activityPackage.getQualifiedName().toString(),
-            easyActivity.getSimpleName() + "Helper"))
-            .addModifiers(Modifier.PUBLIC);
+            targetActivity.getSimpleName() + "Helper"))
+            .addField(FieldSpec.builder(ClassName.get(targetActivity),
+                TARGET_ACTIVITY_VARIABLE_NAME,
+                Modifier.PRIVATE, Modifier.FINAL).build())
+            .addMethod(MethodSpec.constructorBuilder()
+                .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
+                .addStatement("this.$L = $L", TARGET_ACTIVITY_VARIABLE_NAME,
+                    TARGET_ACTIVITY_VARIABLE_NAME).build());
 
     MethodSpec.Builder helperInject = MethodSpec.methodBuilder("inject")
-        .addParameter(ClassName.get(easyActivity), "activity")
-        .addStatement("$T intent = $L.getIntent()", Intent.class, "activity");
+        .addStatement("$T intent = $L.getIntent()", Intent.class, TARGET_ACTIVITY_VARIABLE_NAME);
 
     MethodSpec.Builder helperRestore = MethodSpec.methodBuilder("restore")
-        .addParameter(ClassName.get(easyActivity), "activity")
         .addParameter(Bundle.class, "savedInstanceState");
 
     MethodSpec.Builder helperSave = MethodSpec.methodBuilder("save")
-        .addParameter(ClassName.get(easyActivity), "activity")
         .addParameter(Bundle.class, "savedInstanceState");
 
     for (ParameterWriter parameterWriter : parameterList) {
-      parameterWriter.writeInjectActivity(helperInject, "activity");
-      parameterWriter.writeRestore(helperRestore, "activity", "savedInstanceState");
-      parameterWriter.writeSave(helperSave, "activity", "savedInstanceState");
+      parameterWriter.writeInjectActivity(helperInject, TARGET_ACTIVITY_VARIABLE_NAME);
+      parameterWriter.writeRestore(helperRestore, TARGET_ACTIVITY_VARIABLE_NAME,
+          "savedInstanceState");
+      parameterWriter.writeSave(helperSave, TARGET_ACTIVITY_VARIABLE_NAME, "savedInstanceState");
     }
 
     for (int i = 0; i < resultList.size(); i++) {
@@ -77,8 +82,7 @@ public class HelperGenerator extends Generator {
   }
 
   private MethodSpec buildFinishWithResult(ResultModel result, MethodSpec resultSetter) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("finish" + result.getCapitalizeName())
-        .addParameter(ClassName.get(easyActivity), "activity");
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("finish" + result.getCapitalizeName());
     StringBuilder literal = new StringBuilder(resultSetter.name).append("(activity");
     String[] names = new String[result.getParameters().size()];
     if (!result.getParameters().isEmpty()) {
@@ -101,8 +105,7 @@ public class HelperGenerator extends Generator {
   }
 
   private MethodSpec buildResultSetter(ResultModel result) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("result" + result.getCapitalizeName())
-        .addParameter(ClassName.get(easyActivity), "activity");
+    MethodSpec.Builder builder = MethodSpec.methodBuilder("result" + result.getCapitalizeName());
     if (!result.getParameters().isEmpty()) {
       builder.addStatement("$T intent = new $T()", Intent.class, Intent.class);
       for (int i = 0; i < result.getParameters().size(); i++) {
