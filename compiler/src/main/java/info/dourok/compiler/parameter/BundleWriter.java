@@ -212,10 +212,13 @@ class BundleWriter extends ParameterWriter {
       case BOOLEAN:
         return "false";
       case BYTE:
+        return "(byte)0";
       case SHORT:
+        return "(short)0";
+      case CHAR:
+        return "(char)0";
       case INT:
       case LONG:
-      case CHAR:
         return "0";
       case FLOAT:
         return ".0f";

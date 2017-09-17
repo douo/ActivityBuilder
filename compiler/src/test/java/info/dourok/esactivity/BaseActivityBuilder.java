@@ -12,6 +12,10 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
   public void setIntent(Intent intent) {
   }
 
+  public Intent getIntent() {
+    return null;
+  }
+
   protected BaseResultConsumer<A> getConsumer() {
     return null;
   }

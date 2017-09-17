@@ -1,5 +1,6 @@
-apply plugin: 'java-library'
-apply plugin: 'project-report'
+//apply plugin: 'java'
+apply plugin: 'groovy'
+
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation project(':annotations')
@@ -10,6 +11,31 @@ dependencies {
   implementation 'com.google.guava:guava:23.0-android'
   testImplementation "com.google.truth:truth:0.35"
   testImplementation 'com.google.testing.compile:compile-testing:0.11'
+  testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
+  testImplementation('org.spockframework:spock-core:1.1-groovy-2.4')
+
+  // 见 https://github.com/google/compile-testing/issues/28
+  testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+
+  //很奇怪，跑测试的时候 IDE 不会把 groovy 的测试文件加入 classpath。导致出现：class not found: xxx empty test suite
+  //IDE: Android Studio 3.0 Beta 5
+  testRuntimeOnly files("build/classes/groovy/test")
+
+  // 通过 run gradle task 窗口，运行测试任务的时候，会报错
+  // Information:Gradle tasks [test]
+  // Error:Failed to complete Gradle execution. Cause: unknown.
+
+  // 看了下实际执行的任务，不是 gradle 插件的任务，而是 java 的
+  /*
+     :annotations:compileJava UP-TO-DATE
+     :annotations:processResources NO-SOURCE
+     :annotations:classes UP-TO-DATE
+     :annotations:compileTestJava NO-SOURCE
+     :annotations:processTestResources NO-SOURCE
+     :annotations:testClasses UP-TO-DATE
+     :annotations:test
+   */
+   // 在命令行执行则不会有问题
 }
 
 sourceSets {
