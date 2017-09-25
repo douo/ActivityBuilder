@@ -31,6 +31,7 @@ public class SampleActivity extends AppCompatActivity {
   @BuilderParameter(key = "wtf", keep = true, transmit = TransmitType.Ref)
   String text;
   @BuilderParameter float f;
+  @BuilderParameter byte b;
   @BuilderParameter Double dd;
   @BuilderParameter byte[] bytes;
   @BuilderParameter ArrayList<Integer> ids;

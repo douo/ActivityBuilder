@@ -140,7 +140,7 @@ class BundleWriter extends ParameterWriter {
     } else {
       if (isSubTypeOfParcelableOrSerializable()) {
         paper.addStatement("$L.$L =($T) intent.get$LExtra($S)", activityName,
-            getName(), parameter,
+            getName(), parameter.getType(),
             prefix,
             getKey());
       } else {

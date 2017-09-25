@@ -2,6 +2,9 @@ package info.dourok.compiler
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import com.google.common.collect.ImmutableList
@@ -11,6 +14,8 @@ import info.dourok.esactivity.Builder
 import info.dourok.esactivity.BuilderParameter
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.security.Key
 
 import static com.google.common.truth.Truth.assert_
 import static info.dourok.compiler.MockJavaObjects.full
@@ -50,7 +55,10 @@ final class BuilderParameterSpec extends Specification {
     JavaFileObjects.forSourceString("com.example.EmptyActivityBuilder",
         """
             package com.example;
-            ${buildImports("info.dourok.esactivity.BaseActivityBuilder", Activity,Intent, Override, *imports)}
+            ${
+          buildImports("info.dourok.esactivity.BaseActivityBuilder", Activity, Intent, Override,
+              *imports)
+        }
             public class EmptyActivityBuilder<A extends Activity> extends BaseActivityBuilder<EmptyActivityBuilder<A>, A> {
                  
                  private EmptyActivityBuilder(A activity) {
@@ -74,13 +82,11 @@ final class BuilderParameterSpec extends Specification {
             """)
   }
 
-  def helperSource(getter) {
+  def helperSource(getter, imports = []) {
     JavaFileObjects.forSourceString("com.example.EmptyActivityHelper",
         """
                package com.example;
-               import android.content.Intent;
-               import android.os.Bundle;
-               
+${buildImports(Intent, Bundle, *imports)}               
                public class EmptyActivityHelper {
                  private final EmptyActivity activity;
                
@@ -205,5 +211,33 @@ final class BuilderParameterSpec extends Specification {
     "ArrayList<CharSequence>" | [ArrayList, CharSequence] | "list"
     "ArrayList<Parcelable>"   | [ArrayList, Parcelable]   | "list"
     "ArrayList<Integer>"      | [ArrayList, Integer]      | "list"
+  }
+
+  @Unroll
+  def "activity with 1 builder parameter #paramType implementation of #itf"() {
+    given:
+    // import order isn't matter, but compile-testing comparing each line
+    def input = inputSource(paramType, imports)
+    def builder = builderSource(paramType, imports)
+    def helper = helperSource("(${paramType}) intent.get${itf}Extra(\"val\")", imports)
+
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(ImmutableList.copyOf(full(input)))
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder)
+        .and()
+        .generatesSources(helper)
+
+
+    where:
+    paramType | imports  | itf
+    "Bitmap"  | [Bitmap] | "Parcelable"
+    "Rect"  | [Rect]     | "Parcelable"
+    "Uri"  | [Uri]       | "Parcelable"
+    "Key"  | [Key]       | "Serializable"
   }
 }

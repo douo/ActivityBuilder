@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         view -> {
           SampleActivityBuilder<MainActivity> builder =
               BuilderUtils.smallCreate(this, SampleActivity.class);
+
           builder
               //SampleActivityBuilder.create(this)
               .forCancel(data -> {
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
               })
               .text("hahah")
               .asIntent()
+              .putExtras()
               .asBuilder()
               .start();
         });
