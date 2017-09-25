@@ -71,8 +71,7 @@ public class ParameterModel {
         annotationMirror.getElementValues();
     this.name = (String) map.get(name).getValue();
     this.type = (TypeMirror) map.get(type).getValue();
-    AnnotationValue transmitValue =
-        ((AnnotationValue) map.get(transmit));
+    AnnotationValue transmitValue = map.get(transmit);
     this.transmit = transmitValue == null ? TransmitType.Auto
         : TransmitType.valueOf(transmitValue.getValue().toString());
   }

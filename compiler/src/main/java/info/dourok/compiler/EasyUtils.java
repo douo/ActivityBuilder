@@ -1,5 +1,6 @@
 package info.dourok.compiler;
 
+import android.os.Bundle;
 import android.os.Parcelable;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class EasyUtils {
   private Elements elements;
   private TypeMirror string;
   private TypeMirror charSequence;
+  private TypeMirror bundle;
   private TypeMirror arrayList;
   private TypeMirror parcelable;
   private TypeMirror serializable;
@@ -44,6 +46,7 @@ public class EasyUtils {
 
     string = elements.getTypeElement(String.class.getName()).asType();
     charSequence = elements.getTypeElement(CharSequence.class.getName()).asType();
+    bundle = elements.getTypeElement(Bundle.class.getName()).asType();
     arrayList = elements.getTypeElement(ArrayList.class.getName()).asType();
     parcelable = elements.getTypeElement(Parcelable.class.getName()).asType();
     serializable = elements.getTypeElement(Serializable.class.getName()).asType();
@@ -65,11 +68,18 @@ public class EasyUtils {
     return instance.types.isSameType(mirror, instance.charSequence);
   }
 
+  public static boolean isBundle(TypeMirror mirror) {
+    return instance.types.isSameType(mirror, instance.bundle);
+  }
+
   public static boolean isArrayList(TypeMirror mirror) {
     //XXX 类型擦除后的 ArrayList<T> 类不能等价于 ArrayList，所以不能用 isSame 判断
     return instance.types.isAssignable(getTypes().erasure(mirror), instance.arrayList);
   }
 
+  /**
+   * @param same 是 Parcelable 本身，还是 Parcelable 的子类
+   */
   public static boolean isParcelable(TypeMirror mirror, boolean same) {
     if (same) {
       return instance.types.isSameType(mirror, instance.parcelable);

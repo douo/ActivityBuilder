@@ -14,6 +14,7 @@ import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getTypes;
 import static info.dourok.compiler.EasyUtils.isArrayList;
+import static info.dourok.compiler.EasyUtils.isBundle;
 import static info.dourok.compiler.EasyUtils.isCharSequence;
 import static info.dourok.compiler.EasyUtils.isParcelable;
 import static info.dourok.compiler.EasyUtils.isSerializable;
@@ -82,6 +83,8 @@ class BundleWriter extends ParameterWriter {
           prefix = "String";
         } else if (isCharSequence(declaredType)) {
           prefix = "CharSequence";
+        } else if (isBundle(declaredType)) {
+          prefix = "Bundle";
         } else if (isParcelable(declaredType, false)) {
           prefix = "Parcelable";
         }
