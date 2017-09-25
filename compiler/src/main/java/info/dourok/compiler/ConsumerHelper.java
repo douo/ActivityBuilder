@@ -1,6 +1,5 @@
 package info.dourok.compiler;
 
-import android.util.SparseArray;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -9,9 +8,6 @@ import com.squareup.javapoet.TypeVariableName;
 import java.io.IOException;
 import java.util.HashMap;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
-
-import static info.dourok.compiler.EasyUtils.log;
 
 /**
  * Created by tiaolins on 2017/9/5.

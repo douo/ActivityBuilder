@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 //apply plugin: 'java'
 apply plugin: 'groovy'
 
@@ -15,7 +17,7 @@ dependencies {
   testImplementation('org.spockframework:spock-core:1.1-groovy-2.4')
 
   // 见 https://github.com/google/compile-testing/issues/28
-  testImplementation files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+  testImplementation files(Jvm.current().getToolsJar())
 
   //很奇怪，跑测试的时候 IDE 不会把 groovy 的测试文件加入 classpath。导致出现：class not found: xxx empty test suite
   //IDE: Android Studio 3.0 Beta 5
@@ -38,13 +40,6 @@ dependencies {
    // 在命令行执行则不会有问题
 }
 
-sourceSets {
-  test {
-    resources {
-      srcDir 'dumpJavaFiles'
-    }
-  }
-}
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"

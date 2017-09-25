@@ -2,6 +2,7 @@ package info.dourok.compiler;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
+import static info.dourok.compiler.MockJavaObjects.full;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
@@ -16,7 +17,8 @@ public class ActivityBuilderTest {
     Compilation compilation =
         javac()
             .withProcessors(new ActivityBuilderProcessor())
-            .compile(JavaFileObjects.forResource("ActivityBuilder/emptyActivity/EmptyActivity.java"));
+            .compile(full(
+                JavaFileObjects.forResource("ActivityBuilder/emptyActivity/EmptyActivity.java")));
     assertThat(compilation).succeeded();
     assertThat(compilation).generatedSourceFile("test/EmptyActivityBuilder")
         .hasSourceEquivalentTo(
