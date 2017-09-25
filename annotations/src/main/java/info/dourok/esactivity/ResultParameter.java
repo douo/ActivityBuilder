@@ -1,7 +1,5 @@
 package info.dourok.esactivity;
 
-import java.lang.reflect.Type;
-
 /**
  * 结果的参数
  * Created by tiaolins on 2017/9/1.
@@ -19,5 +17,5 @@ public @interface ResultParameter {
    */
   Class<?> type();
 
-  TransmitType transmit() default TransmitType.Auto;
+  TransmitType transmit() default TransmitType.AUTO;
 }

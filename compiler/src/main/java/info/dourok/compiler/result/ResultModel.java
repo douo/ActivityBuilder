@@ -18,7 +18,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 
 import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.error;
@@ -52,7 +51,7 @@ public class ResultModel {
     parameters = new ArrayList<>(variableElements.size());
     for (VariableElement variableElement : variableElements) {
       parameters.add(
-          new ParameterModel(variableElement, TransmitType.Auto));
+          new ParameterModel(variableElement, TransmitType.AUTO));
     }
   }
 

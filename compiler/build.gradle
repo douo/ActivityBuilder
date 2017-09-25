@@ -15,6 +15,7 @@ dependencies {
   testImplementation 'com.google.testing.compile:compile-testing:0.11'
   testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
   testImplementation('org.spockframework:spock-core:1.1-groovy-2.4')
+  testImplementation 'com.nagternal:spock-genesis:0.6.0'
 
   // 见 https://github.com/google/compile-testing/issues/28
   testImplementation files(Jvm.current().getToolsJar())
@@ -37,7 +38,7 @@ dependencies {
      :annotations:testClasses UP-TO-DATE
      :annotations:test
    */
-   // 在命令行执行则不会有问题
+  // 在命令行执行则不会有问题
 }
 
 

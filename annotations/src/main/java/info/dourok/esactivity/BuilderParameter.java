@@ -22,7 +22,7 @@ public @interface BuilderParameter {
    */
   String key() default USE_VARIABLE_NAME;
 
-  TransmitType transmit() default TransmitType.Auto;
+  TransmitType transmit() default TransmitType.AUTO;
   /**
    * 参数声明为 Keep 会在 restore 和 helper 中生成代码，用于 Activity#onSaveInstanceState
    */

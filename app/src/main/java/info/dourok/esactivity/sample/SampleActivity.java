@@ -28,14 +28,14 @@ import info.dourok.esactivity.BuilderUtils;
 })
 public class SampleActivity extends AppCompatActivity {
 
-  @BuilderParameter(key = "wtf", keep = true, transmit = TransmitType.Ref)
+  @BuilderParameter(key = "wtf", keep = true, transmit = TransmitType.REF)
   String text;
   @BuilderParameter float f;
   @BuilderParameter byte b;
   @BuilderParameter Double dd;
   @BuilderParameter byte[] bytes;
   @BuilderParameter ArrayList<Integer> ids;
-  @BuilderParameter(transmit = TransmitType.Ref) HashSet set;
+  @BuilderParameter(transmit = TransmitType.REF) HashSet set;
   SampleActivityHelper mHelper = BuilderUtils.createHelper(this);
 
   @Override

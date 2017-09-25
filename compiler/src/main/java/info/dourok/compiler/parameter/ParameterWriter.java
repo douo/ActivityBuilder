@@ -77,9 +77,9 @@ public abstract class ParameterWriter {
 
   public static ParameterWriter newWriter(ParameterModel parameter) {
     switch (parameter.getTransmit()) {
-      case Ref:
+      case REF:
         return new RefWriter(parameter);
-      case Auto:
+      case AUTO:
         String prefix =
             BundleWriter.generatePrefix(parameter.getType(), ParameterWriter.TYPE_UNKNOWN);
         if (prefix != null) {
@@ -87,9 +87,7 @@ public abstract class ParameterWriter {
         } else {
           return new RefWriter(parameter);
         }
-      case Bundle:
-        return new BundleWriter(parameter);
-      case UnsafeCopy:
+      case UNSAFE:
         return null; //TODO
       default:
         return null;

@@ -12,6 +12,8 @@ import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import info.dourok.esactivity.Builder
 import info.dourok.esactivity.BuilderParameter
+import info.dourok.esactivity.TransmitType
+import spock.genesis.Gen
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -38,14 +40,14 @@ final class BuilderParameterSpec extends Specification {
         .join("\n")
   }
 
-  def inputSource(paramType, imports = []) {
+  def inputSource(paramType, imports = [], annotation = "@BuilderParameter") {
     JavaFileObjects.forSourceString("com.example.EmptyActivity",
         """
             package com.example;
             ${buildImports(Activity, Builder, BuilderParameter, *imports)}
             @Builder
             public class EmptyActivity extends Activity {
-            @BuilderParameter ${paramType} val;
+            ${annotation} ${paramType} val;
             }
             """)
   }
@@ -82,7 +84,7 @@ final class BuilderParameterSpec extends Specification {
             """)
   }
 
-  def helperSource(getter, imports = []) {
+  def helperSource(getter, imports = [], restore = "", save = "") {
     JavaFileObjects.forSourceString("com.example.EmptyActivityHelper",
         """
                package com.example;
@@ -100,9 +102,11 @@ ${buildImports(Intent, Bundle, *imports)}
                  }
                
                  void restore(Bundle savedInstanceState) {
+                   ${restore}
                  }
                
                  void save(Bundle savedInstanceState) {
+                   ${save}
                  }
                }
                """)
@@ -216,7 +220,6 @@ ${buildImports(Intent, Bundle, *imports)}
   @Unroll
   def "activity with 1 builder parameter #paramType implementation of #itf"() {
     given:
-    // import order isn't matter, but compile-testing comparing each line
     def input = inputSource(paramType, imports)
     def builder = builderSource(paramType, imports)
     def helper = helperSource("(${paramType}) intent.get${itf}Extra(\"val\")", imports)
@@ -236,8 +239,85 @@ ${buildImports(Intent, Bundle, *imports)}
     where:
     paramType | imports  | itf
     "Bitmap"  | [Bitmap] | "Parcelable"
-    "Rect"  | [Rect]     | "Parcelable"
-    "Uri"  | [Uri]       | "Parcelable"
-    "Key"  | [Key]       | "Serializable"
+    "Rect"    | [Rect]   | "Parcelable"
+    "Uri"     | [Uri]    | "Parcelable"
+    "Key"     | [Key]    | "Serializable"
+  }
+
+  def "activity with 1 builder parameter with custom key"() {
+    given:
+    def paramType = "int"
+    def input = inputSource(paramType, [], "@BuilderParameter(key = \"${key}\")")
+    def builder = builderSource(paramType, [], "getIntent().putExtra(\"${key}\",val);")
+    def helper = helperSource(
+        "intent.get${paramType.capitalize()}Extra(\"${key}\",${getDefaultValue(paramType)})",
+        [])
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(ImmutableList.copyOf(full(input)))
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder)
+        .and()
+        .generatesSources(helper)
+
+    where:
+    //生成一些非 " 和 \ 的字符
+    //本来应该生成些 unicode 字符 https://github.com/mifmif/Generex 有 bug [^\\x00-\\x19] 这样的形式不能支持
+    key << Gen.string(~'[#-\\[^-~]*').take(5)
+  }
+
+  @Unroll
+  def "#paramType with keep"() {
+    given:
+    def input = inputSource(paramType, [TransmitType, *imports],
+        "@BuilderParameter(keep = true)")
+    def builder = builderSource(paramType, imports, setter)
+    def helper = helperSource(getter, helperImports, restore, save)
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(ImmutableList.copyOf(full(input)))
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder)
+        .and()
+        .generatesSources(helper)
+    where:
+    paramType | imports  | helperImports                         | getter                                           | setter                               | restore                                                 | save
+    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | "activity.val = savedInstanceState.getString(\"val\");" | "savedInstanceState.putString(\"val\",activity.val);"
+    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | ""                                                      | ""
+  }
+
+  @Unroll
+  def "#paramType with #transmit should using #setter"() {
+    given:
+    def input = inputSource(paramType, [TransmitType, *imports],
+        "@BuilderParameter(transmit = ${transmit})")
+    def builder = builderSource(paramType, imports, setter)
+    def helper = helperSource(getter, helperImports)
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(ImmutableList.copyOf(full(input)))
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder)
+        .and()
+        .generatesSources(helper)
+
+    where:
+    paramType | imports  | helperImports                         | getter                                           | setter                               | transmit
+    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | "TransmitType.AUTO"
+    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.AUTO"
+    "String"  | [String] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.REF"
+  }
+
+  def "activity with multi builder parameter"(){
+     //TODO
   }
 }

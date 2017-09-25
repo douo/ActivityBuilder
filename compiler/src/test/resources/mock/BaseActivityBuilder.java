@@ -2,6 +2,7 @@ package info.dourok.esactivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import java.util.Map;
 
 public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity> {
 
@@ -29,6 +30,10 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
 
   public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
       Intent intent) {
+    return null;
+  }
+
+  public Map<String, Object> getRefMap() {
     return null;
   }
 }
