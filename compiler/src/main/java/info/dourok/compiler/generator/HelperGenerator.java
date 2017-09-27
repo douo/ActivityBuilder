@@ -45,8 +45,17 @@ public class HelperGenerator extends BaseActivityGenerator {
             .addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
+                .addStatement("this($L, false)", TARGET_ACTIVITY_VARIABLE_NAME).build())
+            .addMethod(MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
+                .addParameter(TypeName.BOOLEAN, "autoInject")
                 .addStatement("this.$L = $L", TARGET_ACTIVITY_VARIABLE_NAME,
-                    TARGET_ACTIVITY_VARIABLE_NAME).build());
+                    TARGET_ACTIVITY_VARIABLE_NAME)
+                .beginControlFlow("if(autoInject)")
+                .addStatement("inject()")
+                .endControlFlow()
+                .build());
 
     MethodSpec.Builder helperInject = MethodSpec.methodBuilder("inject")
         .addStatement("$T intent = $L.getIntent()", Intent.class, TARGET_ACTIVITY_VARIABLE_NAME);

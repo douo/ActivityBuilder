@@ -137,7 +137,7 @@ public class BuilderUtilGenerator extends Generator {
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .returns(helper)
         .addParameter(activityName, "activity")
-        .addStatement("return new $T($L)", helper, "activity")
+        .addStatement("return new $T($L, true)", helper, "activity")
         .build();
   }
 
