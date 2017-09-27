@@ -21,7 +21,7 @@ public class MockJavaObjects {
   };
 
   /**
-   * 追加基础代码，返回生成代码所要的列表
+   * mock library 的类，返回生成代码所要的依赖
    */
   public static JavaFileObject[] full(JavaFileObject... objects) {
     return Stream.concat(Arrays.stream(objects),

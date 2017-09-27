@@ -11,7 +11,12 @@ import org.junit.Test;
 /**
  * Created by tiaolins on 2017/9/11.
  */
-public class ActivityBuilderTest {
+public class BuilderTest {
+  /**
+   * 使用 Builder 注解了 Activity
+   * 应该生成 [Activity]Builder 和 [Activity]Helper 两个类
+   * @throws Exception
+   */
   @Test
   public void emptyActivity() throws Exception {
     Compilation compilation =
