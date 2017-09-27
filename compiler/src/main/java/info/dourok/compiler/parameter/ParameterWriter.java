@@ -3,7 +3,10 @@ package info.dourok.compiler.parameter;
 import com.squareup.javapoet.MethodSpec;
 import info.dourok.esactivity.BuilderParameter;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
+
+import static info.dourok.compiler.EasyUtils.getTypes;
 
 /**
  * Created by tiaolins on 2017/8/30.
@@ -91,6 +94,37 @@ public abstract class ParameterWriter {
         return null; //TODO
       default:
         return null;
+    }
+  }
+
+
+  /**
+   * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null
+   */
+  static String getDefaultValue(TypeMirror typeMirror) {
+    switch (typeMirror.getKind()) {
+      case BOOLEAN:
+        return "false";
+      case BYTE:
+        return "(byte)0";
+      case SHORT:
+        return "(short)0";
+      case CHAR:
+        return "(char)0";
+      case INT:
+      case LONG:
+        return "0";
+      case FLOAT:
+        return ".0f";
+      case DOUBLE:
+        return ".0";
+      default:
+        try {
+          PrimitiveType primitiveType = getTypes().unboxedType(typeMirror);
+          return getDefaultValue(primitiveType);
+        } catch (IllegalArgumentException e) {
+          return null;
+        }
     }
   }
 }

@@ -1,10 +1,11 @@
 package info.dourok.compiler.parameter;
 
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import javax.lang.model.element.TypeElement;
 
+import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.getElements;
+import static info.dourok.compiler.parameter.BundleWriter.getDefaultValue;
 
 /**
  * Created by tiaolins on 2017/8/31.
@@ -26,13 +27,28 @@ public class RefWriter extends ParameterWriter {
    */
   @Override
   public void writeInjectActivity(MethodSpec.Builder paper, String activityName) {
-    paper.addStatement("$L.$L = $T.getInstance().get($L,$S)", activityName, getName(), refManager,
-        activityName, getKey());
+    if (parameter.isPrimitive()) {
+      paper.addStatement("$L.$L = $T.getInstance().get$L($L,$S,$L)", activityName, getName(),
+          refManager, capitalize(parameter.getType().getKind().name()),
+          activityName, getKey(),
+          getDefaultValue(parameter.getType()));
+    } else {
+      paper.addStatement("$L.$L = $T.getInstance().get($L,$S)", activityName, getName(), refManager,
+          activityName, getKey());
+    }
   }
 
   @Override public void writeConsumerGetter(MethodSpec.Builder paper) {
-    paper.addStatement("$T $L = $T.getInstance().get($L,$S)", getType(), getName(), refManager,
-        "intent", getKey());
+    if (parameter.isPrimitive()) {
+      paper.addStatement("$T $L = $T.getInstance().get$L($L,$S,$L)", getType(), getName(),
+          refManager,
+          capitalize(parameter.getType().getKind().name()),
+          "intent", getKey(),
+          getDefaultValue(parameter.getType()));
+    } else {
+      paper.addStatement("$T $L = $T.getInstance().get($L,$S)", getType(), getName(), refManager,
+          "intent", getKey());
+    }
   }
 
   @Override public void writeConsumerSetter(MethodSpec.Builder paper) {

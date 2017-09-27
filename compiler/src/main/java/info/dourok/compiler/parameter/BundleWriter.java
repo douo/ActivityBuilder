@@ -207,33 +207,4 @@ class BundleWriter extends ParameterWriter {
         || (prefix.equals("Serializable")) && (!isSerializable(getType(), true));
   }
 
-  /**
-   * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null
-   */
-  private static String getDefaultValue(TypeMirror typeMirror) {
-    switch (typeMirror.getKind()) {
-      case BOOLEAN:
-        return "false";
-      case BYTE:
-        return "(byte)0";
-      case SHORT:
-        return "(short)0";
-      case CHAR:
-        return "(char)0";
-      case INT:
-      case LONG:
-        return "0";
-      case FLOAT:
-        return ".0f";
-      case DOUBLE:
-        return ".0";
-      default:
-        try {
-          PrimitiveType primitiveType = getTypes().unboxedType(typeMirror);
-          return getDefaultValue(primitiveType);
-        } catch (IllegalArgumentException e) {
-          return null;
-        }
-    }
-  }
 }

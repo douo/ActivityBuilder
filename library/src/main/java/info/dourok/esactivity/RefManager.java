@@ -28,7 +28,6 @@ public class RefManager {
     return get(context.getIntent(), key);
   }
 
-  //FIXME 考虑装箱类型 null 拆箱报错的情况
   public <T> T get(Intent intent, String key) {
     Map<String, Object> refMap = getRefMap(intent);
     if (refMap != null) {
@@ -120,5 +119,153 @@ public class RefManager {
     if (intent != null && hasRefMap(intent)) {
       sGlobalRefMap.remove(getKeyOfMap(intent));
     }
+  }
+
+
+
+  //XXX 拆箱 nullpointer
+
+  public int getInt(Intent intent, String key, int defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Integer) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public char getChar(Intent intent, String key, char defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Character) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public short getShort(Intent intent, String key, short defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Short) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public byte getByte(Intent intent, String key, byte defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Byte) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public long getLong(Intent intent, String key, long defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Long) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public double getDouble(Intent intent, String key, double defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Double) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public float getFloat(Intent intent, String key, float defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Float) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public boolean getBoolean(Intent intent, String key, boolean defaultValue) {
+    Map<String, Object> refMap = getRefMap(intent);
+    if (refMap != null) {
+      Object obj = refMap.get(key);
+      if (obj == null) {
+        return defaultValue;
+      } else {
+        return (Boolean) obj;
+      }
+    } else {
+      return defaultValue;
+    }
+  }
+
+  public int getInt(Activity context, String key, int defaultValue) {
+    return getInt(context.getIntent(), key, defaultValue);
+  }
+
+  public char getChar(Activity context, String key, char defaultValue) {
+    return getChar(context.getIntent(), key, defaultValue);
+  }
+
+  public short getShort(Activity context, String key, short defaultValue) {
+    return getShort(context.getIntent(), key, defaultValue);
+  }
+
+  public byte getByte(Activity context, String key, byte defaultValue) {
+    return getByte(context.getIntent(), key, defaultValue);
+  }
+
+  public long getLong(Activity context, String key, long defaultValue) {
+    return getLong(context.getIntent(), key, defaultValue);
+  }
+
+  public double getDouble(Activity context, String key, double defaultValue) {
+    return getDouble(context.getIntent(), key, defaultValue);
+  }
+
+  public float getFloat(Activity context, String key, float defaultValue) {
+    return getFloat(context.getIntent(), key, defaultValue);
+  }
+
+  public boolean getBoolean(Activity context, String key, boolean defaultValue) {
+    return getBoolean(context.getIntent(), key, defaultValue);
   }
 }

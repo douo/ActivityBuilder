@@ -8,6 +8,7 @@ import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
 import java.util.List;
 import java.util.Map;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -17,6 +18,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 
+import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.getTypes;
 import static info.dourok.compiler.EasyUtils.log;
@@ -45,8 +47,8 @@ public class ParameterModel {
 
   /**
    * 用于 {@link Result} 注解方法
+   *
    * @param element 方法的参数
-   * @param transmit
    */
   public ParameterModel(VariableElement element, TransmitType transmit) {
     this.element = element;
@@ -59,7 +61,6 @@ public class ParameterModel {
 
   /**
    * 用于 {@link Result} 注解 {@link Activity}
-   * @param annotationMirror
    */
   public ParameterModel(AnnotationMirror annotationMirror) {
     //FIXME 优化，可提取为全局变量
@@ -82,6 +83,10 @@ public class ParameterModel {
     Map<? extends ExecutableElement, ? extends AnnotationValue> map =
         annotationMirror.getElementValues();
     this.name = (String) map.get(name).getValue();
+    if (!SourceVersion.isName(this.name)) {
+      error("not a valid name: " + this.name, name);
+      throw new IllegalStateException("not a valid name: " + this.name);
+    }
     this.key = this.name;
     this.type = (TypeMirror) map.get(type).getValue();
     AnnotationValue transmitValue = map.get(transmit);
@@ -95,16 +100,14 @@ public class ParameterModel {
 
   /**
    * 如果是原生类型则返回装箱类型
-   * @return
    */
-  public TypeMirror getObjectType(){
-    if(isPrimitive()){
+  public TypeMirror getObjectType() {
+    if (isPrimitive()) {
       return getTypes().boxedClass((PrimitiveType) getType()).asType();
-    }else{
+    } else {
       return type;
     }
   }
-
 
   public VariableElement getElement() {
     return element;
