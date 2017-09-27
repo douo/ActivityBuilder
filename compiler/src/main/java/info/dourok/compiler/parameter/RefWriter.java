@@ -36,7 +36,7 @@ public class RefWriter extends ParameterWriter {
   }
 
   @Override public void writeConsumerSetter(MethodSpec.Builder paper) {
-    paper.addStatement("RefManager.getInstance().put($L,$S,$L)", "intent", getKey(), getName());
+    paper.addStatement("$T.getInstance().put($L,$S,$L)", refManager, "intent", getKey(), getName());
   }
 
   @Override

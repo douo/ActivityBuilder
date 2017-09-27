@@ -40,34 +40,38 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
   public boolean process(
       Set<? extends TypeElement> annotations,
       RoundEnvironment env) {
-
-    for (Element element : env.getElementsAnnotatedWith(Builder.class)) {
-      if (mFactory.isEasyActivity(element)) {
-        ActivityProcessorFactory.ActivityProcessor processor = mFactory.create(
-            (TypeElement) element);
-        processor.generate();
-      } else {
-        warn("annotate "
-            + Builder.class.getName()
-            + " to not Activity subclass make no sense!", element);
-      }
-    }
-
-    // 保证 BuilderUtils 只创建一次
-    // 如果在最后一个回合(env.processingOver)创建，编译器貌似不能正确找到新创建的类，会提示找不到符号
-    if (firstRound) {
-      Set<? extends Element> set = env.getElementsAnnotatedWith(BuilderUtilsPackage.class);
-      if (set.size() > 1) {
-        set.forEach(o -> warn("element annotated with @BuilderUtilsPackage:", o));
-        error("there are more than one element annotated with @BuilderUtilsPackage");
+    try {
+      for (Element element : env.getElementsAnnotatedWith(Builder.class)) {
+        if (mFactory.isEasyActivity(element)) {
+          ActivityProcessorFactory.ActivityProcessor processor = mFactory.create(
+              (TypeElement) element);
+          processor.generate();
+        } else {
+          warn("annotate "
+              + Builder.class.getName()
+              + " to not Activity subclass make no sense!", element);
+        }
       }
 
-      OptionalConsumer.of(set.stream().findFirst())
-          .ifPresent(ele -> mFactory.generateBuilderUtil((PackageElement) ele))
-          .ifNotPresent(() -> mFactory.generateBuilderUtil(
-              getElements().getPackageElement("info.dourok.esactivity")));
+      // 保证 BuilderUtils 只创建一次
+      // 如果在最后一个回合(env.processingOver)创建，编译器貌似不能正确找到新创建的类，会提示找不到符号
+      if (firstRound) {
+        Set<? extends Element> set = env.getElementsAnnotatedWith(BuilderUtilsPackage.class);
+        if (set.size() > 1) {
+          set.forEach(o -> warn("element annotated with @BuilderUtilsPackage:", o));
+          error("there are more than one element annotated with @BuilderUtilsPackage");
+        }
+
+        OptionalConsumer.of(set.stream().findFirst())
+            .ifPresent(ele -> mFactory.generateBuilderUtil((PackageElement) ele))
+            .ifNotPresent(() -> mFactory.generateBuilderUtil(
+                getElements().getPackageElement("info.dourok.esactivity")));
+      }
+      firstRound = false;
+    }catch (IllegalStateException e){
+      // 其他对象通过抛出异常，跳出流程
+      // Processor 将其捕获避免 javac 异常
     }
-    firstRound = false;
     return false;
   }
 

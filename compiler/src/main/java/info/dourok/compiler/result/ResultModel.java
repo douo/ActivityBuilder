@@ -75,12 +75,23 @@ public class ResultModel {
     // 枚举 返回 VariableElement
     // 注解 返回 AnnotationMirror
     //
-    this.name = (String) result.getElementValues().get(name).getValue();
+    AnnotationValue valueName = result.getElementValues().get(name);
+    if (valueName != null) {
+      this.name = (String) valueName.getValue();
+    } else {
+      error("Result annotated activity its name must specified");
+      throw new IllegalStateException("Result annotated activity its name must specified");
+    }
     AnnotationValue ps = result.getElementValues().get(parameters);
-    List list = (List) ps.getValue();
-    this.parameters = new ArrayList<>(list.size());
-    for (Object o : list) {
-      this.parameters.add(new ParameterModel((AnnotationMirror) o));
+    // 没有参数 ps 为 null
+    if (ps != null) {
+      List list = (List) ps.getValue();
+      this.parameters = new ArrayList<>(list.size());
+      for (Object o : list) {
+        this.parameters.add(new ParameterModel((AnnotationMirror) o));
+      }
+    } else {
+      this.parameters = new ArrayList<>(0);
     }
   }
 
@@ -109,7 +120,8 @@ public class ResultModel {
     if (count > 0) {
       TypeName types[] = new TypeName[count];
       for (int i = 0; i < count; i++) {
-        types[i] = TypeName.get(getParameters().get(i).getType());
+
+        types[i] = TypeName.get(getParameters().get(i).getObjectType());
       }
       return ParameterizedTypeName
           .get(ConsumerHelper.get(count), types);
@@ -123,7 +135,7 @@ public class ResultModel {
     TypeName types[] = new TypeName[count];
     types[0] = TypeVariableName.get("A");
     for (int i = 1; i < count; i++) {
-      types[i] = TypeName.get(getParameters().get(i - 1).getType());
+      types[i] = TypeName.get(getParameters().get(i - 1).getObjectType());
     }
     return ParameterizedTypeName
         .get(ConsumerHelper.get(count), types);

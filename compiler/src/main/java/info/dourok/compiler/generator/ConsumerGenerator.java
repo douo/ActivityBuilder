@@ -94,7 +94,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
     }
     literal.append("super.hasConsumer()");
     hasConsumer.addStatement(literal.toString());
-    handleResult.addStatement("default:")
+    handleResult.addCode("default:")
         .addStatement("return false").endControlFlow();
 
     consumer.addMethod(handleResult.build())
@@ -115,7 +115,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
         .addParameter(TypeVariableName.get("A"), "activity")
         .addParameter(Intent.class, "intent")
         .beginControlFlow("if($L != null)", result.getConsumerName());
-    if (!result.getParameters().isEmpty()) {
+    //if (!result.getParameters().isEmpty()) {
       StringBuilder literal =
           new StringBuilder(result.getConsumerName()).append(".accept(activity");
       String[] names = new String[result.getParameters().size()];
@@ -129,9 +129,9 @@ public class ConsumerGenerator extends BaseActivityGenerator {
       }
       literal.append(")");
       builder.addStatement(literal.toString(), (Object[]) names);
-    } else {
-      builder.addStatement("$L.run()", result.getConsumerName());
-    }
+    //} else {
+    //  builder.addStatement("$L.run()", result.getConsumerName());
+    //}
     builder.addStatement("return true");
     builder.endControlFlow();
     builder.beginControlFlow("else")

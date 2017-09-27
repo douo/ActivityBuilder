@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
               })
               .text("hahah")
               .asIntent()
-              .putExtras()
               .asBuilder()
               .start();
         });

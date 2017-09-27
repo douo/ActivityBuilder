@@ -1,6 +1,9 @@
 package info.dourok.compiler.parameter;
 
+import android.app.Activity;
+import info.dourok.compiler.EasyUtils;
 import info.dourok.esactivity.BuilderParameter;
+import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
 import java.util.List;
@@ -40,6 +43,11 @@ public class ParameterModel {
     transmit = annotation.transmit();
   }
 
+  /**
+   * 用于 {@link Result} 注解方法
+   * @param element 方法的参数
+   * @param transmit
+   */
   public ParameterModel(VariableElement element, TransmitType transmit) {
     this.element = element;
     name = element.getSimpleName().toString();
@@ -49,6 +57,10 @@ public class ParameterModel {
     this.transmit = transmit;
   }
 
+  /**
+   * 用于 {@link Result} 注解 {@link Activity}
+   * @param annotationMirror
+   */
   public ParameterModel(AnnotationMirror annotationMirror) {
     //FIXME 优化，可提取为全局变量
     TypeElement element = getElements().getTypeElement(ResultParameter.class.getName());
@@ -70,6 +82,7 @@ public class ParameterModel {
     Map<? extends ExecutableElement, ? extends AnnotationValue> map =
         annotationMirror.getElementValues();
     this.name = (String) map.get(name).getValue();
+    this.key = this.name;
     this.type = (TypeMirror) map.get(type).getValue();
     AnnotationValue transmitValue = map.get(transmit);
     this.transmit = transmitValue == null ? TransmitType.AUTO
@@ -79,6 +92,19 @@ public class ParameterModel {
   public TypeMirror getType() {
     return type;
   }
+
+  /**
+   * 如果是原生类型则返回装箱类型
+   * @return
+   */
+  public TypeMirror getObjectType(){
+    if(isPrimitive()){
+      return getTypes().boxedClass((PrimitiveType) getType()).asType();
+    }else{
+      return type;
+    }
+  }
+
 
   public VariableElement getElement() {
     return element;
