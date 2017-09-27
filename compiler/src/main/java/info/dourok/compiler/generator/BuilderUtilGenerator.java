@@ -24,12 +24,12 @@ import static info.dourok.compiler.EasyUtils.getElements;
  * Created by tiaolins on 2017/9/13.
  */
 
-public class BuilderUtilsGenerator extends Generator {
+public class BuilderUtilGenerator extends Generator {
   private List<TypeElement> activityList;
   private final TypeElement baseActivityBuilder;
   private TypeElement activity;
 
-  public BuilderUtilsGenerator(List<TypeElement> activityList,
+  public BuilderUtilGenerator(List<TypeElement> activityList,
       PackageElement targetPackage, TypeElement activity,
       TypeElement baseActivityBuilder) {
     super(targetPackage);
@@ -39,7 +39,7 @@ public class BuilderUtilsGenerator extends Generator {
   }
 
   @Override protected TypeSpec generate() {
-    TypeSpec.Builder builder = TypeSpec.classBuilder("BuilderUtils")
+    TypeSpec.Builder builder = TypeSpec.classBuilder("BuilderUtil")
         .addModifiers(Modifier.PUBLIC)
         .addField(FieldSpec.builder(
             ParameterizedTypeName.get(ClassName.get(HashMap.class),

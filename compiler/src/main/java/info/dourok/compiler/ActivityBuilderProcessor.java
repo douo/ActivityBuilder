@@ -2,8 +2,7 @@ package info.dourok.compiler;
 
 import com.google.auto.service.AutoService;
 import info.dourok.esactivity.Builder;
-import info.dourok.esactivity.BuilderUtilsPackage;
-import java.util.Optional;
+import info.dourok.esactivity.BuilderUtilPackage;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -21,7 +20,7 @@ import static info.dourok.compiler.EasyUtils.log;
 import static info.dourok.compiler.EasyUtils.warn;
 
 @SupportedAnnotationTypes({
-    "info.dourok.esactivity.Builder", "info.dourok.esactivity.BuilderUtilsPackage"
+    "info.dourok.esactivity.Builder", "info.dourok.esactivity.BuilderUtilPackage"
 })
 @AutoService(Processor.class)
 public class ActivityBuilderProcessor extends AbstractProcessor {
@@ -56,10 +55,10 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
       // 保证 BuilderUtils 只创建一次
       // 如果在最后一个回合(env.processingOver)创建，编译器貌似不能正确找到新创建的类，会提示找不到符号
       if (firstRound) {
-        Set<? extends Element> set = env.getElementsAnnotatedWith(BuilderUtilsPackage.class);
+        Set<? extends Element> set = env.getElementsAnnotatedWith(BuilderUtilPackage.class);
         if (set.size() > 1) {
-          set.forEach(o -> warn("element annotated with @BuilderUtilsPackage:", o));
-          error("there are more than one element annotated with @BuilderUtilsPackage");
+          set.forEach(o -> warn("element annotated with @BuilderUtilPackage:", o));
+          error("there are more than one element annotated with @BuilderUtilPackage");
         }
 
         OptionalConsumer.of(set.stream().findFirst())

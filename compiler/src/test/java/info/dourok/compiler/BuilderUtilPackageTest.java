@@ -3,8 +3,7 @@ package info.dourok.compiler;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import info.dourok.esactivity.Builder;
-import info.dourok.esactivity.BuilderUtilsPackage;
-import java.util.ResourceBundle;
+import info.dourok.esactivity.BuilderUtilPackage;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
@@ -17,10 +16,10 @@ import static info.dourok.compiler.MockJavaObjects.full;
  * Created by tiaolins on 2017/9/13.
  */
 
-public class BuilderUtilsPackageTest {
+public class BuilderUtilPackageTest {
   /**
-   * 使用注解 {@link BuilderUtilsPackage} 声明了包，
-   * BuilderUtils 应该生成在这个包下面
+   * 使用注解 {@link BuilderUtilPackage} 声明了包，
+   * BuilderUtil 应该生成在这个包下面
    */
 
   @Test
@@ -32,13 +31,13 @@ public class BuilderUtilsPackageTest {
                 JavaFileObjects.forResource(
                     "BuilderUtilsPackage/hasAnnotation/package-info.java")));
 
-    assertThat(compilation).generatedSourceFile("test/BuilderUtils")
+    assertThat(compilation).generatedSourceFile("test/BuilderUtil")
         .hasSourceEquivalentTo(
-            JavaFileObjects.forResource("BuilderUtilsPackage/hasAnnotation/BuilderUtils.java"));
+            JavaFileObjects.forResource("BuilderUtilsPackage/hasAnnotation/BuilderUtil.java"));
   }
 
   /**
-   * 没有注解 {@link Builder} 和 {@link BuilderUtilsPackage}
+   * 没有注解 {@link Builder} 和 {@link BuilderUtilPackage}
    * 注解处理不会工作，所以没有任何生成文件
    */
   @Test
@@ -71,6 +70,6 @@ public class BuilderUtilsPackageTest {
                     "BuilderUtilsPackage/multiAnnotation/other/package-info.java")));
 
     assertThat(compilation).hadErrorContaining(
-        "there are more than one element annotated with @BuilderUtilsPackage");
+        "there are more than one element annotated with @BuilderUtilPackage");
   }
 }

@@ -15,6 +15,7 @@ public class BuilderTest {
   /**
    * 使用 Builder 注解了 Activity
    * 应该生成 [Activity]Builder 和 [Activity]Helper 两个类
+   *
    * @throws Exception
    */
   @Test
@@ -31,8 +32,8 @@ public class BuilderTest {
     assertThat(compilation).generatedSourceFile("test/EmptyActivityHelper")
         .hasSourceEquivalentTo(
             JavaFileObjects.forResource("ActivityBuilder/emptyActivity/EmptyActivityHelper.java"));
-    assertThat(compilation).generatedSourceFile("info/dourok/esactivity/BuilderUtils")
+    assertThat(compilation).generatedSourceFile("info/dourok/esactivity/BuilderUtil")
         .hasSourceEquivalentTo(
-            JavaFileObjects.forResource("ActivityBuilder/emptyActivity/BuilderUtils.java"));
+            JavaFileObjects.forResource("ActivityBuilder/emptyActivity/BuilderUtil.java"));
   }
 }

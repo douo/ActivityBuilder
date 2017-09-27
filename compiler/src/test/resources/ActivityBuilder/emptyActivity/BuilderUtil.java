@@ -1,18 +1,21 @@
-package test;
+package info.dourok.esactivity;
 
 import android.app.Activity;
 import android.content.Intent;
-import info.dourok.esactivity.BaseActivityBuilder;
 import java.lang.Class;
 import java.lang.IllegalAccessException;
 import java.lang.NoSuchMethodException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import test.EmptyActivity;
+import test.EmptyActivityBuilder;
+import test.EmptyActivityHelper;
 
-public class BuilderUtils {
+public class BuilderUtil {
   private static final HashMap<Class<? extends Activity>, Class<? extends BaseActivityBuilder>> sBuilderMap = new HashMap<>();
 
   static {
+    sBuilderMap.put(EmptyActivity.class,EmptyActivityBuilder.class);
   }
 
   public static <A extends Activity> BaseActivityBuilder<? extends BaseActivityBuilder, A> createBuilder(A activity,
@@ -42,5 +45,9 @@ public class BuilderUtils {
       }
     }
     return (T) createBuilder(activity,clazz);
+  }
+
+  public static EmptyActivityHelper createHelper(EmptyActivity activity) {
+    return new EmptyActivityHelper(activity);
   }
 }

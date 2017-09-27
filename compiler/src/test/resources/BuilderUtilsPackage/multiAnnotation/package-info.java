@@ -1,4 +1,4 @@
-@BuilderUtilsPackage
+@BuilderUtilPackage
 package test;
 
-import info.dourok.esactivity.BuilderUtilsPackage;
+import info.dourok.esactivity.BuilderUtilPackage;

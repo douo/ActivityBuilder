@@ -2,7 +2,7 @@ package info.dourok.compiler;
 
 import android.app.Activity;
 import info.dourok.compiler.generator.BuilderGenerator;
-import info.dourok.compiler.generator.BuilderUtilsGenerator;
+import info.dourok.compiler.generator.BuilderUtilGenerator;
 import info.dourok.compiler.generator.ConsumerGenerator;
 import info.dourok.compiler.generator.HelperGenerator;
 import info.dourok.compiler.parameter.ParameterWriter;
@@ -74,7 +74,7 @@ public class ActivityProcessorFactory {
   }
 
   public void generateBuilderUtil(PackageElement targetPackage) {
-    BuilderUtilsGenerator generator = new BuilderUtilsGenerator(targetActivityList, targetPackage
+    BuilderUtilGenerator generator = new BuilderUtilGenerator(targetActivityList, targetPackage
         , activity, baseActivityBuilder);
     try {
       generator.write();

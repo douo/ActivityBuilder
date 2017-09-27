@@ -9,7 +9,7 @@ import java.lang.NoSuchMethodException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-public class BuilderUtils {
+public class BuilderUtil {
   private static final HashMap<Class<? extends Activity>, Class<? extends BaseActivityBuilder>> sBuilderMap = new HashMap<>();
 
   static {

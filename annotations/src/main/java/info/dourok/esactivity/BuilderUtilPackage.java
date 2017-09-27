@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用于指明生成 BuilderUtils 的包
+ * 用于指明生成 BuilderUtil 的包
  * 默认情况是位于 {@link info.dourok.esactivity}
  * 但是如果依赖的库也使用了 ActivityBuilder
  * 那就会造成冲突
@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.PACKAGE })
-public @interface BuilderUtilsPackage {
+public @interface BuilderUtilPackage {
 }
