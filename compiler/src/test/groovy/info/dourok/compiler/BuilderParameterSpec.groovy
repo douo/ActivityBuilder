@@ -1,116 +1,21 @@
 package info.dourok.compiler
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import com.google.common.collect.ImmutableList
-import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
-import info.dourok.esactivity.Builder
-import info.dourok.esactivity.BuilderParameter
 import info.dourok.esactivity.TransmitType
 import spock.genesis.Gen
 import spock.lang.Specification
 import spock.lang.Unroll
-
+import info.dourok.compiler.util.Source
 import java.security.Key
 
 import static com.google.common.truth.Truth.assert_
-import static info.dourok.compiler.MockJavaObjects.full
 
 final class BuilderParameterSpec extends Specification {
-
-  /**
-   * 生成 import
-   * 因为 javapoet 会生成 java.lang.* 的 import
-   * compile-testing 要求 import 的顺序一致（字符串顺序）
-   * 所以需要一个 helper 方法来处理这个问题
-   * @param classes 支持 {@link Class} 或 {@link String} 表示类名
-   * @return
-   */
-  def buildImports(def ... classes) {
-    classes
-        .collect({ it instanceof String ? it : it.name })
-        .sort()
-        .collect({ "import ${it};" })
-        .join("\n")
-  }
-
-  def inputSource(paramType, imports = [], annotation = "@BuilderParameter") {
-    JavaFileObjects.forSourceString("com.example.EmptyActivity",
-        """
-            package com.example;
-            ${buildImports(Activity, Builder, BuilderParameter, *imports)}
-            @Builder
-            public class EmptyActivity extends Activity {
-            ${annotation} ${paramType} val;
-            }
-            """)
-  }
-
-  def builderSource(paramType, imports = [], setter = "getIntent().putExtra(\"val\",val);") {
-
-    JavaFileObjects.forSourceString("com.example.EmptyActivityBuilder",
-        """
-            package com.example;
-            ${
-          buildImports("info.dourok.esactivity.BaseActivityBuilder", Activity, Intent, Override,
-              *imports)
-        }
-            public class EmptyActivityBuilder<A extends Activity> extends BaseActivityBuilder<EmptyActivityBuilder<A>, A> {
-                 
-                 private EmptyActivityBuilder(A activity) {
-                    super(activity);
-                    setIntent(new Intent(activity, EmptyActivity.class));
-                 }
-
-                 public static <A extends Activity> EmptyActivityBuilder<A> create(A activity) {
-                   return new EmptyActivityBuilder<A>(activity);
-                 }
-               
-                 @Override
-                 protected EmptyActivityBuilder<A> self() {
-                   return this;
-                 }
-                 public EmptyActivityBuilder<A> val(${paramType} val) {
-                   ${setter}
-                   return this;
-                 }
-            }
-            """)
-  }
-
-  def helperSource(getter, imports = [], restore = "", save = "") {
-    JavaFileObjects.forSourceString("com.example.EmptyActivityHelper",
-        """
-               package com.example;
-${buildImports(Intent, Bundle, *imports)}               
-               public class EmptyActivityHelper {
-                 private final EmptyActivity activity;
-               
-                 public EmptyActivityHelper(EmptyActivity activity) {
-                   this.activity = activity;
-                 }
-               
-                 void inject() {
-                   Intent intent = activity.getIntent();
-                   activity.val = ${getter};
-                 }
-               
-                 void restore(Bundle savedInstanceState) {
-                   ${restore}
-                 }
-               
-                 void save(Bundle savedInstanceState) {
-                   ${save}
-                 }
-               }
-               """)
-  }
 
   def getDefaultValue(typeName) {
     switch (typeName.toLowerCase()) {
@@ -137,9 +42,9 @@ ${buildImports(Intent, Bundle, *imports)}
   @Unroll
   def "activity with 1 #category builder parameter: #paramType"() {
     given:
-    // import order isn't matter, but compile-testing comparing each line
-    def input = inputSource(paramType, imports)
-    def builder = builderSource(paramType, imports)
+    def input = Source.activity().
+        param(paramType, "val", imports).
+        source()
     def getter
     switch (category) {
       case "primitive":
@@ -158,18 +63,18 @@ ${buildImports(Intent, Bundle, *imports)}
         getter = "intent.get${imports.simpleName.reverse().join("")}Extra(\"val\")"
     }
 
-    def helper = helperSource(getter)
 
     expect:
+    def builder = Source.builder().setter(paramType, "val", imports).source()
+    def helper = Source.helper().injectStatement("val", getter).source()
+
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(ImmutableList.copyOf(full(input)))
+        .that(input)
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder)
-        .and()
-        .generatesSources(helper)
+        .generatesSources(builder, helper)
 
 
     where:
@@ -220,21 +125,28 @@ ${buildImports(Intent, Bundle, *imports)}
   @Unroll
   def "activity with 1 builder parameter #paramType implementation of #itf"() {
     given:
-    def input = inputSource(paramType, imports)
-    def builder = builderSource(paramType, imports)
-    def helper = helperSource("(${paramType}) intent.get${itf}Extra(\"val\")", imports)
+    def input = Source.activity().
+        param(paramType, "val", imports).
+        source()
+
 
     expect:
+
+    def builder = Source.builder().
+        setter(paramType, "val", imports).
+        source()
+
+    def helper = Source.helper().injectStatement("val",
+        "(${paramType}) intent.get${itf}Extra(\"val\")", imports)
+        .source()
+
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(ImmutableList.copyOf(full(input)))
+        .that(input)
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder)
-        .and()
-        .generatesSources(helper)
-
+        .generatesSources(builder, helper)
 
     where:
     paramType | imports  | itf
@@ -247,21 +159,23 @@ ${buildImports(Intent, Bundle, *imports)}
   def "activity with 1 builder parameter with custom key"() {
     given:
     def paramType = "int"
-    def input = inputSource(paramType, [], "@BuilderParameter(key = \"${key}\")")
-    def builder = builderSource(paramType, [], "getIntent().putExtra(\"${key}\",val);")
-    def helper = helperSource(
-        "intent.get${paramType.capitalize()}Extra(\"${key}\",${getDefaultValue(paramType)})",
-        [])
+    def input = Source.activity().
+        param(paramType, "val", [], key).
+        source()
     expect:
+    def builder = Source.builder()
+        .setter(paramType, "val", [],
+        "getIntent().putExtra(\"${key}\",val);").source()
+    def helper = Source.helper().injectStatement("val",
+        "intent.get${paramType.capitalize()}Extra(\"${key}\",${getDefaultValue(paramType)}")
+        .source()
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(ImmutableList.copyOf(full(input)))
+        .that(input)
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder)
-        .and()
-        .generatesSources(helper)
+        .generatesSources(builder, helper)
 
     where:
     //生成一些非 " 和 \ 的字符
@@ -272,43 +186,53 @@ ${buildImports(Intent, Bundle, *imports)}
   @Unroll
   def "#paramType with keep"() {
     given:
-    def input = inputSource(paramType, [TransmitType, *imports],
-        "@BuilderParameter(keep = true)")
-    def builder = builderSource(paramType, imports, setter)
-    def helper = helperSource(getter, helperImports, restore, save)
+    def input = Source.activity()
+        .param(paramType, "val", [TransmitType, *imports], null, null, "true")
+        .source()
+
     expect:
+    def builder = Source.builder()
+        .setter(paramType, "val", imports, setter).source()
+    def helper = Source.helper()
+        .injectStatement("val", getter, helperImports)
+        .restoreStatement("val", paramType, "val", ignoreKeep)
+        .saveStatement("val", paramType, "val", ignoreKeep).source()
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(ImmutableList.copyOf(full(input)))
+        .that(input)
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder)
-        .and()
-        .generatesSources(helper)
+        .generatesSources(builder, helper)
+
     where:
-    paramType | imports  | helperImports                         | getter                                           | setter                               | restore                                                 | save
-    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | "activity.val = savedInstanceState.getString(\"val\");" | "savedInstanceState.putString(\"val\",activity.val);"
-    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | ""                                                      | ""
+    paramType | imports  | helperImports                         | getter                                           | setter                               | ignoreKeep
+    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | false
+    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | true
   }
 
   @Unroll
   def "#paramType with #transmit should using #setter"() {
     given:
-    def input = inputSource(paramType, [TransmitType, *imports],
-        "@BuilderParameter(transmit = ${transmit})")
-    def builder = builderSource(paramType, imports, setter)
-    def helper = helperSource(getter, helperImports)
+    def input = Source.activity()
+        .param(paramType, "val", [TransmitType, *imports], null, transmit)
+        .source()
+
     expect:
+
+    def builder = Source.builder()
+        .setter(paramType, "val", imports, setter).source()
+
+    def helper = Source.helper()
+        .injectStatement("val",getter,helperImports).source()
+
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
-        .that(ImmutableList.copyOf(full(input)))
+        .that(input)
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder)
-        .and()
-        .generatesSources(helper)
+        .generatesSources(builder, helper)
 
     where:
     paramType | imports  | helperImports                         | getter                                           | setter                               | transmit
@@ -317,7 +241,56 @@ ${buildImports(Intent, Bundle, *imports)}
     "String"  | [String] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.REF"
   }
 
-  def "activity with multi builder parameter"(){
-     //TODO
+  def "activity with 1 nest generic parameter"(){
+      given:
+      def paramType = "Map<String,ArrayList<Integer>>"
+      def input = Source.activity()
+          .param(paramType, "val", [String,Map,ArrayList,Integer])
+          .source()
+
+      expect:
+
+      def builder = Source.builder()
+          .setter(paramType, "val",  [String,Map,ArrayList,Integer],  "getRefMap().put(\"val\",val);").source()
+
+      def helper = Source.helper()
+          .injectStatement("val", "RefManager.getInstance().get(activity,\"val\")",["info.dourok.esactivity.RefManager"]).source()
+
+      assert_()
+          .about(JavaSourcesSubjectFactory.javaSources())
+          .that(input)
+          .processedWith(new ActivityBuilderProcessor())
+          .compilesWithoutError()
+          .and()
+          .generatesSources(builder, helper)
+
+  }
+
+  def "activity with multi builder parameter"() {
+    given:
+    def params = [[paramType:"String",name:"val0",imports:[String]],
+                  [paramType:"String",name:"val1",imports:[String]]]
+
+    def input = Source.activity()
+        .with({ params.each{param(it.paramType,it.name,it.imports)};return delegate})
+        .source()
+    expect:
+    def builder = Source.builder()
+        .with({params.each{setter(it.paramType,it.name,it.imports)};return delegate})
+        .source()
+
+    def helper = Source.helper()
+        .with({params.each{
+                 injectStatement(it.name,"intent.get${it.paramType}Extra(\"${it.name}\")")}
+               return delegate})
+        .source()
+
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder,helper)
   }
 }

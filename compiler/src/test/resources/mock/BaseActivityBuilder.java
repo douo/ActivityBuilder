@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import java.util.Map;
 
-public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity> {
+public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity>
+    implements BaseBuilder {
+  protected BaseResultConsumer<A> consumer;
 
   public BaseActivityBuilder(A context) {
 

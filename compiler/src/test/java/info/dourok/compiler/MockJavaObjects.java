@@ -12,6 +12,7 @@ import javax.tools.JavaFileObject;
 public class MockJavaObjects {
   private static String[] resources = new String[] {
       "mock/BaseActivityBuilder.java",
+      "mock/BaseBuilder.java",
       "mock/BaseResultConsumer.java",
       "mock/RefManager.java",
       "mock/function/BiConsumer.java",
@@ -21,13 +22,10 @@ public class MockJavaObjects {
 
   /**
    * 追加基础代码，返回生成代码所要的列表
-   * @param objects
-   * @return
    */
   public static JavaFileObject[] full(JavaFileObject... objects) {
     return Stream.concat(Arrays.stream(objects),
         Arrays.stream(resources).map(JavaFileObjects::forResource))
         .toArray(JavaFileObject[]::new);
   }
-
 }
