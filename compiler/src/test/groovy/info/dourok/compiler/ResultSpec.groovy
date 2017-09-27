@@ -3,7 +3,6 @@ package info.dourok.compiler
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import info.dourok.compiler.util.Source
-import info.dourok.esactivity.Result
 import info.dourok.esactivity.ResultParameter
 import spock.lang.Specification
 
@@ -309,8 +308,6 @@ class ResultSpec extends Specification {
         .and()
         .generatesSources(builder, helper, consumer)
   }
-
-
 
   def "result annotate method with a nest generic type param"() {
     given:
