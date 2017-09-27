@@ -206,9 +206,17 @@ final class BuilderParameterSpec extends Specification {
         .generatesSources(builder, helper)
 
     where:
-    paramType | imports  | helperImports                         | getter                                           | setter                               | ignoreKeep
-    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | false
-    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | true
+    paramType | imports  | helperImports                         | getter | setter | ignoreKeep
+    "String"  | [String] |
+        []                                                       |
+        "intent.getStringExtra(\"val\")"                                  |
+        "getIntent().putExtra(\"val\",val);"                                       |
+        false
+    "Object"  | [Object] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        true
   }
 
   @Unroll
@@ -224,7 +232,7 @@ final class BuilderParameterSpec extends Specification {
         .setter(paramType, "val", imports, setter).source()
 
     def helper = Source.helper()
-        .injectStatement("val",getter,helperImports).source()
+        .injectStatement("val", getter, helperImports).source()
 
     assert_()
         .about(JavaSourcesSubjectFactory.javaSources())
@@ -235,54 +243,74 @@ final class BuilderParameterSpec extends Specification {
         .generatesSources(builder, helper)
 
     where:
-    paramType | imports  | helperImports                         | getter                                           | setter                               | transmit
-    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | "TransmitType.AUTO"
-    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.AUTO"
-    "String"  | [String] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.REF"
+    paramType | imports  | helperImports                         | getter | setter | transmit
+    "String"  | [String] |
+        []                                                       |
+        "intent.getStringExtra(\"val\")"                                  |
+        "getIntent().putExtra(\"val\",val);"                                       |
+        "TransmitType.AUTO"
+    "Object"  | [Object] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        "TransmitType.AUTO"
+    "String"  | [String] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        "TransmitType.REF"
   }
 
-  def "activity with 1 nest generic parameter"(){
-      given:
-      def paramType = "Map<String,ArrayList<Integer>>"
-      def input = Source.activity()
-          .param(paramType, "val", [String,Map,ArrayList,Integer])
-          .source()
+  def "activity with 1 nest generic parameter"() {
+    given:
+    def paramType = "Map<String,ArrayList<Integer>>"
+    def input = Source.activity()
+        .param(paramType, "val", [String, Map, ArrayList, Integer])
+        .source()
 
-      expect:
+    expect:
 
-      def builder = Source.builder()
-          .setter(paramType, "val",  [String,Map,ArrayList,Integer],  "getRefMap().put(\"val\",val);").source()
+    def builder = Source.builder()
+        .
+        setter(paramType, "val", [String, Map, ArrayList, Integer],
+            "getRefMap().put(\"val\",val);").
+        source()
 
-      def helper = Source.helper()
-          .injectStatement("val", "RefManager.getInstance().get(activity,\"val\")",["info.dourok.esactivity.RefManager"]).source()
+    def helper = Source.helper()
+        .
+        injectStatement("val", "RefManager.getInstance().get(activity,\"val\")",
+            ["info.dourok.esactivity.RefManager"]).
+        source()
 
-      assert_()
-          .about(JavaSourcesSubjectFactory.javaSources())
-          .that(input)
-          .processedWith(new ActivityBuilderProcessor())
-          .compilesWithoutError()
-          .and()
-          .generatesSources(builder, helper)
-
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder, helper)
   }
 
   def "activity with multi builder parameter"() {
     given:
-    def params = [[paramType:"String",name:"val0",imports:[String]],
-                  [paramType:"String",name:"val1",imports:[String]]]
+    def params = [[paramType: "String", name: "val0", imports: [String]],
+                  [paramType: "String", name: "val1", imports: [String]]]
 
     def input = Source.activity()
-        .with({ params.each{param(it.paramType,it.name,it.imports)};return delegate})
+        .with({ params.each { param(it.paramType, it.name, it.imports) }; return delegate })
         .source()
     expect:
     def builder = Source.builder()
-        .with({params.each{setter(it.paramType,it.name,it.imports)};return delegate})
+        .with({ params.each { setter(it.paramType, it.name, it.imports) }; return delegate })
         .source()
 
     def helper = Source.helper()
-        .with({params.each{
-                 injectStatement(it.name,"intent.get${it.paramType}Extra(\"${it.name}\")")}
-               return delegate})
+        .with({
+      params.each {
+        injectStatement(it.name, "intent.get${it.paramType}Extra(\"${it.name}\")")
+      }
+      return delegate
+    })
         .source()
 
     assert_()
@@ -291,6 +319,29 @@ final class BuilderParameterSpec extends Specification {
         .processedWith(new ActivityBuilderProcessor())
         .compilesWithoutError()
         .and()
-        .generatesSources(builder,helper)
+        .generatesSources(builder, helper)
+  }
+
+  @Unroll
+  def "TransmitType.REF using in primitive type: #paramType"() {
+    given:
+    def input = Source.activity()
+        .param(paramType, "val", [TransmitType], null, "TransmitType.REF")
+        .source()
+    def builder = Source.builder()
+        .setter(paramType, "val", [], "getRefMap().put(\"val\",val);").source()
+    def helper = Source.helper().injectStatement("val",
+        "RefManager.getInstance().get${paramType.capitalize()}(activity,\"val\",${getDefaultValue(paramType)})",
+        ["info.dourok.esactivity.RefManager"])
+        .source()
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and().generatesSources(builder, helper)
+    where:
+    paramType << ["int", "char", "short", "byte", "boolean", "double", "float", "long"]
   }
 }

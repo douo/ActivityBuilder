@@ -6,6 +6,7 @@ import com.squareup.javapoet.TypeVariableName;
 import info.dourok.compiler.ConsumerHelper;
 import info.dourok.compiler.parameter.ParameterModel;
 import info.dourok.esactivity.Result;
+import info.dourok.esactivity.Transmit;
 import info.dourok.esactivity.TransmitType;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import static info.dourok.compiler.EasyUtils.log;
 public class ResultModel {
   private String name;
   private List<ParameterModel> parameters;
-  private static final Pattern pattern = Pattern.compile("result(.+)");
+  private static final Pattern pattern = Pattern.compile("result(?<name>[A-Z][\\w]*)");
 
   /**
    * 将 void result[Name](Parameters){} 解析为 ResultWriter
@@ -39,10 +40,10 @@ public class ResultModel {
   public ResultModel(Result annotation, ExecutableElement element) {
     Matcher matcher = pattern.matcher(element.getSimpleName().toString());
     if (matcher.find()) {
-      name = matcher.group(1).toLowerCase();
+      name = matcher.group("name").toLowerCase();
     } else {
       String msg = String.format(
-          "Result annotated method must name as result[Name] %s is illegal result method name",
+          "Result annotated method must match 'result(?<name>[A-Z][\\\\w]*)', %s is illegal result method name",
           element.getSimpleName());
       error(msg, element);
       throw new IllegalStateException(msg);
@@ -50,8 +51,9 @@ public class ResultModel {
     List<? extends VariableElement> variableElements = element.getParameters();
     parameters = new ArrayList<>(variableElements.size());
     for (VariableElement variableElement : variableElements) {
+      Transmit t = variableElement.getAnnotation(Transmit.class);
       parameters.add(
-          new ParameterModel(variableElement, TransmitType.AUTO));
+          new ParameterModel(variableElement, t == null ? TransmitType.AUTO : t.value()));
     }
   }
 

@@ -537,7 +537,7 @@ class ResultSpec extends Specification {
         .and().generatesSources(consumer4, consumer9)
   }
 
-  def "result annotate method with a illegal name(not resultXXX) can't compile"() {
+  def "result annotate method with a illegal name can't compile"() {
     def input = Source.activity()
         .resultMethods("""
                       @Result public void wtf(int year){}
