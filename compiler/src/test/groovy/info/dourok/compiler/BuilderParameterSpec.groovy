@@ -324,4 +324,21 @@ final class BuilderParameterSpec extends Specification {
     where:
     paramType << ["int", "char", "short", "byte", "boolean", "double", "float", "long"]
   }
+
+  def "Builder parameter can't be private"() {
+    given:
+    def paramType = "int"
+    def input = Source.activity()
+        .paramStatment("@BuilderParameter private ${paramType} val;")
+        .source()
+
+    expect:
+
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .failsToCompile()
+        .withErrorContaining("BuilderParameter can not be private")
+  }
 }

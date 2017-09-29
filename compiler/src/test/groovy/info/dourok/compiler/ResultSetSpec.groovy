@@ -146,10 +146,10 @@ class ResultSetSpec extends Specification {
                 })""", [ResultSet, ResultParameter, ArrayList, Character, Long]).source()
     def inputUsingResultMethod = Source.activity()
         .resultMethods("""
-                      @Result public void resultDate(Long date){}
+                      @Result void resultDate(Long date){}
                       """, [Long])
         .resultMethods("""
-                      @Result public void resultText(ArrayList ids, Character name){}""",
+                      @Result void resultText(ArrayList ids, Character name){}""",
         [ResultParameter, ArrayList, Character])
         .source()
     when:

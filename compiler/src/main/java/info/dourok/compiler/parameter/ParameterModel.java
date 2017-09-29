@@ -13,6 +13,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.PrimitiveType;
@@ -37,6 +38,10 @@ public class ParameterModel {
 
   public ParameterModel(BuilderParameter annotation, VariableElement element) {
     this.element = element;
+    if (element.getModifiers().contains(Modifier.PRIVATE)) {
+      error("BuilderParameter can not be private", element);
+      throw new IllegalStateException("BuilderParameter can not be private");
+    }
     name = element.getSimpleName().toString();
     key = annotation.key().equals(BuilderParameter.USE_VARIABLE_NAME) ?
         getName() : annotation.key();

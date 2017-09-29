@@ -563,4 +563,22 @@ class ResultSpec extends Specification {
         .failsToCompile()
         .withErrorContaining("Result annotated activity its name must specified")
   }
+
+  def "result has 253 parameter"() {
+    // java max method parameter 255 for static and 254 for non-static ( this will be the 255th in this case) methods
+    // and we need a parameter leave for activity
+    // so the max parameter of result is 254 - 1 = 253
+    def max = 253
+    def input = Source.activity()
+        .resultMethods("""
+                      @Result public void resultTest(${(1..max).collect { "int p${it}" }.join(', ')}){}
+                      """)
+        .source()
+    expect:
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+  }
 }
