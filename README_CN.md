@@ -32,7 +32,7 @@ ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 
         }
       }
       
-通过 ActivityBuilder，你可以把这些代码压缩成一行(You can solve it by one line of code 😆)：
+通过 ActivityBuilder，你可以把这些代码压缩成一行:
 
     private void requestSomeText() {
         findViewById(R.id.fab).setOnClickListener(
@@ -92,7 +92,7 @@ Builder 的作用是有三个
 - 配置 ActivityForResult 回调
 - 启动 Activity
 
-可以通过 `${ActivityName}Builder#create` 方法获得 Activity Builder 实例。即便没有任何参数，`${ActivityName}Builder` 还有一些默认的配置方法。
+可以通过 `${ActivityName}Builder#create` 方法获得 Activity Builder 实例。即便没有任何参数，`${ActivityName}Builder` 还有一些默认的回调方法。
 
 主要有三个：
 
@@ -131,7 +131,7 @@ Helper 主要作用有两个：
 
 # @BuilderParameter
 
-`@BuilderParameter` 可用于 Activity 中的任何字段，当然字段不能是 `private` 的。因为这个字段需要依靠外部类 Helper 来注入。
+`@BuilderParameter` 可用于 Activity 中任何类型的字段，当然字段不能是 `private` 的。因为这个字段需要依靠外部类 Helper 来注入。
 
     @Builder
     public class ${ActivityName} extends AppCompatActivity {
@@ -146,7 +146,7 @@ Helper 主要作用有两个：
     }
     
 注意，必须要在调用 Helper 的 `inject` 方法之后，这个参数才是可用的，比如在 `mHelper = BuilderUtil.createHelper(this);` 后 title 才有值。
-  
+
 ## 支持传递任何类型
 
 我们知道用 Intent 来传递对象只支持部分特定的类型，而 BuilderParameter 没有这样的限制。BuilderParameter 的默认策略是这样的，支持用 Intent 传递的对象则用 Intent 传递。不支持的对象则直接传递引用。
@@ -176,7 +176,7 @@ Helper 主要作用有两个：
 
 ## keep
 
-keep，表示参数会在 Helper#restore  Helper#save 方法中进行保存和恢复。默认情况下是 false。而且 keep 只对能通过 Bundle 保存的对象生效。
+keep，表示参数会在 `Helper#save` 和 `Helper#restore` 方法中进行保存和恢复。默认情况下是 false。而且 keep 只对能通过 Bundle 保存的对象生效。
 
 # @Result
 
@@ -258,7 +258,7 @@ keep，表示参数会在 Helper#restore  Helper#save 方法中进行保存和�
 
 然后便可以这样使用 `EditorActivityBuilder.create(this).forContent(System.out::println).start()`，一行代码完成启动 Activity 并处理 onActivityResult 的回调。
 
-类型参数 `A` 就是调用者 Activity 的实例引用，为什么要有两个回调，见 [lambda 的引用问题](#lambda 的引用问题)，现在先来说说 Result Parameter
+类型参数 `A` 就是调用者 Activity 的实例引用，为什么要有两个回调，见 [lambda 的引用问题](#lambda-引用的问题)，现在先来说说 Result Parameter
 
 ## Result Parameter
 
@@ -273,7 +273,7 @@ keep，表示参数会在 Helper#restore  Helper#save 方法中进行保存和�
   
     public UserDetailBuilder<A> forDelete(Runnable deleteConsumer)
     
-Result 是可以支持多参数的，但自带的 Callback 只有 3 个，分别是`Consumer`、`BiConsumer`、`TriConsumer`.如果参数数量超过自带的 Consumer ， **ActivityBuilder 会自动创建新的 Consumer**
+Result 是可以支持多参数的，但自带的 Callback 只有 3 个，分别是`Consumer`、`BiConsumer`、`TriConsumer`.如果参数数量超过自带的 Consumer ， **注解处理器会自动创建新的 Consumer**
 
     @Result
     public void resultAbcd(String a, String b, String c, String d) 
@@ -330,13 +330,13 @@ ActivityBuilder 会为我们创建新的 Consumer：
 ActivityBuilder 是不建议直接使用在调用者 Activity 中的，更推荐用于 MVP 的 Presenter，或 MVVM 的 ViewModel。最好的实践是结合 
 Android Architecture Components 和 Databinding 来使用。 
 
-ActivityBuilder 对 ActivityForResult 回调的处理方式是通过 lambda 表达式来实现的，在内部实现中这些 lambda 表达式是保存在一个 retain instance 的 Fragment 中。如果 lambda 表达式是在调用者 Activity 中声明的话，那就要小心了因为 lambda 表达式是有可能捕获调用者 Activity 的引用的，这意味着当我们的 Acitvity 因为 ConfigurationChanged 要重建的时候，我们还有一个 retain instance Fragment 间接地保存这个要被销毁的 Activity 的引用。
+ActivityBuilder 对 ActivityForResult 回调的处理方式是通过 lambda 表达式来实现的，在内部实现中这些 lambda 表达式是保存在一个 retain instance 的 Fragment 中。如果 lambda 表达式是在调用者 Activity 中声明的话，那就要小心了因为 lambda 表达式是有可能捕获调用者 Activity 的引用的，这意味着**当我们的 Acitvity 因为 ConfigurationChanged 要重建的时候，我们还有一个 retain instance Fragment 间接地保存这个要被销毁的 Activity 的引用。**
 
 不过这不会导致严重的内存泄露问题，因为我们的 MessengerFragment 总会及时地释放对 lambda 表达式的引用，更严重的是这种情况下 lambda 表达式会在错误的状态执行，因为它捕获的变量很可能是已经废弃的 Activity 的变量。
 
 要避免这种情况，最理想的就是使用无状态的 lambda 表达式。不过，我们的函数式接口是 `Consumer`，一般来说 `Consumer` 总要有点副作用的，因为它接收参数然后又没有任何返回，如果是无状态的那就没什么意义。或者避免使用捕获 `this` 引用的 Activity，
 
-对于 lambda 表达式：
+对于 lambda 表达式下面这些情况会捕获 `this`：
 
 - 直接引用 Activity 的实例字段
 - 调用了 Activity 的实例方法
@@ -362,4 +362,7 @@ ActivityBuilder 对 ActivityForResult 回调的处理方式是通过 lambda 表�
                     .forContent((activity,text) -> showToast(activity,text));
 
 
-这种方式这是一只改善不是一个完美的解决方法的，特别是涉及到对 View 的更新。所以推荐通过 [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html) 和 [Databinding](https://developer.android.com/topic/libraries/data-binding/index.html) 来定义 lambda 和实现对 View 的更新。
+这种方式只是改善不是一个完美的解决方法，特别是涉及到对 View 的更新。所以推荐通过 [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html) 和 [Databinding](https://developer.android.com/topic/libraries/data-binding/index.html) 来定义 lambda 和实现对 View 的更新。
+
+
+#
