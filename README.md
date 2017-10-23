@@ -365,4 +365,4 @@ Replace with:
                     .forContent((activity,text) -> showToast(activity,text));
 
 
-This way this is an improvement is not a solution, especially related to the update of the View. It is recommended to use the [ViewModel] (https://developer.android.com/topic/libraries/architecture/viewmodel.html) and [Databinding] (https://developer.android.com/topic/libraries/data-binding/ index.html) to define lambda and implement updates to View.
+This way this is an improvement is not a solution, especially related to the update of the View. It is recommended to use the [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html) and [Databinding](https://developer.android.com/topic/libraries/data-binding/ index.html) to define lambda and implement updates to View.
