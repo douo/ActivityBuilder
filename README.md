@@ -332,7 +332,7 @@ Of course, the method way is more concise:
 
 ActivityBuilder is not recommended for direct use in the caller Activity, more recommended for MVP Presenter, or MVVM's ViewModel. The best practice is to combine with Android Architecture Components and Databinding.
 
-ActvityBuilder using lambda expression to save the callback. In the internal implementation, these lambda expression is stored in a **retain instance framgent**. If the lambda expression is declared in the caller activity, be careful because the lambda is likely to capture a reference of the caller activity, which means that **when activity is rebuilt because of some configuration changed, there is a retain instance fragment that indirectly holds the reference to the Activity to be destroyed.**
+ActivityBuilder using lambda expression to save the callback. In the internal implementation, these lambda expression is stored in a **retain instance framgent**. If the lambda expression is declared in the caller activity, be careful because the lambda is likely to capture a reference of the caller activity, which means that **when activity is rebuilt because of some configuration changed, there is a retain instance fragment that indirectly holds the reference to the Activity to be destroyed.**
 
 But this will not lead to serious memory leak problems, because our retain instance fragment will always release the reference to the lambda expression, more serious in this case lambda expression will be executed in the wrong state, because it captures the variables It is probably a variable that has been delcared in deprecated Activity.
 
@@ -365,4 +365,4 @@ Replace with:
                     .forContent((activity,text) -> showToast(activity,text));
 
 
-This way this is an improvement is not a solution, especially related to the update of the View. It is recommended to use the [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html) and [Databinding](https://developer.android.com/topic/libraries/data-binding/index.html) to define lambda and implement updates to View.
+This way is an improvement not a solution, especially related to the situation about update of the View. It is recommended to use the [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html) and [Databinding](https://developer.android.com/topic/libraries/data-binding/index.html) to define lambda and implement updates to View.
