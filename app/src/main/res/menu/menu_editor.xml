@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="info.dourok.esactivity.sample.MainActivity">
+  <item
+      android:id="@+id/action_ok"
+      android:orderInCategory="100"
+      android:title="@string/action_ok"
+      app:showAsAction="always"/>
+</menu>

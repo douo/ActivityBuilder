@@ -22,6 +22,14 @@
     </activity>
     <activity android:name=".SampleActivity">
     </activity>
+    <activity android:name=".editor.EditorActivity">
+    </activity>
+    <activity android:name=".books.BookDetailActivity">
+    </activity>
+    <activity
+        android:name=".books.BookListActivity"
+        android:label="Book List">
+    </activity>
   </application>
 
 </manifest>

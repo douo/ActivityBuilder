@@ -11,8 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
-import info.dourok.esactivity.lambda.Calc;
+import info.dourok.esactivity.BuilderUtil;
+import info.dourok.esactivity.sample.books.BookListActivity;
 import info.dourok.esactivity.sample.editor.EditorActivity;
 import info.dourok.esactivity.sample.editor.EditorActivityBuilder;
 import info.dourok.esactivity.sample.editor.EditorActivityHelper;
@@ -25,10 +27,28 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    requestSomeText();
+    openBook();
+    openEditor();
+  }
+
+  private void openBook() {
+    Button btn = findViewById(R.id.book_list);
+    btn.setOnClickListener(
+        view ->
+            BuilderUtil.createBuilder(this, BookListActivity.class)
+                .start());
+  }
+
+  private void openEditor() {
+    findViewById(R.id.editor).setOnClickListener(
+        view ->
+            EditorActivityBuilder.create(this)
+                .hint("say something!")
+                .forContent(System.out::println)
+                .start()
+    );
   }
 
   private void badPractice() {
@@ -54,16 +74,6 @@ public class MainActivity extends AppCompatActivity {
                     .setAction("Action", null).show())
                 .forText((context, s) -> Toast.makeText(context, "" + s, Toast.LENGTH_SHORT).show())
                 .start());
-  }
-
-  private void requestSomeText() {
-    findViewById(R.id.fab).setOnClickListener(
-        view ->
-            EditorActivityBuilder.create(this)
-                .hint("say something!")
-                .forContent(System.out::println)
-                .start()
-    );
   }
 
   private static final int REQUEST_SOME_TEXT = 0x2;
