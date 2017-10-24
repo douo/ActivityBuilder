@@ -1,7 +1,6 @@
 package info.dourok.compiler.parameter;
 
 import android.app.Activity;
-import info.dourok.compiler.EasyUtils;
 import info.dourok.esactivity.BuilderParameter;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultParameter;
@@ -31,6 +30,7 @@ import static info.dourok.compiler.EasyUtils.log;
 public class ParameterModel {
   private String key;
   private String name;
+  private String displayName;
   private TypeMirror type;
   private boolean keep;
   private TransmitType transmit;
@@ -43,6 +43,14 @@ public class ParameterModel {
       throw new IllegalStateException("BuilderParameter can not be private");
     }
     name = element.getSimpleName().toString();
+    // 将 mVar 转换为 var
+    if (name.matches("m[A-Z].*$")) {
+      displayName = name.substring(1, 2).toLowerCase()
+          + (name.length() > 2 ? name.substring(2, name.length()) : "");
+    } else {
+      displayName = name;
+    }
+
     key = annotation.key().equals(BuilderParameter.USE_VARIABLE_NAME) ?
         getName() : annotation.key();
     keep = annotation.keep();
@@ -120,6 +128,13 @@ public class ParameterModel {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * 用于 Builder 方法名和方法参数
+   */
+  public String getDisplayName() {
+    return displayName;
   }
 
   public String getKey() {

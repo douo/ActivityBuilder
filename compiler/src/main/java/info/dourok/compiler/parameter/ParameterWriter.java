@@ -35,6 +35,10 @@ public abstract class ParameterWriter {
     return parameter.getName();
   }
 
+  public String getDisplayName() {
+    return parameter.getDisplayName();
+  }
+
   public String getKey() {
     return parameter.getKey();
   }
@@ -96,7 +100,6 @@ public abstract class ParameterWriter {
         return null;
     }
   }
-
 
   /**
    * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null

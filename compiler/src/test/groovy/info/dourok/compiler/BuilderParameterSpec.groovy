@@ -183,6 +183,33 @@ final class BuilderParameterSpec extends Specification {
     key << Gen.string(~'[#-\\[^-~]*').take(5)
   }
 
+  def "activity with m-style naming parameter:#name"() {
+    given:
+    def paramType = "int"
+    def input = Source.activity().
+        param(paramType, name, [], name).
+        source()
+    expect:
+    def builder = Source.builder()
+        .setter(paramType, methodName, [],
+        "getIntent().putExtra(\"${name}\",${methodName});").source()
+    def helper = Source.helper().injectStatement(name,
+        "intent.get${paramType.capitalize()}Extra(\"${name}\",${getDefaultValue(paramType)}")
+        .source()
+    assert_()
+        .about(JavaSourcesSubjectFactory.javaSources())
+        .that(input)
+        .processedWith(new ActivityBuilderProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(builder, helper)
+
+    where:
+    name   | methodName
+    "mVar" | "var"
+    "mV"   | "v"
+  }
+
   @Unroll
   def "#paramType with keep"() {
     given:
@@ -206,9 +233,17 @@ final class BuilderParameterSpec extends Specification {
         .generatesSources(builder, helper)
 
     where:
-    paramType | imports  | helperImports                         | getter                                           | setter                               | ignoreKeep
-    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | false
-    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | true
+    paramType | imports  | helperImports                         | getter | setter | ignoreKeep
+    "String"  | [String] |
+        []                                                       |
+        "intent.getStringExtra(\"val\")"                                  |
+        "getIntent().putExtra(\"val\",val);"                                       |
+        false
+    "Object"  | [Object] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        true
   }
 
   @Unroll
@@ -235,10 +270,22 @@ final class BuilderParameterSpec extends Specification {
         .generatesSources(builder, helper)
 
     where:
-    paramType | imports  | helperImports                         | getter                                           | setter                               | transmit
-    "String"  | [String] | []                                    | "intent.getStringExtra(\"val\")"                 | "getIntent().putExtra(\"val\",val);" | "TransmitType.AUTO"
-    "Object"  | [Object] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.AUTO"
-    "String"  | [String] | ["info.dourok.esactivity.RefManager"] | "RefManager.getInstance().get(activity,\"val\")" | "getRefMap().put(\"val\",val);"      | "TransmitType.REF"
+    paramType | imports  | helperImports                         | getter | setter | transmit
+    "String"  | [String] |
+        []                                                       |
+        "intent.getStringExtra(\"val\")"                                  |
+        "getIntent().putExtra(\"val\",val);"                                       |
+        "TransmitType.AUTO"
+    "Object"  | [Object] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        "TransmitType.AUTO"
+    "String"  | [String] |
+        ["info.dourok.esactivity.RefManager"]                    |
+        "RefManager.getInstance().get(activity,\"val\")"                  |
+        "getRefMap().put(\"val\",val);"                                            |
+        "TransmitType.REF"
   }
 
   def "activity with 1 nest generic parameter"() {

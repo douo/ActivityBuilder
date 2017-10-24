@@ -81,11 +81,11 @@ public class BuilderGenerator extends BaseActivityGenerator {
         .addMethod(self);
 
     for (ParameterWriter parameterWriter : parameterList) {
-      MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getName())
+      MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getDisplayName())
           .returns(builderWithParameter)
           .addModifiers(Modifier.PUBLIC)
           .addParameter(ClassName.get(parameterWriter.getType()),
-              parameterWriter.getName());
+              parameterWriter.getDisplayName());
       parameterWriter.writeSetter(setter);
       setter.addStatement("return this");
       builder.addMethod(setter.build());

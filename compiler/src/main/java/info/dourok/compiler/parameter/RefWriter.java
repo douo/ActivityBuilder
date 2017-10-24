@@ -66,6 +66,6 @@ public class RefWriter extends ParameterWriter {
   }
 
   @Override public void writeSetter(MethodSpec.Builder paper) {
-    paper.addStatement("getRefMap().put($S,$L)", getKey(), getName());
+    paper.addStatement("getRefMap().put($S,$L)", getKey(), getDisplayName());
   }
 }

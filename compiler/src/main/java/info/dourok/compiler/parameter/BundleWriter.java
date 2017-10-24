@@ -181,7 +181,7 @@ class BundleWriter extends ParameterWriter {
   @Override public void writeSetter(MethodSpec.Builder paper) {
     paper.addStatement("getIntent().putExtra($S,$L)",
         getKey(),
-        getName());
+        getDisplayName());
   }
 
   @Override
@@ -206,5 +206,4 @@ class BundleWriter extends ParameterWriter {
     return (prefix.equals("Parcelable") && !isParcelable(getType(), true))
         || (prefix.equals("Serializable")) && (!isSerializable(getType(), true));
   }
-
 }
