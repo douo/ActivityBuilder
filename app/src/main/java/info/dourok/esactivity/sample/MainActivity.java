@@ -12,7 +12,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-import info.dourok.esactivity.BuilderUtils;
+import info.dourok.esactivity.lambda.Calc;
+import info.dourok.esactivity.sample.editor.EditorActivity;
+import info.dourok.esactivity.sample.editor.EditorActivityBuilder;
+import info.dourok.esactivity.sample.editor.EditorActivityHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,31 +25,71 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
+    requestSomeText();
+  }
+
+  private void badPractice() {
     FloatingActionButton fab = findViewById(R.id.fab);
     fab.setOnClickListener(
+        view ->
+            SampleActivityBuilder.create(this)
+                .forCancel(data -> Snackbar.make(view, "You're Cancel",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show())
+                .forText(s -> Toast.makeText(this, "" + s, Toast.LENGTH_SHORT).show())
+                .start());
+  }
+
+  private void goodPractice() {
+    FloatingActionButton fab = findViewById(R.id.fab);
+    fab.setOnClickListener(
+        view ->
+            SampleActivityBuilder.create(this)
+                .forCancel((context, data) -> Snackbar.make(context.findViewById(R.id.fab),
+                    "You're Cancel",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show())
+                .forText((context, s) -> Toast.makeText(context, "" + s, Toast.LENGTH_SHORT).show())
+                .start());
+  }
+
+  private void requestSomeText() {
+    findViewById(R.id.fab).setOnClickListener(
+        view ->
+            EditorActivityBuilder.create(this)
+                .hint("say something!")
+                .forContent(System.out::println)
+                .start()
+    );
+  }
+
+  private static final int REQUEST_SOME_TEXT = 0x2;
+
+  private void requestSomeTextNormalWay() {
+    findViewById(R.id.fab).setOnClickListener(
         view -> {
-          SampleActivityBuilder<MainActivity> builder =
-              BuilderUtils.smallCreate(this, SampleActivity.class);
+          Intent intent = new Intent(this, EditorActivity.class);
+          intent.putExtra("hint", "say something");
+          startActivityForResult(intent, REQUEST_SOME_TEXT);
+        }
+    );
+  }
 
-          builder
-              //SampleActivityBuilder.create(this)
-              .forCancel(data -> {
-                Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-              })
-              .forText((s) -> {
-                Toast.makeText(this, "" + s.get(0), Toast.LENGTH_SHORT).show();
-              })
-              .forAbcd((s, s2, s3, s4) -> {
+  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    switch (requestCode) {
+      case REQUEST_SOME_TEXT:
+        if (resultCode == EditorActivityHelper.RESULT_CONTENT) {
+          String text = data.getStringExtra("content");
+          showToast(text);
+        }
+    }
+  }
 
-              })
-              .text("hahah")
-              .asIntent()
-              .asBuilder()
-              .start();
-        });
+  private void showToast(String text) {
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
 
   public void handleOk(Intent data) {

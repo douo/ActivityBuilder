@@ -15,10 +15,11 @@ import info.dourok.esactivity.Builder;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.TransmitType;
+import info.dourok.esactivity.function.BiConsumer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.Consumer;
-import info.dourok.esactivity.BuilderUtils;
+import info.dourok.esactivity.BuilderUtil;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Builder
@@ -36,7 +37,7 @@ public class SampleActivity extends AppCompatActivity {
   @BuilderParameter byte[] bytes;
   @BuilderParameter ArrayList<Integer> ids;
   @BuilderParameter(transmit = TransmitType.REF) HashSet set;
-  SampleActivityHelper mHelper = BuilderUtils.createHelper(this);
+  SampleActivityHelper mHelper = BuilderUtil.createHelper(this);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
