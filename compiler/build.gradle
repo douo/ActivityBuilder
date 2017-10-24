@@ -3,6 +3,10 @@ import org.gradle.internal.jvm.Jvm
 //apply plugin: 'java'
 apply plugin: 'groovy'
 
+tasks.withType(GroovyCompile) {
+  groovyOptions.optimizationOptions.indy = true
+}
+
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation project(':annotations')
