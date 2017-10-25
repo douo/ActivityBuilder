@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import info.dourok.esactivity.BuilderUtil;
 import info.dourok.esactivity.sample.books.BookListActivity;
+import info.dourok.esactivity.sample.camera.CameraActivity;
 import info.dourok.esactivity.sample.editor.EditorActivity;
 import info.dourok.esactivity.sample.editor.EditorActivityBuilder;
 import info.dourok.esactivity.sample.editor.EditorActivityHelper;
@@ -29,11 +30,12 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    openBook();
-    openEditor();
+    setupBook();
+    setupEditor();
+    setupCamera();
   }
 
-  private void openBook() {
+  private void setupBook() {
     Button btn = findViewById(R.id.book_list);
     btn.setOnClickListener(
         view ->
@@ -41,13 +43,20 @@ public class MainActivity extends AppCompatActivity {
                 .start());
   }
 
-  private void openEditor() {
+  private void setupEditor() {
     findViewById(R.id.editor).setOnClickListener(
         view ->
             EditorActivityBuilder.create(this)
                 .hint("say something!")
                 .forContent(System.out::println)
                 .start()
+    );
+  }
+
+  private void setupCamera() {
+    findViewById(R.id.camera).setOnClickListener(
+        view ->
+            BuilderUtil.createBuilder(this, CameraActivity.class).start()
     );
   }
 
