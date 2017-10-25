@@ -4,7 +4,7 @@
 
 ActivityBuilder is a annotation base library using builder pattern to make inner activity communication more easier.
 
-Through ActivityBuilder you can use one line of code to deliver parameters, start the Activity and handle the callback:
+Through ActivityBuilder you can use one line of code to deliver parameters, start the Activity and handle the result:
 
     EditorActivityBuilder.create(this)
                     .hint("say something!")

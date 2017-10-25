@@ -4,7 +4,7 @@
 
 ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 间的沟通更方便。
 
-通过 ActivityBuilder 你可以用一行代码来传递参数、启动 Activity 和处理回调:
+通过 ActivityBuilder 你可以用一行代码来传递参数、启动 Activity 和处理结果回调:
 
     EditorActivityBuilder.create(this)
                     .hint("say something!")
