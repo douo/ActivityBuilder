@@ -2,6 +2,7 @@ package info.dourok.compiler.parameter;
 
 import com.squareup.javapoet.MethodSpec;
 import java.util.List;
+import java.util.Objects;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
@@ -28,7 +29,7 @@ class BundleWriter extends ParameterWriter {
 
   private String prefix;
 
-  public BundleWriter(ParameterModel parameter, String prefix) {
+  BundleWriter(ParameterModel parameter, String prefix) {
     super(parameter);
     if (prefix == null) {
       prefix = generatePrefix(parameter.getType(), TYPE_UNKNOWN);
@@ -44,7 +45,7 @@ class BundleWriter extends ParameterWriter {
     }
   }
 
-  public BundleWriter(ParameterModel parameter) {
+  BundleWriter(ParameterModel parameter) {
     this(parameter, null);
   }
 
@@ -59,7 +60,7 @@ class BundleWriter extends ParameterWriter {
             if (primitiveType.getKind() == TypeKind.INT) {
               return "IntegerArrayList";
             } else {
-              return null;//列表不支持其他原生类型,泛型也不支持 boxing
+              return null; //列表不支持其他原生类型,泛型也不支持 boxing
             }
           default:
             return prefix;
@@ -71,7 +72,7 @@ class BundleWriter extends ParameterWriter {
           case TYPE_ARRAY:
             return null; //只支持一维数组
           case TYPE_ARRAY_LIST:
-            return null;// Bundle 不支持泛型数组
+            return null; // Bundle 不支持泛型数组
           default:
             return generatePrefix(arrayType.getComponentType(), TYPE_ARRAY);
         }
@@ -102,7 +103,7 @@ class BundleWriter extends ParameterWriter {
 
           if (isArrayList(declaredType)) {
             List<? extends TypeMirror> list = declaredType.getTypeArguments();
-            if (list.isEmpty()) {//无泛型参数的 ArrayList 处理不了
+            if (list.isEmpty()) { //无泛型参数的 ArrayList 处理不了
               return null;
             } else {
               return generatePrefix(declaredType.getTypeArguments().get(0), TYPE_ARRAY_LIST);
@@ -132,7 +133,7 @@ class BundleWriter extends ParameterWriter {
   @Override
   public void writeInjectActivity(MethodSpec.Builder paper, String activityName) {
     String defaultValue = getDefaultValue(parameter.getType());
-    if (defaultValue != null) {// isPrimitive() || isBoxed()
+    if (defaultValue != null) { // isPrimitive() || isBoxed()
       paper.addStatement("$L.$L = intent.get$LExtra($S,$L)", activityName,
           parameter.getName(),
           prefix,
@@ -153,7 +154,7 @@ class BundleWriter extends ParameterWriter {
 
   @Override public void writeConsumerGetter(MethodSpec.Builder paper) {
     String defaultValue = getDefaultValue(parameter.getType());
-    if (defaultValue != null) {// isPrimitive() || isBoxed()
+    if (defaultValue != null) { // isPrimitive() || isBoxed()
       paper.addStatement("$T $L = intent.get$LExtra($S,$L)", getType(),
           parameter.getName(),
           prefix,
@@ -203,7 +204,7 @@ class BundleWriter extends ParameterWriter {
   }
 
   private boolean isSubTypeOfParcelableOrSerializable() {
-    return (prefix.equals("Parcelable") && !isParcelable(getType(), true))
-        || (prefix.equals("Serializable")) && (!isSerializable(getType(), true));
+    return (Objects.equals(prefix, "Parcelable") && !isParcelable(getType(), true))
+        || (Objects.equals(prefix, "Serializable")) && (!isSerializable(getType(), true));
   }
 }

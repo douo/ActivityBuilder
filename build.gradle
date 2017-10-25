@@ -1,29 +1,76 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
+apply plugin: 'com.github.ben-manes.versions'
 buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-rc2'
-        
+  ext.versions = ['minSdk'        : 14,
+                  'compileSdk'    : 26,
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+                  'supportLibrary': '26.1.0',
+                  'arch'          : '1.0.0-rc1',
+                  'androidPlugin' : '3.0.0-rc2',
+                  'androidTools'  : '26.0.2',
+                  'release-major' : '1.0']
+  ext.deps = [android    : [gradle : "com.android.tools.build:gradle:${versions.androidPlugin}",
+                            runtime: 'com.google.android:android:4.1.1.4'],
+              support    : [compat     : "com.android.support:support-compat:${versions.supportLibrary}",
+                            design     : "com.android.support:design:${versions.supportLibrary}",
+                            constraint : 'com.android.support.constraint:constraint-layout:1.0.2',
+                            appcompat  : "com.android.support:appcompat-v7:${versions.supportLibrary}",
+                            annotations: "com.android.support:support-annotations:${versions.supportLibrary}",
+                            test       : [runner  : 'com.android.support.test:runner:1.0.1',
+                                          espresso: 'com.android.support.test.espresso:espresso-core:3.0.1'],],
+              arch       : [lifecycle  : [java8     : "android.arch.lifecycle:common-java8:${versions.arch}",
+                                          extensions: "android.arch.lifecycle:extensions:${versions.arch}"],
+                            persistence: [room: "android.arch.persistence.room:runtime:${versions.arch}"]],
+
+              lint       : ['core'  : "com.android.tools.lint:lint:${versions.androidTools}",
+                            'api'   : "com.android.tools.lint:lint-api:${versions.androidTools}",
+                            'checks': "com.android.tools.lint:lint-checks:${versions.androidTools}",
+                            'tests' : "com.android.tools.lint:lint-tests:${versions.androidTools}",],
+              annotations: 'org.jetbrains:annotations:15.0',
+              javapoet   : 'com.squareup:javapoet:1.9.0',
+              google     : [auto   : 'com.google.auto.service:auto-service:1.0-rc3',
+                            truth  : "com.google.truth:truth:0.36",
+                            compile: 'com.google.testing.compile:compile-testing:0.12',
+                            guava  : 'com.google.guava:guava:23.0-android'],
+              junit      : 'junit:junit:4.12',
+              groovy     : 'org.codehaus.groovy:groovy-all:2.4.12',
+              spock      : [spock  : 'org.spockframework:spock-core:1.1-groovy-2.4',
+                            genesis: 'com.nagternal:spock-genesis:0.6.0'],
+  ]
+
+  repositories {
+    google()
+    jcenter()
+  }
+  dependencies {
+    classpath deps.android.gradle
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.16.0'
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
 }
 
-
+def gitCommitCount() {
+  try {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+      commandLine 'git', 'rev-list', '--count', 'HEAD'
+      standardOutput = stdout
+    }
+    def commitCount = stdout.toString().trim().toInteger()
+    return commitCount
+  } catch (ignored) {
+    return 0
+  }
+}
 
 allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
+  repositories {
+    google()
+    jcenter()
+  }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }

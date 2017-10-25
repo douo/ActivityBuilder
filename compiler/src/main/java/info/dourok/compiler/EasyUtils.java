@@ -8,9 +8,6 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -32,10 +29,10 @@ public class EasyUtils {
   private TypeMirror parcelable;
   private TypeMirror serializable;
 
-  private static final EasyUtils instance = new EasyUtils();
+  private static final EasyUtils S_INSTANCE = new EasyUtils();
 
   public static EasyUtils getInstance() {
-    return instance;
+    return S_INSTANCE;
   }
 
   public void init(ProcessingEnvironment processingEnvironment) {
@@ -53,28 +50,28 @@ public class EasyUtils {
   }
 
   public static Types getTypes() {
-    return instance.types;
+    return S_INSTANCE.types;
   }
 
   public static Elements getElements() {
-    return instance.elements;
+    return S_INSTANCE.elements;
   }
 
   public static boolean isString(TypeMirror mirror) {
-    return instance.types.isSameType(mirror, instance.string);
+    return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.string);
   }
 
   public static boolean isCharSequence(TypeMirror mirror) {
-    return instance.types.isSameType(mirror, instance.charSequence);
+    return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.charSequence);
   }
 
   public static boolean isBundle(TypeMirror mirror) {
-    return instance.types.isSameType(mirror, instance.bundle);
+    return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.bundle);
   }
 
   public static boolean isArrayList(TypeMirror mirror) {
     //XXX 类型擦除后的 ArrayList<T> 类不能等价于 ArrayList，所以不能用 isSame 判断
-    return instance.types.isAssignable(getTypes().erasure(mirror), instance.arrayList);
+    return S_INSTANCE.types.isAssignable(getTypes().erasure(mirror), S_INSTANCE.arrayList);
   }
 
   /**
@@ -82,42 +79,42 @@ public class EasyUtils {
    */
   public static boolean isParcelable(TypeMirror mirror, boolean same) {
     if (same) {
-      return instance.types.isSameType(mirror, instance.parcelable);
+      return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.parcelable);
     } else {
-      return instance.types.isAssignable(mirror, instance.parcelable);
+      return S_INSTANCE.types.isAssignable(mirror, S_INSTANCE.parcelable);
     }
   }
 
   public static boolean isSerializable(TypeMirror mirror, boolean same) {
     if (same) {
-      return instance.types.isSameType(mirror, instance.serializable);
+      return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.serializable);
     } else {
-      return instance.types.isAssignable(mirror, instance.serializable);
+      return S_INSTANCE.types.isAssignable(mirror, S_INSTANCE.serializable);
     }
   }
 
   public static void log(String msg) {
-    instance.messager.printMessage(Diagnostic.Kind.NOTE, msg);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.NOTE, msg);
   }
 
   public static void log(String msg, Element element) {
-    instance.messager.printMessage(Diagnostic.Kind.NOTE, msg, element);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.NOTE, msg, element);
   }
 
   public static void warn(String msg) {
-    instance.messager.printMessage(Diagnostic.Kind.WARNING, msg);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.WARNING, msg);
   }
 
   public static void warn(String msg, Element element) {
-    instance.messager.printMessage(Diagnostic.Kind.WARNING, msg, element);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.WARNING, msg, element);
   }
 
   public static void error(String msg) {
-    instance.messager.printMessage(Diagnostic.Kind.ERROR, msg);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.ERROR, msg);
   }
 
   public static void error(String msg, Element element) {
-    instance.messager.printMessage(Diagnostic.Kind.ERROR, msg, element);
+    S_INSTANCE.messager.printMessage(Diagnostic.Kind.ERROR, msg, element);
   }
 
   public static String capitalize(String s) {
@@ -126,6 +123,6 @@ public class EasyUtils {
   }
 
   public static Filer getFiler() {
-    return instance.filer;
+    return S_INSTANCE.filer;
   }
 }

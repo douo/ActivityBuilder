@@ -7,8 +7,8 @@ import info.dourok.compiler.generator.ConsumerGenerator;
 import info.dourok.compiler.generator.HelperGenerator;
 import info.dourok.compiler.parameter.ParameterWriter;
 import info.dourok.compiler.result.ResultModel;
-import info.dourok.esactivity.BuilderParameter;
 import info.dourok.esactivity.Builder;
+import info.dourok.esactivity.BuilderParameter;
 import info.dourok.esactivity.Result;
 import info.dourok.esactivity.ResultSet;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import static info.dourok.compiler.EasyUtils.getElements;
-import static info.dourok.compiler.EasyUtils.log;
 
 /**
  * Created by tiaolins on 2017/8/30.
@@ -74,8 +73,8 @@ public class ActivityProcessorFactory {
   }
 
   public void generateBuilderUtil(PackageElement targetPackage) {
-    BuilderUtilGenerator generator = new BuilderUtilGenerator(targetActivityList, targetPackage
-        , activity, baseActivityBuilder);
+    BuilderUtilGenerator generator =
+        new BuilderUtilGenerator(targetActivityList, targetPackage, activity, baseActivityBuilder);
     try {
       generator.write();
     } catch (IOException e) {

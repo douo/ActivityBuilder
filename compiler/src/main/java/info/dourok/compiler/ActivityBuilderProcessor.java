@@ -16,7 +16,6 @@ import javax.lang.model.element.TypeElement;
 
 import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
-import static info.dourok.compiler.EasyUtils.log;
 import static info.dourok.compiler.EasyUtils.warn;
 
 @SupportedAnnotationTypes({
@@ -67,7 +66,7 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
                 getElements().getPackageElement("info.dourok.esactivity")));
       }
       firstRound = false;
-    }catch (IllegalStateException e){
+    } catch (IllegalStateException e) {
       // 其他对象通过抛出异常，跳出流程
       // Processor 将其捕获避免 javac 异常
     }

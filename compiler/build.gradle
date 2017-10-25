@@ -2,6 +2,7 @@ import org.gradle.internal.jvm.Jvm
 
 //apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'checkstyle'
 
 tasks.withType(GroovyCompile) {
   groovyOptions.optimizationOptions.indy = true
@@ -11,15 +12,15 @@ dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation project(':annotations')
 
-  implementation 'com.squareup:javapoet:1.9.0'
-  implementation 'com.google.auto.service:auto-service:1.0-rc3'
-  implementation 'com.google.android:android:4.1.1.4'
-  implementation 'com.google.guava:guava:23.0-android'
-  testImplementation "com.google.truth:truth:0.35"
-  testImplementation 'com.google.testing.compile:compile-testing:0.11'
-  testImplementation 'org.codehaus.groovy:groovy-all:2.4.12'
-  testImplementation('org.spockframework:spock-core:1.1-groovy-2.4')
-  testImplementation 'com.nagternal:spock-genesis:0.6.0'
+  implementation deps.javapoet
+  implementation deps.google.auto
+  implementation deps.android.runtime
+  implementation deps.google.guava
+  testImplementation deps.google.truth
+  testImplementation deps.google.compile
+  testImplementation deps.groovy
+  testImplementation deps.spock.spock
+  testImplementation deps.spock.genesis
 
   // 见 https://github.com/google/compile-testing/issues/28
   testImplementation files(Jvm.current().getToolsJar())
@@ -43,6 +44,12 @@ dependencies {
      :annotations:test
    */
   // 在命令行执行则不会有问题
+}
+checkstyle {
+  configFile rootProject.file('checkstyle.xml')
+  showViolations true
+  //Remove this when tests are less verbose, i.e. using JavaPoet
+  sourceSets = [sourceSets.main]
 }
 
 

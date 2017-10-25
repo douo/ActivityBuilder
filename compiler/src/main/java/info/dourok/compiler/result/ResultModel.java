@@ -23,7 +23,6 @@ import javax.lang.model.element.VariableElement;
 import static info.dourok.compiler.EasyUtils.capitalize;
 import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
-import static info.dourok.compiler.EasyUtils.log;
 
 /**
  * Created by tiaolins on 2017/9/4.
@@ -32,18 +31,19 @@ import static info.dourok.compiler.EasyUtils.log;
 public class ResultModel {
   private String name;
   private List<ParameterModel> parameters;
-  private static final Pattern pattern = Pattern.compile("result(?<name>[A-Z][\\w]*)");
+  private static final Pattern RESULT_PATTERN = Pattern.compile("result(?<name>[A-Z][\\w]*)");
 
   /**
    * 将 void result[Name](Parameters){} 解析为 ResultWriter
    */
   public ResultModel(Result annotation, ExecutableElement element) {
-    Matcher matcher = pattern.matcher(element.getSimpleName().toString());
+    Matcher matcher = RESULT_PATTERN.matcher(element.getSimpleName().toString());
     if (matcher.find()) {
       name = matcher.group("name").toLowerCase();
     } else {
       String msg = String.format(
-          "Result annotated method must match 'result(?<name>[A-Z][\\\\w]*)', %s is illegal result method name",
+          "Result annotated method must match 'result(?<name>[A-Z][\\\\w]*)',"
+              + " %s is illegal result method name",
           element.getSimpleName());
       error(msg, element);
       throw new IllegalStateException(msg);
@@ -120,7 +120,7 @@ public class ResultModel {
   public TypeName getConsumerType() throws IOException {
     int count = getParameters().size();
     if (count > 0) {
-      TypeName types[] = new TypeName[count];
+      TypeName[] types = new TypeName[count];
       for (int i = 0; i < count; i++) {
 
         types[i] = TypeName.get(getParameters().get(i).getObjectType());
@@ -134,7 +134,7 @@ public class ResultModel {
 
   public TypeName getConsumerTypeWithContext() throws IOException {
     int count = getParameters().size() + 1;
-    TypeName types[] = new TypeName[count];
+    TypeName[] types = new TypeName[count];
     types[0] = TypeVariableName.get("A");
     for (int i = 1; i < count; i++) {
       types[i] = TypeName.get(getParameters().get(i - 1).getObjectType());

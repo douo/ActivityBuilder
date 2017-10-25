@@ -135,16 +135,14 @@ public class BuilderGenerator extends BaseActivityGenerator {
     StringBuilder literal = new StringBuilder("getConsumer().").append(result.getConsumerName())
         .append(" = (activity");
 
-    StringBuilder parameters = result.getParameters().stream().reduce(new StringBuilder()
-        , (stringBuilder, parameterModel) -> stringBuilder.append(", ")
-            .append(parameterModel.getName()),
-        (stringBuilder, stringBuilder2) -> stringBuilder2);
+    StringBuilder parameters = result.getParameters().stream()
+        .reduce(new StringBuilder(), (stringBuilder, parameterModel) -> stringBuilder.append(", ")
+            .append(parameterModel.getName()), (stringBuilder, stringBuilder2) -> stringBuilder2);
     String accept;
     if (result.getParameters().isEmpty()) {
       accept = "$L.run()";
     } else {
-      accept = "$L.accept(" +
-          parameters.substring(2) + ")";
+      accept = "$L.accept(" + parameters.substring(2) + ")";
     }
 
     return MethodSpec.methodBuilder("for" + result.getCapitalizeName())

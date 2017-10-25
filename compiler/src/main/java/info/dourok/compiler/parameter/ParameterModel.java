@@ -21,7 +21,6 @@ import javax.lang.model.type.TypeMirror;
 import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.getTypes;
-import static info.dourok.compiler.EasyUtils.log;
 
 /**
  * Created by tiaolins on 2017/9/4.
@@ -51,8 +50,8 @@ public class ParameterModel {
       displayName = name;
     }
 
-    key = annotation.key().equals(BuilderParameter.USE_VARIABLE_NAME) ?
-        getName() : annotation.key();
+    key =
+        annotation.key().equals(BuilderParameter.USE_VARIABLE_NAME) ? getName() : annotation.key();
     keep = annotation.keep();
     type = element.asType();
     transmit = annotation.transmit();
