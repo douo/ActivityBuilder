@@ -4,6 +4,27 @@
 
 ActivityBuilder is a annotation base library using builder pattern to make inner activity communication more easier.
 
+# How to use
+
+    implementation 'info.dourok.builder:activity-builder:0.1.61'
+    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.61'
+
+Using ActivityBuilder need lambda expression supported：
+
+    android {
+      ...
+      compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+      }
+    }
+
+
+more detail in [Use Java 8 language features | Android Studio](https://developer.android.com/studio/write/java8-support.html)
+
+or use [retrolambda](https://github.com/orfjackal/retrolambda).
+
+
 # Example
 
 Assume We need to start a Activity named [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) to capturing user input, and pass a string parameter as hint.
@@ -120,24 +141,6 @@ Using `onActivityResult`,` tmpFile` can only be declared as a class variable:
         }
       }
     }
-
-# How to use
-
-Using ActivityBuilder need lambda expression supported：
-
-    android {
-      ...
-      compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-      }
-    }
-
-
-more detail in [Use Java 8 language features | Android Studio](https://developer.android.com/studio/write/java8-support.html)
-
-or use [retrolambda](https://github.com/orfjackal/retrolambda).
-
 
 # @Builder
 

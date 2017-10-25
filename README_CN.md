@@ -4,6 +4,26 @@
 
 ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 间的沟通更方便。
 
+
+# How to use
+
+    implementation 'info.dourok.builder:activity-builder:0.1.61'
+    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.61'
+
+ActivityBuilder ，的生成代码使用了 lambda 表达式，需要在 `build.gradle` 加入如下配置：
+
+    android {
+      ...
+      compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+      }
+    }
+
+详细见 [Use Java 8 language features | Android Studio](https://developer.android.com/studio/write/java8-support.html)
+
+或者使用 [retrolambda](https://github.com/orfjackal/retrolambda)。
+
 # 例子
 
 假设我们需要启动一个 EditorActivity 来获取用户输入，还要先向其传递一个参数用于表示输入框的提示语（hint）
@@ -122,21 +142,6 @@ private void showPicture(File file) {
       }
     }
 
-# How to use
-
-ActivityBuilder ，的生成代码使用了 lambda 表达式，需要在 `build.gradle` 加入如下配置：
-
-    android {
-      ...
-      compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-      }
-    }
-
-详细见 [Use Java 8 language features | Android Studio](https://developer.android.com/studio/write/java8-support.html)
-
-或者使用 [retrolambda](https://github.com/orfjackal/retrolambda)。
 
 # @Builder
 
