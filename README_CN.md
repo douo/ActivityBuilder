@@ -2,7 +2,7 @@
 
 -------------------------------
 
-ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 间的沟通更简单。
+ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 间的沟通更方便。
 
 # 例子
 
@@ -45,7 +45,7 @@ ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 
       }
 
 
-你主要做的只是为 EditorActivity 添加几个注解，ActivityBuilder 会为你自动生成其他代码（take care the rest of it）
+主要做的只是为 [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) 添加几个注解，ActivityBuilder 会为你自动生成其他代码：
 
     @Builder
     @Result(name = "content", parameters = { @ResultParameter(name = "content", type = String.class) })
@@ -54,10 +54,73 @@ ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 
       ...
       }
 
-可以在这里看到 EditorActivity 的完整代码。
 
-当我们需要启动一个 Activity 的时候，最大的问题是不知道怎么使用它，通过 Intent 来传递参数有很大的随意性，
-ActivityBuilder 相当一个合约。
+当我们需要启动一个 Activity 的时候，通过 Intent 来传递参数有很大的随意性，最大的问题是不知道怎么使用它，通常得通过文档和例子才能明确如何使用，ActivityBuilder 在这里的作用相当一个合约，即描述了怎么使用 Activity 也限定 Activity 的使用。
+
+# 另一个例子：用于现有 Activity
+
+下面的例子启动系统相机并获取一张照片，通过 `asIntent` 将 Builder 转换为 Intent 配置一些参数后又通过 `asBuilder` 转换回 Builder 并设置回调和启动 Activity。
+在这里将 tmpFile 定义为局部变量，通过 lambda 表达式进行捕获，避免了将其定义为类变量。完整代码见：[CameraActivity.java](app/src/main/java/info/dourok/esactivity/sample/camera/CameraActivity.java)
+
+```
+private void takePhoto() {
+    Intent intentPhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    ComponentName componentName = intentPhoto.resolveActivity(getPackageManager());
+    if (componentName != null) {
+      // 使用 lambda 表达式捕获局部变量，避免了将 tmpFile 作为类变量。
+      File tmpFile = getTempFile(FileType.IMG);
+      if (tmpFile != null) {
+        // 启动相机
+        // 注意 BuilderUtil 只有使用 Builder 注解才会生成
+        // 可以使用 BaseActivityBuilder.create 代替
+        BuilderUtil.createBuilder(this, intentPhoto)
+            .asIntent()
+            .setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            .putExtra(MediaStore.EXTRA_OUTPUT, getUri(componentName, tmpFile))
+            .asBuilder()
+            .forOk((context, intent) -> context.showPicture(tmpFile))
+            .start();
+      }
+    }
+  }
+private void showPicture(File file) {
+    ImageView imageView = findViewById(R.id.photo);
+    imageView.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+}  
+```
+如果通过 `onActivityResult` 来实现，`tmpFile` 只能声明为类变量：
+
+    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    File tempFile;
+  
+    @Override
+    public void sendPhoto() {
+      Intent intentPhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+      ComponentName componentName = intentPhoto.resolveActivity(getPackageManager());
+      if (componentName != null) {
+  
+        tempFile = FileUtil.getTempFile(FileUtil.FileType.IMG);
+        if (tempFile != null) {
+          fileUri = FileProvider.getUriForFile(this,
+              BuildConfig.APPLICATION_ID + ".provider",
+              tempFile);
+          grantUriPermission(componentName.getPackageName(), fileUri,
+              Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+        intentPhoto.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intentPhoto.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        startActivityForResult(intentPhoto, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+      }
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+        if (resultCode == RESULT_OK && fileUri != null) {
+          showImagePreview(tempFile.getAbsolutePath());
+        }
+      }
+    }
 
 # How to use
 
