@@ -1,3 +1,8 @@
+plugins {
+  id "com.jfrog.bintray" version "1.7.3"
+  id "com.github.dcendents.android-maven" version "2.0"
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -25,9 +30,16 @@ android {
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-  implementation deps.support.appcompat
+  implementation deps.support.annotations
+  implementation deps.support.fragment
   testImplementation deps.junit
   androidTestImplementation deps.support.test.runner
   androidTestImplementation deps.support.test.espresso
-  api project(path: ':annotations')
+  api "info.dourok.builder:activity-builder-annotations:0.1.61"
 }
+
+ext {
+  artifact = 'activity-builder'
+  publishedPackaging = 'aar'
+}
+apply from: '../release.gradle'

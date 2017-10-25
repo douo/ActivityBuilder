@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * 可用于 Activity 类或者方法
  * 用于 Activity 时，name 不能为空
  * 用于方法时 name 会被忽略
- * 方法命名需满足 result(?<name>[A-Z][\w]*) 的正则表达式
+ * 方法命名需满足 result(?&lt;name&gt;[A-Z][\w]*) 的正则表达式
  *
  * 对于参数类型没有泛型类的话，可直接注解于 Activity
  * 如果需要支持泛型只能通过注解方法来实现

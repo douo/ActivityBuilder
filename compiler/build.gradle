@@ -1,5 +1,9 @@
 import org.gradle.internal.jvm.Jvm
 
+plugins {
+  id "com.jfrog.bintray" version "1.7.3"
+  id "com.github.dcendents.android-maven" version "2.0"
+}
 //apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'checkstyle'
@@ -10,12 +14,13 @@ tasks.withType(GroovyCompile) {
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation project(':annotations')
+  implementation "info.dourok.builder:activity-builder-annotations:0.1.61"
 
   implementation deps.javapoet
   implementation deps.google.auto
   implementation deps.android.runtime
-  implementation deps.google.guava
+  // 打包的时候需注释,运行测试需打开
+  // implementation deps.google.guava
   testImplementation deps.google.truth
   testImplementation deps.google.compile
   testImplementation deps.groovy
@@ -55,3 +60,9 @@ checkstyle {
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+ext {
+  artifact = 'activity-builder-compiler'
+  publishedPackaging = 'jar'
+}
+apply from: '../release.gradle'

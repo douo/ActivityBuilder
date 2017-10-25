@@ -1,5 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-apply plugin: 'com.github.ben-manes.versions'
+
 buildscript {
   ext.versions = ['minSdk'        : 14,
                   'compileSdk'    : 26,
@@ -8,10 +8,11 @@ buildscript {
                   'arch'          : '1.0.0-rc1',
                   'androidPlugin' : '3.0.0-rc2',
                   'androidTools'  : '26.0.2',
-                  'release-major' : '1.0']
+                  'major'         : '0.1']
   ext.deps = [android    : [gradle : "com.android.tools.build:gradle:${versions.androidPlugin}",
                             runtime: 'com.google.android:android:4.1.1.4'],
               support    : [compat     : "com.android.support:support-compat:${versions.supportLibrary}",
+                            fragment   : "com.android.support:support-fragment:${versions.supportLibrary}",
                             design     : "com.android.support:design:${versions.supportLibrary}",
                             constraint : 'com.android.support.constraint:constraint-layout:1.0.2',
                             appcompat  : "com.android.support:appcompat-v7:${versions.supportLibrary}",
@@ -35,8 +36,7 @@ buildscript {
               junit      : 'junit:junit:4.12',
               groovy     : 'org.codehaus.groovy:groovy-all:2.4.12',
               spock      : [spock  : 'org.spockframework:spock-core:1.1-groovy-2.4',
-                            genesis: 'com.nagternal:spock-genesis:0.6.0'],
-  ]
+                            genesis: 'com.nagternal:spock-genesis:0.6.0'],]
 
   repositories {
     google()
@@ -44,10 +44,12 @@ buildscript {
   }
   dependencies {
     classpath deps.android.gradle
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.16.0'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
+}
+plugins {
+  id 'com.github.ben-manes.versions' version '0.16.0'
 }
 
 def gitCommitCount() {
@@ -64,13 +66,36 @@ def gitCommitCount() {
   }
 }
 
+//release configuration
+ext {
+  bintrayRepo = 'maven'
+  bintrayName = 'ActivityBuilder'
+  licenses = ['MIT']
+
+  publishedGroupId = 'info.dourok.builder'
+  libraryName = 'ActivityBuilder'
+
+  libraryDescription =
+      'ActivityBuilder is a annotation base library using builder pattern to make inner activity communication more easier.'
+
+  siteUrl = 'https://github.com/douo/ActivityBuilder'
+  gitUrl = 'https://github.com/douo/ActivityBuilder.git'
+
+  libraryVersion = "${versions.major}.${gitCommitCount()}"
+
+  developerId = 'douo'
+  developerName = 'Tiou Lims'
+  developerEmail = 'dourokinga@gmail.com'
+
+  licenseName = 'MIT License'
+  licenseUrl = 'https://raw.githubusercontent.com/douo/ActivityBuilder/master/LICENSE'
+  allLicenses = ["MIT"]
+}
+
 allprojects {
   repositories {
+    mavenLocal()
     google()
     jcenter()
   }
-}
-
-task clean(type: Delete) {
-  delete rootProject.buildDir
 }

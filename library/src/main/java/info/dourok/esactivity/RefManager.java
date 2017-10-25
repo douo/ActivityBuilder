@@ -37,9 +37,6 @@ public class RefManager {
     }
   }
 
-  /**
-   * 用于 setResult 的 Intent
-   */
   public <T> void put(Intent intent, String key, T value) {
     Map<String, Object> refMap = getOrCreateRefMap(intent);
     refMap.put(key, value);
@@ -69,7 +66,7 @@ public class RefManager {
   }
 
   /**
-   * 如果 {@param oldIntent} 绑定了 RefMap，那么将其解绑并重新绑定到 {@param newIntent}
+   * 如果 oldIntent 绑定了 RefMap，那么将其解绑并重新绑定到 newIntent
    */
   public void rebindRefMap(Intent oldIntent, Intent newIntent) {
     if (hasRefMap(oldIntent)) {
@@ -120,8 +117,6 @@ public class RefManager {
       sGlobalRefMap.remove(getKeyOfMap(intent));
     }
   }
-
-
 
   //XXX 拆箱 nullpointer
 

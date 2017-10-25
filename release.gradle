@@ -1,0 +1,128 @@
+//
+//plugins {
+//  id "com.jfrog.bintray" version "1.7.3"
+//  id "com.github.dcendents.android-maven" version "2.0"
+//}
+
+// bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+  user = properties.getProperty("bintray.user")
+  key = properties.getProperty("bintray.apikey")
+  configurations = ['archives']
+  pkg {
+    repo = bintrayRepo
+    name = bintrayName
+    desc = libraryDescription
+    websiteUrl = siteUrl
+    vcsUrl = gitUrl
+    licenses = allLicenses
+    publish = true
+    publicDownloadNumbers = true
+    version {
+      desc = libraryDescription
+    }
+  }
+}
+
+
+// install
+
+group = publishedGroupId // Maven Group ID for the artifact
+
+install {
+  repositories.mavenInstaller {
+    // This generates POM.xml with proper parameters
+    pom {
+      project {
+        packaging publishedPackaging
+        groupId publishedGroupId
+        artifactId artifact
+
+        // Add your description here
+        name libraryName
+        description libraryDescription
+        url siteUrl
+
+        // Set your license
+        licenses {
+          license {
+            name licenseName
+            url licenseUrl
+          }
+        }
+        developers {
+          developer {
+            id developerId
+            name developerName
+            email developerEmail
+          }
+        }
+        scm {
+          connection gitUrl
+          developerConnection gitUrl
+          url siteUrl
+        }
+      }
+    }
+  }
+}
+
+
+version = libraryVersion
+
+if (project.hasProperty("android")) {
+  // Android libraries
+  task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+  }
+  android.libraryVariants.all { variant ->
+    println variant.javaCompile.classpath.files
+    if (variant.name == 'release') {
+      //我们只需 release 的 javadoc
+      task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+        // title = ''
+        // description = ''
+        source = variant.javaCompile.source
+        classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+        options {
+          encoding "utf-8"
+          links "http://docs.oracle.com/javase/7/docs/api/"
+          linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
+        }
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+      }
+      task("javadoc${variant.name.capitalize()}Jar", type: Jar,
+          dependsOn: "generate${variant.name.capitalize()}Javadoc") {
+        classifier = 'javadoc'
+        from tasks.getByName("generate${variant.name.capitalize()}Javadoc").destinationDir
+      }
+      artifacts {
+        archives tasks.getByName("javadoc${variant.name.capitalize()}Jar")
+        archives sourcesJar
+      }
+    }
+  }
+} else {
+  // Java libraries
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+  }
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+  }
+
+  artifacts {
+    archives javadocJar
+    archives sourcesJar
+  }
+}
+
+
+

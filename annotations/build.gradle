@@ -1,3 +1,7 @@
+plugins {
+  id "com.jfrog.bintray" version "1.7.3"
+  id "com.github.dcendents.android-maven" version "2.0"
+}
 apply plugin: 'java-library'
 
 dependencies {
@@ -6,3 +10,9 @@ dependencies {
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
+
+ext {
+  artifact = 'activity-builder-annotations'
+  publishedPackaging = 'jar'
+}
+apply from: '../release.gradle'
