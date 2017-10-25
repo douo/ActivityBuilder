@@ -4,6 +4,14 @@
 
 ActivityBuilder is a annotation base library using builder pattern to make inner activity communication more easier.
 
+Through ActivityBuilder you can use one line of code to deliver parameters, start the Activity and handle the callback:
+
+    EditorActivityBuilder.create(this)
+                    .hint("say something!")
+                    .forContent(text -> System.out.println(text))
+                    .start()
+
+
 # How to use
 
     implementation 'info.dourok.builder:activity-builder:0.1.61'
@@ -27,7 +35,7 @@ or use [retrolambda](https://github.com/orfjackal/retrolambda).
 
 # Example
 
-Assume We need to start a Activity named [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) to capturing user input, and pass a string parameter as hint.
+Assume we need to start a Activity named [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) to capturing user input, and pass a string parameter as hint.
 
 In mostly android way:
 
