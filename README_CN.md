@@ -71,7 +71,7 @@ ActivityBuilder ，的生成代码使用了 lambda 表达式，需要在 `build.
       }
 
 
-主要做的只是为 [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) 添加几个注解，ActivityBuilder 会为你自动生成其他代码：
+主要做的只是为 [EditorActivity](sample/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) 添加几个注解，ActivityBuilder 会为你自动生成其他代码：
 
     @Builder
     @Result(name = "content", parameters = { @ResultParameter(name = "content", type = String.class) })
@@ -86,7 +86,7 @@ ActivityBuilder ，的生成代码使用了 lambda 表达式，需要在 `build.
 # 另一个例子：用于现有 Activity
 
 下面的例子启动系统相机并获取一张照片，通过 `asIntent` 将 Builder 转换为 Intent 配置一些参数后又通过 `asBuilder` 转换回 Builder 并设置回调和启动 Activity。
-在这里将 tmpFile 定义为局部变量，通过 lambda 表达式进行捕获，避免了将其定义为类变量。完整代码见：[CameraActivity.java](app/src/main/java/info/dourok/esactivity/sample/camera/CameraActivity.java)
+在这里将 tmpFile 定义为局部变量，通过 lambda 表达式进行捕获，避免了将其定义为类变量。完整代码见：[CameraActivity.java](sample/src/main/java/info/dourok/esactivity/sample/camera/CameraActivity.java)
 
 ```
 private void takePhoto() {

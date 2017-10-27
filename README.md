@@ -35,7 +35,7 @@ or use [retrolambda](https://github.com/orfjackal/retrolambda).
 
 # Example
 
-Assume we need to start a Activity named [EditorActivity](app/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) to capturing user input, and pass a string parameter as hint.
+Assume we need to start a Activity named [EditorActivity](sample/src/main/java/info/dourok/esactivity/sample/editor/EditorActivity.java) to capturing user input, and pass a string parameter as hint.
 
 In mostly android way:
 
@@ -86,7 +86,7 @@ The most thing you need to do is add some annotation, and ActivityBuilder will t
 # Another Example: Using exist activity
 
 The following example starts the system camera app and get a photo, converts the Builder to Intent with the `asIntent`, configures some parameters and then converts it back to Builder via` asBuilder` and sets the callback and starts the Activity.
-`tmpFile` is declared as a local variable capturing by lambda to avoid declared as a class variables. Full code See: [CameraActivity.java](app/src/main/java/info/dourok/esactivity/sample/camera/CameraActivity.java) 
+`tmpFile` is declared as a local variable capturing by lambda to avoid declared as a class variables. Full code See: [CameraActivity.java](sample/src/main/java/info/dourok/esactivity/sample/camera/CameraActivity.java) 
 
 ```
 private void takePhoto() {
