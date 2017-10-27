@@ -14,7 +14,7 @@ tasks.withType(GroovyCompile) {
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation "info.dourok.builder:activity-builder-annotations:0.1.61"
+  implementation "info.dourok.builder:activity-builder-annotations:0.1.65"
 
   implementation deps.javapoet
   implementation deps.google.auto

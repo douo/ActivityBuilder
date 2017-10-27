@@ -14,8 +14,8 @@ Through ActivityBuilder you can use one line of code to deliver parameters, star
 
 # How to use
 
-    implementation 'info.dourok.builder:activity-builder:0.1.61'
-    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.61'
+    implementation 'info.dourok.builder:activity-builder:0.1.65'
+    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.65'
 
 Using ActivityBuilder need lambda expression supported：
 

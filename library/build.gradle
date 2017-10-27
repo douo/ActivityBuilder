@@ -35,7 +35,7 @@ dependencies {
   testImplementation deps.junit
   androidTestImplementation deps.support.test.runner
   androidTestImplementation deps.support.test.espresso
-  api "info.dourok.builder:activity-builder-annotations:0.1.61"
+  api "info.dourok.builder:activity-builder-annotations:0.1.65"
 }
 
 ext {

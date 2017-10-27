@@ -6,7 +6,7 @@ buildscript {
 
                   'supportLibrary': '26.1.0',
                   'arch'          : '1.0.0-rc1',
-                  'androidPlugin' : '3.0.0-rc2',
+                  'androidPlugin' : '3.0.0',
                   'androidTools'  : '26.0.2',
                   'major'         : '0.1']
   ext.deps = [android    : [gradle : "com.android.tools.build:gradle:${versions.androidPlugin}",

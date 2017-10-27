@@ -13,8 +13,8 @@ ActivityBuilder 是一个基于注解的库，使用 Builder 模式让 Activity 
 
 # How to use
 
-    implementation 'info.dourok.builder:activity-builder:0.1.61'
-    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.61'
+    implementation 'info.dourok.builder:activity-builder:0.1.65'
+    annotationProcessor 'info.dourok.builder:activity-builder-compiler:0.1.65'
 
 ActivityBuilder ，的生成代码使用了 lambda 表达式，需要在 `build.gradle` 加入如下配置：
 

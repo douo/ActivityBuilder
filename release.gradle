@@ -3,30 +3,7 @@
 //  id "com.jfrog.bintray" version "1.7.3"
 //  id "com.github.dcendents.android-maven" version "2.0"
 //}
-
-// bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-  user = properties.getProperty("bintray.user")
-  key = properties.getProperty("bintray.apikey")
-  configurations = ['archives']
-  pkg {
-    repo = bintrayRepo
-    name = bintrayName
-    desc = libraryDescription
-    websiteUrl = siteUrl
-    vcsUrl = gitUrl
-    licenses = allLicenses
-    publish = true
-    publicDownloadNumbers = true
-    version {
-      desc = libraryDescription
-    }
-  }
-}
-
+println libraryVersion
 
 // install
 
@@ -42,7 +19,7 @@ install {
         artifactId artifact
 
         // Add your description here
-        name libraryName
+        name artifact
         description libraryDescription
         url siteUrl
 
@@ -125,4 +102,31 @@ if (project.hasProperty("android")) {
 }
 
 
+// bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+  user = properties.getProperty("bintray.user")
+  key = properties.getProperty("bintray.apikey")
+  configurations = ['archives']
+  pkg {
+    repo = bintrayRepo
+    name = artifact
+    desc = libraryDescription
+    websiteUrl = siteUrl
+    vcsUrl = gitUrl
+    licenses = allLicenses
+    publish = true
+    publicDownloadNumbers = true
+    version {
+      desc = libraryDescription
+      gpg {
+        sign = true //Determines whether to GPG sign the files. The default is false
+        passphrase = properties.getProperty("bintray.gpg.password")
+        //Optional. The passphrase for GPG signing'
+      }
+    }
+  }
+}
 
