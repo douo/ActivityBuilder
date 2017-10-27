@@ -53,6 +53,7 @@ public class MessengerFragment extends Fragment {
   private int generateRequestCode() {
     int key;
     do {
+      // request code 取值 [0x1000,0xFFFF)
       key = (int) (Math.random() * 0xEFFF + 0x1000);
     } while (consumerMap.get(key) != null);
     return key;
@@ -65,19 +66,6 @@ public class MessengerFragment extends Fragment {
     }
   }
 
-  public static MessengerFragment addIfNeed(Activity activity) {
-    FragmentManager fm = activity.getFragmentManager();
-    MessengerFragment fragment =
-        (MessengerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
-    if (fragment == null) {
-      fragment = new MessengerFragment();
-      fm.beginTransaction().add(fragment, FRAGMENT_TAG)
-          .commitAllowingStateLoss();
-      fm.executePendingTransactions();
-    }
-    return fragment;
-  }
-
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
   public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer,
       Bundle options) {
@@ -88,5 +76,26 @@ public class MessengerFragment extends Fragment {
   public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer) {
     int requestCode = addConsumer(consumer);
     startActivityForResult(intent, requestCode);
+  }
+
+  public static MessengerFragment fragmentFor(Activity activity) {
+    FragmentManager fm = activity.getFragmentManager();
+    if (fm.isDestroyed()) {
+      throw new IllegalStateException("Activity already destroyed");
+    }
+    Fragment fragmentByTag = fm.findFragmentByTag(FRAGMENT_TAG);
+    if (fragmentByTag != null && !(fragmentByTag instanceof MessengerFragment)) {
+      throw new IllegalStateException("Unexpected "
+          + "fragment instance was returned by FRAGMENT_TAG");
+    }
+    MessengerFragment fragment = (MessengerFragment) fragmentByTag;
+    if (fragment == null) {
+      fragment = new MessengerFragment();
+      fm.beginTransaction().add(fragment, FRAGMENT_TAG)
+          .commitAllowingStateLoss();
+      // 接下来需要立刻通过这个 Fragment 来启动 Activity，所以需要立刻添加到 Activity 中
+      fm.executePendingTransactions();
+    }
+    return fragment;
   }
 }

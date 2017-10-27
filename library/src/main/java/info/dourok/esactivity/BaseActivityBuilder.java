@@ -12,6 +12,8 @@ import info.dourok.esactivity.function.Consumer;
 import info.dourok.esactivity.function.TriConsumer;
 import java.util.Map;
 
+import static info.dourok.esactivity.MessengerFragment.fragmentFor;
+
 /**
  * Created by tiaolins on 2017/8/15.
  */
@@ -25,7 +27,7 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
 
   public BaseActivityBuilder(A activity) {
     context = activity;
-    fragment = MessengerFragment.addIfNeed(activity);
+    fragment = fragmentFor(activity);
   }
 
   public BaseActivityBuilder(A activity, Intent intent) {
