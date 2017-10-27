@@ -1,6 +1,7 @@
-[中文文档](README_CN.md)
 
------------------------
+ActivityBuilder
+---------------
+[中文文档](README_CN.md)
 
 ActivityBuilder is a annotation base library using builder pattern to make inner activity communication more easier.
 
