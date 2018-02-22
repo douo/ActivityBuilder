@@ -13,6 +13,7 @@ import info.dourok.esactivity.sample.databinding.ActivityBookDetailBinding;
 import info.dourok.esactivity.sample.databinding.ActivityBookListBinding;
 import java.util.List;
 
+/** @author tiaolins */
 public class BookListActivity extends AppCompatActivity {
 
   RecyclerView mList;

@@ -15,11 +15,17 @@ import info.dourok.esactivity.ResultSet;
 import info.dourok.esactivity.sample.R;
 import info.dourok.esactivity.sample.databinding.ActivityBookDetailBinding;
 
+/** @author tiaolins */
 @Builder
-@ResultSet(results = {
+@ResultSet(
+  results = {
     @Result(name = "delete"),
-    @Result(name = "update", parameters = { @ResultParameter(name = "book", type = Book.class) })
-})
+    @Result(
+      name = "update",
+      parameters = {@ResultParameter(name = "book", type = Book.class)}
+    )
+  }
+)
 public class BookDetailActivity extends AppCompatActivity {
   @BuilderParameter long mBookId;
   Book mBook;
@@ -37,12 +43,14 @@ public class BookDetailActivity extends AppCompatActivity {
     mBinding.setBook(mBook);
   }
 
-  @Override public boolean onCreateOptionsMenu(Menu menu) {
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_book_detail, menu);
     return super.onCreateOptionsMenu(menu);
   }
 
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_save:
         mHelper.finishUpdate(mBook);

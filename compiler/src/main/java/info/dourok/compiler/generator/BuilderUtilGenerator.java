@@ -20,16 +20,18 @@ import javax.lang.model.element.TypeElement;
 import static info.dourok.compiler.EasyUtils.getElements;
 
 /**
- * Created by tiaolins on 2017/9/13.
+ * @author tiaolins
+ * @date 2017/9/13
  */
-
 public class BuilderUtilGenerator extends Generator {
   private List<TypeElement> activityList;
   private final TypeElement baseActivityBuilder;
   private TypeElement activity;
 
-  public BuilderUtilGenerator(List<TypeElement> activityList,
-      PackageElement targetPackage, TypeElement activity,
+  public BuilderUtilGenerator(
+      List<TypeElement> activityList,
+      PackageElement targetPackage,
+      TypeElement activity,
       TypeElement baseActivityBuilder) {
     super(targetPackage);
     this.activityList = activityList;
@@ -37,22 +39,29 @@ public class BuilderUtilGenerator extends Generator {
     this.baseActivityBuilder = baseActivityBuilder;
   }
 
-  @Override protected TypeSpec generate() {
-    TypeSpec.Builder builder = TypeSpec.classBuilder("BuilderUtil")
-        .addModifiers(Modifier.PUBLIC)
-        .addField(FieldSpec.builder(
-            ParameterizedTypeName.get(ClassName.get(HashMap.class),
-                ParameterizedTypeName.get(ClassName.get(Class.class),
-                    WildcardTypeName.subtypeOf(Activity.class)),
-                ParameterizedTypeName.get(ClassName.get(Class.class),
-                    WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)))
-            ), "sBuilderMap")
-            .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-            .initializer("new $T<>()", HashMap.class)
-            .build());
+  @Override
+  protected TypeSpec generate() {
+    TypeSpec.Builder builder =
+        TypeSpec.classBuilder("BuilderUtil")
+            .addModifiers(Modifier.PUBLIC)
+            .addField(
+                FieldSpec.builder(
+                        ParameterizedTypeName.get(
+                            ClassName.get(HashMap.class),
+                            ParameterizedTypeName.get(
+                                ClassName.get(Class.class),
+                                WildcardTypeName.subtypeOf(Activity.class)),
+                            ParameterizedTypeName.get(
+                                ClassName.get(Class.class),
+                                WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)))),
+                        "sBuilderMap")
+                    .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("new $T<>()", HashMap.class)
+                    .build());
 
     MethodSpec createBuilder = buildCreateBuilder();
-    builder.addMethod(createBuilder)
+    builder
+        .addMethod(createBuilder)
         .addMethod(buildCreateBuilderWithIntent())
         .addMethod(buildSmallCreate(createBuilder));
 
@@ -70,14 +79,18 @@ public class BuilderUtilGenerator extends Generator {
     return MethodSpec.methodBuilder("createBuilder")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
-        .returns(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
-            WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)),
-            TypeVariableName.get("A")))
+        .returns(
+            ParameterizedTypeName.get(
+                ClassName.get(baseActivityBuilder),
+                WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)),
+                TypeVariableName.get("A")))
         .addParameter(TypeVariableName.get("A"), "activity")
-        .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class),
-            WildcardTypeName.subtypeOf(ClassName.get(activity))), "clazz")
-        .addStatement("return $T.create($L, $L)", ClassName.get(baseActivityBuilder), "activity",
+        .addParameter(
+            ParameterizedTypeName.get(
+                ClassName.get(Class.class), WildcardTypeName.subtypeOf(ClassName.get(activity))),
             "clazz")
+        .addStatement(
+            "return $T.create($L, $L)", ClassName.get(baseActivityBuilder), "activity", "clazz")
         .build();
   }
 
@@ -85,32 +98,48 @@ public class BuilderUtilGenerator extends Generator {
     return MethodSpec.methodBuilder("createBuilder")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
-        .returns(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
-            WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)),
-            TypeVariableName.get("A")))
+        .returns(
+            ParameterizedTypeName.get(
+                ClassName.get(baseActivityBuilder),
+                WildcardTypeName.subtypeOf(ClassName.get(baseActivityBuilder)),
+                TypeVariableName.get("A")))
         .addParameter(TypeVariableName.get("A"), "activity")
         .addParameter(ClassName.get(Intent.class), "intent")
-        .addStatement("return $T.create($L, $L)", ClassName.get(baseActivityBuilder), "activity",
-            "intent")
+        .addStatement(
+            "return $T.create($L, $L)", ClassName.get(baseActivityBuilder), "activity", "intent")
         .build();
   }
 
   private MethodSpec buildSmallCreate(MethodSpec createBuilder) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("smallCreate")
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-        .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
-        .addTypeVariable(TypeVariableName.get("T",
-            ParameterizedTypeName.get(ClassName.get(baseActivityBuilder), TypeVariableName.get("T"),
-                TypeVariableName.get("A"))))
-        .returns(TypeVariableName.get("T"))
-        .addParameter(TypeVariableName.get("A"), "activity")
-        .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class),
-            WildcardTypeName.subtypeOf(ClassName.get(activity))), "clazz");
+    MethodSpec.Builder builder =
+        MethodSpec.methodBuilder("smallCreate")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
+            .addTypeVariable(
+                TypeVariableName.get(
+                    "T",
+                    ParameterizedTypeName.get(
+                        ClassName.get(baseActivityBuilder),
+                        TypeVariableName.get("T"),
+                        TypeVariableName.get("A"))))
+            .returns(TypeVariableName.get("T"))
+            .addParameter(TypeVariableName.get("A"), "activity")
+            .addParameter(
+                ParameterizedTypeName.get(
+                    ClassName.get(Class.class),
+                    WildcardTypeName.subtypeOf(ClassName.get(activity))),
+                "clazz");
 
-    builder.beginControlFlow("if ($L.containsKey($L))", "sBuilderMap", "clazz")
+    builder
+        .beginControlFlow("if ($L.containsKey($L))", "sBuilderMap", "clazz")
         .beginControlFlow("try")
-        .addStatement("return (T) $L.get($L).getMethod($S, $T.class).invoke(null,$L)",
-            "sBuilderMap", "clazz", "create", ClassName.get(activity), "activity")
+        .addStatement(
+            "return (T) $L.get($L).getMethod($S, $T.class).invoke(null,$L)",
+            "sBuilderMap",
+            "clazz",
+            "create",
+            ClassName.get(activity),
+            "activity")
         .endControlFlow() // try
         .beginControlFlow("catch ($T e)", ClassName.get(NoSuchMethodException.class))
         .addStatement("e.printStackTrace()")

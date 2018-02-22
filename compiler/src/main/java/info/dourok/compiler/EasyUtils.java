@@ -14,9 +14,9 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 /**
- * Created by tiaolins on 2017/8/30.
+ * @author tiaolins
+ * @date 2017/8/30
  */
-
 public class EasyUtils {
   private Filer filer;
   private Messager messager;
@@ -70,13 +70,11 @@ public class EasyUtils {
   }
 
   public static boolean isArrayList(TypeMirror mirror) {
-    //XXX 类型擦除后的 ArrayList<T> 类不能等价于 ArrayList，所以不能用 isSame 判断
+    // XXX 类型擦除后的 ArrayList<T> 类不能等价于 ArrayList，所以不能用 isSame 判断
     return S_INSTANCE.types.isAssignable(getTypes().erasure(mirror), S_INSTANCE.arrayList);
   }
 
-  /**
-   * @param same 是 Parcelable 本身，还是 Parcelable 的子类
-   */
+  /** @param same 是 Parcelable 本身，还是 Parcelable 的子类 */
   public static boolean isParcelable(TypeMirror mirror, boolean same) {
     if (same) {
       return S_INSTANCE.types.isSameType(mirror, S_INSTANCE.parcelable);
@@ -118,7 +116,9 @@ public class EasyUtils {
   }
 
   public static String capitalize(String s) {
-    if (s.length() == 0) return s;
+    if (s.length() == 0) {
+      return s;
+    }
     return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
   }
 

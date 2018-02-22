@@ -20,11 +20,13 @@ import info.dourok.esactivity.sample.editor.EditorActivity;
 import info.dourok.esactivity.sample.editor.EditorActivityBuilder;
 import info.dourok.esactivity.sample.editor.EditorActivityHelper;
 
+/** @author tiaolins */
 public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = "MainActivity";
 
-  @RequiresApi(api = Build.VERSION_CODES.N) @Override
+  @RequiresApi(api = Build.VERSION_CODES.N)
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
@@ -37,27 +39,22 @@ public class MainActivity extends AppCompatActivity {
 
   private void setupBook() {
     Button btn = findViewById(R.id.book_list);
-    btn.setOnClickListener(
-        view ->
-            BuilderUtil.createBuilder(this, BookListActivity.class)
-                .start());
+    btn.setOnClickListener(view -> BuilderUtil.createBuilder(this, BookListActivity.class).start());
   }
 
   private void setupEditor() {
-    findViewById(R.id.editor).setOnClickListener(
-        view ->
-            EditorActivityBuilder.create(this)
-                .hint("say something!")
-                .forContent(System.out::println)
-                .start()
-    );
+    findViewById(R.id.editor)
+        .setOnClickListener(
+            view ->
+                EditorActivityBuilder.create(this)
+                    .hint("say something!")
+                    .forContent(System.out::println)
+                    .start());
   }
 
   private void setupCamera() {
-    findViewById(R.id.camera).setOnClickListener(
-        view ->
-            BuilderUtil.createBuilder(this, CameraActivity.class).start()
-    );
+    findViewById(R.id.camera)
+        .setOnClickListener(view -> BuilderUtil.createBuilder(this, CameraActivity.class).start());
   }
 
   private void badPractice() {
@@ -65,9 +62,11 @@ public class MainActivity extends AppCompatActivity {
     fab.setOnClickListener(
         view ->
             SampleActivityBuilder.create(this)
-                .forCancel(data -> Snackbar.make(view, "You're Cancel",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show())
+                .forCancel(
+                    data ->
+                        Snackbar.make(view, "You're Cancel", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null)
+                            .show())
                 .forText(s -> Toast.makeText(this, "" + s, Toast.LENGTH_SHORT).show())
                 .start());
   }
@@ -77,10 +76,14 @@ public class MainActivity extends AppCompatActivity {
     fab.setOnClickListener(
         view ->
             SampleActivityBuilder.create(this)
-                .forCancel((context, data) -> Snackbar.make(context.findViewById(R.id.fab),
-                    "You're Cancel",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show())
+                .forCancel(
+                    (context, data) ->
+                        Snackbar.make(
+                                context.findViewById(R.id.fab),
+                                "You're Cancel",
+                                Snackbar.LENGTH_LONG)
+                            .setAction("Action", null)
+                            .show())
                 .forText((context, s) -> Toast.makeText(context, "" + s, Toast.LENGTH_SHORT).show())
                 .start());
   }
@@ -88,16 +91,17 @@ public class MainActivity extends AppCompatActivity {
   private static final int REQUEST_SOME_TEXT = 0x2;
 
   private void requestSomeTextNormalWay() {
-    findViewById(R.id.fab).setOnClickListener(
-        view -> {
-          Intent intent = new Intent(this, EditorActivity.class);
-          intent.putExtra("hint", "say something");
-          startActivityForResult(intent, REQUEST_SOME_TEXT);
-        }
-    );
+    findViewById(R.id.fab)
+        .setOnClickListener(
+            view -> {
+              Intent intent = new Intent(this, EditorActivity.class);
+              intent.putExtra("hint", "say something");
+              startActivityForResult(intent, REQUEST_SOME_TEXT);
+            });
   }
 
-  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     switch (requestCode) {
       case REQUEST_SOME_TEXT:
         if (resultCode == EditorActivityHelper.RESULT_CONTENT) {
@@ -114,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
   public void handleOk(Intent data) {
     Log.d(TAG, toString());
     Snackbar.make(findViewById(R.id.fab), "You're Ok", Snackbar.LENGTH_LONG)
-        .setAction("Action", null).show();
+        .setAction("Action", null)
+        .show();
   }
 
   @Override

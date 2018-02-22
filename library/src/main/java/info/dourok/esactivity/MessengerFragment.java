@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 /**
- * Created by tiaolins on 2017/8/5.
+ * @author tiaolins
+ * @date 2017/8/5
  */
-
 public class MessengerFragment extends Fragment {
   public static final String FRAGMENT_TAG = "info.dourok.esactivity:MessengerFragment";
   private static final String TAG = "MessengerFragment";
@@ -27,7 +27,8 @@ public class MessengerFragment extends Fragment {
     setRetainInstance(true);
   }
 
-  @Override public void onResume() {
+  @Override
+  public void onResume() {
     super.onResume();
     // 清空无用的 RefMap
     // Builder 启动 Activity 后，再回到当前 Activity。RefMap 就已经没用了
@@ -37,9 +38,7 @@ public class MessengerFragment extends Fragment {
     uselessRefMapKeys.clear();
   }
 
-  /**
-   * 注册无用的 RefMapKey，{@link MessengerFragment} 需要对无用 RefMap 进行清理
-   */
+  /** 注册无用的 RefMapKey，{@link MessengerFragment} 需要对无用 RefMap 进行清理 */
   void registerUselessReMapKey(int keyOfMap) {
     uselessRefMapKeys.add(keyOfMap);
   }
@@ -67,8 +66,8 @@ public class MessengerFragment extends Fragment {
   }
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-  public void startActivityForResult(Intent intent, BaseResultConsumer<?> consumer,
-      Bundle options) {
+  public void startActivityForResult(
+      Intent intent, BaseResultConsumer<?> consumer, Bundle options) {
     int requestCode = addConsumer(consumer);
     startActivityForResult(intent, requestCode, options);
   }
@@ -85,14 +84,13 @@ public class MessengerFragment extends Fragment {
     }
     Fragment fragmentByTag = fm.findFragmentByTag(FRAGMENT_TAG);
     if (fragmentByTag != null && !(fragmentByTag instanceof MessengerFragment)) {
-      throw new IllegalStateException("Unexpected "
-          + "fragment instance was returned by FRAGMENT_TAG");
+      throw new IllegalStateException(
+          "Unexpected " + "fragment instance was returned by FRAGMENT_TAG");
     }
     MessengerFragment fragment = (MessengerFragment) fragmentByTag;
     if (fragment == null) {
       fragment = new MessengerFragment();
-      fm.beginTransaction().add(fragment, FRAGMENT_TAG)
-          .commitAllowingStateLoss();
+      fm.beginTransaction().add(fragment, FRAGMENT_TAG).commitAllowingStateLoss();
       // 接下来需要立刻通过这个 Fragment 来启动 Activity，所以需要立刻添加到 Activity 中
       fm.executePendingTransactions();
     }

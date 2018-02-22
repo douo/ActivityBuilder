@@ -5,14 +5,13 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.DrawableRes;
 
 /**
- * Created by tiaolins on 2017/10/23.
+ * @author tiaolins
+ * @date 2017/10/23
  */
 @Entity
 public class Book {
-  @PrimaryKey
-  public long id;
-  @DrawableRes
-  public int cover;
+  @PrimaryKey public long id;
+  @DrawableRes public int cover;
   public String title;
   public String author;
 }

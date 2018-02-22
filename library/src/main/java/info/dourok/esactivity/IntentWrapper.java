@@ -12,9 +12,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by tiaolins on 2017/8/6.
+ * @author tiaolins
+ * @date 2017/8/6
  */
-
 public class IntentWrapper<T extends BaseBuilder> {
   private T baseBuilder;
   private final Intent intent;
@@ -44,7 +44,8 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public IntentWrapper<T> setDataAndNormalize(Uri data) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public IntentWrapper<T> setDataAndNormalize(Uri data) {
     intent.setDataAndNormalize(data);
     return this;
   }
@@ -54,7 +55,8 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public IntentWrapper<T> setTypeAndNormalize(String type) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public IntentWrapper<T> setTypeAndNormalize(String type) {
     intent.setTypeAndNormalize(type);
     return this;
   }
@@ -135,8 +137,8 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  public IntentWrapper<T> putParcelableArrayListExtra(String name,
-      ArrayList<? extends Parcelable> value) {
+  public IntentWrapper<T> putParcelableArrayListExtra(
+      String name, ArrayList<? extends Parcelable> value) {
     intent.putParcelableArrayListExtra(name, value);
     return this;
   }
@@ -151,8 +153,8 @@ public class IntentWrapper<T extends BaseBuilder> {
     return this;
   }
 
-  public IntentWrapper<T> putCharSequenceArrayListExtra(String name,
-      ArrayList<CharSequence> value) {
+  public IntentWrapper<T> putCharSequenceArrayListExtra(
+      String name, ArrayList<CharSequence> value) {
     intent.putCharSequenceArrayListExtra(name, value);
     return this;
   }

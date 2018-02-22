@@ -1,9 +1,6 @@
 package info.dourok.esactivity;
 
-/**
- *
- * Created by tiaolins on 2017/8/25.
- */
+/** Created by tiaolins on 2017/8/25. */
 public enum TransmitType {
   // 如果能用 Bundle 传递则用 Bundle，不然用 REF
   AUTO,

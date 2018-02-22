@@ -10,9 +10,9 @@ import java.util.HashMap;
 import javax.lang.model.element.Modifier;
 
 /**
- * Created by tiaolins on 2017/9/5.
+ * @author tiaolins
+ * @date 2017/9/5
  */
-
 public class ConsumerHelper {
   public HashMap<Integer, ClassName> consumers;
   private static ConsumerHelper sInstance = new ConsumerHelper();
@@ -36,20 +36,17 @@ public class ConsumerHelper {
 
   private static ClassName writeConsumer(int count) throws IOException {
     String packageName = "info.dourok.esactivity.function";
-    MethodSpec.Builder method = MethodSpec.methodBuilder("accept")
-        .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+    MethodSpec.Builder method =
+        MethodSpec.methodBuilder("accept").addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
 
-    TypeSpec.Builder type = TypeSpec.interfaceBuilder("Consumer" + count)
-        .addModifiers(Modifier.PUBLIC);
+    TypeSpec.Builder type =
+        TypeSpec.interfaceBuilder("Consumer" + count).addModifiers(Modifier.PUBLIC);
     for (int i = 0; i < count; i++) {
       type.addTypeVariable(TypeVariableName.get("T" + i));
-      method.addParameter(
-          TypeVariableName.get("T" + i), "t" + i);
+      method.addParameter(TypeVariableName.get("T" + i), "t" + i);
     }
     type.addMethod(method.build());
-    JavaFile.builder(packageName, type.build())
-        .build()
-        .writeTo(EasyUtils.getFiler());
+    JavaFile.builder(packageName, type.build()).build().writeTo(EasyUtils.getFiler());
     return ClassName.get(packageName, "Consumer" + count);
   }
 }

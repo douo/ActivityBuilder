@@ -2,10 +2,7 @@ package info.dourok.esactivity;
 
 import javax.lang.model.SourceVersion;
 
-/**
- * 结果的参数
- * Created by tiaolins on 2017/9/1.
- */
+/** 结果的参数 Created by tiaolins on 2017/9/1. */
 public @interface ResultParameter {
 
   /**
@@ -15,9 +12,7 @@ public @interface ResultParameter {
    */
   String name();
 
-  /**
-   * @return 传递参数的类型
-   */
+  /** @return 传递参数的类型 */
   Class<?> type();
 
   TransmitType transmit() default TransmitType.AUTO;

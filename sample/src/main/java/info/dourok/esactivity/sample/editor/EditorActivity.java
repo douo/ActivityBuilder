@@ -13,8 +13,12 @@ import info.dourok.esactivity.ResultParameter;
 import info.dourok.esactivity.sample.R;
 import info.dourok.esactivity.sample.databinding.ActivityEditorBinding;
 
+/** @author tiaolins */
 @Builder
-@Result(name = "content", parameters = { @ResultParameter(name = "content", type = String.class) })
+@Result(
+  name = "content",
+  parameters = {@ResultParameter(name = "content", type = String.class)}
+)
 public class EditorActivity extends AppCompatActivity {
   @BuilderParameter String hint;
   EditorActivityHelper mHelper;
@@ -29,12 +33,14 @@ public class EditorActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
-  @Override public boolean onCreateOptionsMenu(Menu menu) {
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_editor, menu);
     return true;
   }
 
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case android.R.id.home:
         finish();

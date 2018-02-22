@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 用于通过 Map 在 Activity 之间直接传递引用
- * 每个 RefMap 都会和 Intent 绑定在一起
- * Intent 存放着 RefMap 在 {@link RefManager} 中的 Key
- * Created by tiaolins on 2017/8/31.
+ * 用于通过 Map 在 Activity 之间直接传递引用 每个 RefMap 都会和 Intent 绑定在一起 Intent 存放着 RefMap 在 {@link RefManager} 中的
+ * Key
+ *
+ * @author tiaolins
+ * @date 2017/8/31
  */
-
 public class RefManager {
-  public final static String KEY_OF_MAP = "info.dourok.esactivity#KeyOfMap(DON_T_MODIFY)";
+  public static final String KEY_OF_MAP = "info.dourok.esactivity#KeyOfMap(DON_T_MODIFY)";
   private SparseArray<Map<String, Object>> sGlobalRefMap = new SparseArray<>();
   private static RefManager sInstance = new RefManager();
 
@@ -47,16 +47,12 @@ public class RefManager {
     refMap.put(key, value);
   }
 
-  /**
-   * 每个 buidler 实例都有独立的 ReFMap
-   */
+  /** 每个 buidler 实例都有独立的 ReFMap */
   public @NonNull Map<String, Object> getOrCreateRefMap(BaseBuilder builder) {
     return getOrCreateRefMap(builder.asIntent().getIntent());
   }
 
-  /**
-   * @return 返回 RefMap 的 key，如果 Intent 未绑定 RefMap，则返回 0
-   */
+  /** @return 返回 RefMap 的 key，如果 Intent 未绑定 RefMap，则返回 0 */
   public static int getKeyOfMap(Intent intent) {
     return intent.getIntExtra(KEY_OF_MAP, 0);
   }
@@ -65,9 +61,7 @@ public class RefManager {
     return intent.hasExtra(KEY_OF_MAP);
   }
 
-  /**
-   * 如果 oldIntent 绑定了 RefMap，那么将其解绑并重新绑定到 newIntent
-   */
+  /** 如果 oldIntent 绑定了 RefMap，那么将其解绑并重新绑定到 newIntent */
   public void rebindRefMap(Intent oldIntent, Intent newIntent) {
     if (hasRefMap(oldIntent)) {
       Map<String, Object> refMap = getRefMap(oldIntent);
@@ -81,9 +75,7 @@ public class RefManager {
     }
   }
 
-  /**
-   * 用于 setResult 的 Intent
-   */
+  /** 用于 setResult 的 Intent */
   public @NonNull Map<String, Object> getOrCreateRefMap(Intent intent) {
     Map<String, Object> refMap = getRefMap(intent);
     if (refMap == null) {
@@ -118,7 +110,7 @@ public class RefManager {
     }
   }
 
-  //XXX 拆箱 nullpointer
+  // XXX 拆箱 nullpointer
 
   public int getInt(Intent intent, String key, int defaultValue) {
     Map<String, Object> refMap = getRefMap(intent);

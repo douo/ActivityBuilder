@@ -25,26 +25,25 @@ import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
 
 /**
- * Created by tiaolins on 2017/9/4.
+ * @author tiaolins
+ * @date 2017/9/4
  */
-
 public class ResultModel {
   private String name;
   private List<ParameterModel> parameters;
   private static final Pattern RESULT_PATTERN = Pattern.compile("result(?<name>[A-Z][\\w]*)");
 
-  /**
-   * 将 void result[Name](Parameters){} 解析为 ResultWriter
-   */
+  /** 将 void result[Name](Parameters){} 解析为 ResultWriter */
   public ResultModel(Result annotation, ExecutableElement element) {
     Matcher matcher = RESULT_PATTERN.matcher(element.getSimpleName().toString());
     if (matcher.find()) {
       name = matcher.group("name").toLowerCase();
     } else {
-      String msg = String.format(
-          "Result annotated method must match 'result(?<name>[A-Z][\\\\w]*)',"
-              + " %s is illegal result method name",
-          element.getSimpleName());
+      String msg =
+          String.format(
+              "Result annotated method must match 'result(?<name>[A-Z][\\\\w]*)',"
+                  + " %s is illegal result method name",
+              element.getSimpleName());
       error(msg, element);
       throw new IllegalStateException(msg);
     }
@@ -58,7 +57,7 @@ public class ResultModel {
   }
 
   public ResultModel(AnnotationMirror result) {
-    //FIXME 优化，可提取为全局变量
+    // FIXME 优化，可提取为全局变量
     TypeElement element = getElements().getTypeElement(Result.class.getName());
     List<? extends Element> elements = element.getEnclosedElements();
     ExecutableElement name = null;
@@ -125,8 +124,7 @@ public class ResultModel {
 
         types[i] = TypeName.get(getParameters().get(i).getObjectType());
       }
-      return ParameterizedTypeName
-          .get(ConsumerHelper.get(count), types);
+      return ParameterizedTypeName.get(ConsumerHelper.get(count), types);
     } else {
       return ConsumerHelper.get(0);
     }
@@ -139,7 +137,6 @@ public class ResultModel {
     for (int i = 1; i < count; i++) {
       types[i] = TypeName.get(getParameters().get(i - 1).getObjectType());
     }
-    return ParameterizedTypeName
-        .get(ConsumerHelper.get(count), types);
+    return ParameterizedTypeName.get(ConsumerHelper.get(count), types);
   }
 }

@@ -3,6 +3,7 @@ package info.dourok.compiler;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/** @author tiaolins */
 public class OptionalConsumer<T> {
   private Optional<T> optional;
 

@@ -18,9 +18,9 @@ import javax.lang.model.element.TypeElement;
 import static info.dourok.compiler.EasyUtils.error;
 
 /**
- * Created by tiaolins on 2017/9/5.
+ * @author tiaolins
+ * @date 2017/9/5
  */
-
 public class BuilderGenerator extends BaseActivityGenerator {
   private List<ParameterWriter> parameterList;
   private List<ResultModel> resultList;
@@ -30,62 +30,76 @@ public class BuilderGenerator extends BaseActivityGenerator {
   private final ClassName builderClass;
   private final ParameterizedTypeName builderWithParameter;
 
-  public BuilderGenerator(TypeElement activity, TypeElement targetActivity,
+  public BuilderGenerator(
+      TypeElement activity,
+      TypeElement targetActivity,
       PackageElement targetPackage,
       List<ParameterWriter> parameterList,
-      List<ResultModel> resultList, TypeElement baseActivityBuilder,
+      List<ResultModel> resultList,
+      TypeElement baseActivityBuilder,
       TypeSpec consumer) {
     super(activity, targetActivity, targetPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
     this.baseActivityBuilder = baseActivityBuilder;
 
-    builderClass = ClassName.get(targetPackage.getQualifiedName().toString(),
-        targetActivity.getSimpleName() + "Builder");
+    builderClass =
+        ClassName.get(
+            targetPackage.getQualifiedName().toString(),
+            targetActivity.getSimpleName() + "Builder");
     builderWithParameter = ParameterizedTypeName.get(builderClass, TypeVariableName.get("A"));
     this.consumer = consumer;
   }
 
-  @Override protected TypeSpec generate() {
+  @Override
+  protected TypeSpec generate() {
 
-    MethodSpec constructor = MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PRIVATE)
-        .addParameter(TypeVariableName.get("A"), "activity")
-        .addStatement("super($L)", "activity")
-        .addStatement("setIntent(new $T($L, $T.class))", Intent.class, "activity", targetActivity)
-        .build();
+    MethodSpec constructor =
+        MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PRIVATE)
+            .addParameter(TypeVariableName.get("A"), "activity")
+            .addStatement("super($L)", "activity")
+            .addStatement(
+                "setIntent(new $T($L, $T.class))", Intent.class, "activity", targetActivity)
+            .build();
 
-    MethodSpec create = MethodSpec.methodBuilder("create")
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-        .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
-        .returns(builderWithParameter)
-        .addParameter(TypeVariableName.get("A"), "activity")
-        .addStatement("return new $T(activity)", builderWithParameter)
-        .build();
+    MethodSpec create =
+        MethodSpec.methodBuilder("create")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
+            .returns(builderWithParameter)
+            .addParameter(TypeVariableName.get("A"), "activity")
+            .addStatement("return new $T(activity)", builderWithParameter)
+            .build();
 
-    MethodSpec self = MethodSpec.methodBuilder("self")
-        .addAnnotation(Override.class)
-        .returns(builderWithParameter)
-        .addModifiers(Modifier.PROTECTED)
-        .addStatement("return this")
-        .build();
+    MethodSpec self =
+        MethodSpec.methodBuilder("self")
+            .addAnnotation(Override.class)
+            .returns(builderWithParameter)
+            .addModifiers(Modifier.PROTECTED)
+            .addStatement("return this")
+            .build();
 
-    TypeSpec.Builder builder = TypeSpec.classBuilder(builderClass)
-        .addModifiers(Modifier.PUBLIC)
-        .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
-        .superclass(ParameterizedTypeName.get(ClassName.get(baseActivityBuilder),
-            builderWithParameter,
-            TypeVariableName.get("A")))
-        .addMethod(constructor)
-        .addMethod(create)
-        .addMethod(self);
+    TypeSpec.Builder builder =
+        TypeSpec.classBuilder(builderClass)
+            .addModifiers(Modifier.PUBLIC)
+            .addTypeVariable(TypeVariableName.get("A", ClassName.get(activity)))
+            .superclass(
+                ParameterizedTypeName.get(
+                    ClassName.get(baseActivityBuilder),
+                    builderWithParameter,
+                    TypeVariableName.get("A")))
+            .addMethod(constructor)
+            .addMethod(create)
+            .addMethod(self);
 
     for (ParameterWriter parameterWriter : parameterList) {
-      MethodSpec.Builder setter = MethodSpec.methodBuilder(parameterWriter.getDisplayName())
-          .returns(builderWithParameter)
-          .addModifiers(Modifier.PUBLIC)
-          .addParameter(ClassName.get(parameterWriter.getType()),
-              parameterWriter.getDisplayName());
+      MethodSpec.Builder setter =
+          MethodSpec.methodBuilder(parameterWriter.getDisplayName())
+              .returns(builderWithParameter)
+              .addModifiers(Modifier.PUBLIC)
+              .addParameter(
+                  ClassName.get(parameterWriter.getType()), parameterWriter.getDisplayName());
       parameterWriter.writeSetter(setter);
       setter.addStatement("return this");
       builder.addMethod(setter.build());
@@ -93,23 +107,25 @@ public class BuilderGenerator extends BaseActivityGenerator {
 
     if (consumer != null) {
       builder.addMethod(buildGetConsumer());
-      resultList.forEach(resultModel -> {
-        try {
-          builder.addMethod(buildResultCallback(resultModel));
-          builder.addMethod(buildResultCallbackWithContext(resultModel));
-        } catch (IOException e) {
-          error("create builder consumer failed:" + e.getMessage());
-        }
-      });
+      resultList.forEach(
+          resultModel -> {
+            try {
+              builder.addMethod(buildResultCallback(resultModel));
+              builder.addMethod(buildResultCallbackWithContext(resultModel));
+            } catch (IOException e) {
+              error("create builder consumer failed:" + e.getMessage());
+            }
+          });
     }
 
     return builder.build();
   }
 
   private MethodSpec buildGetConsumer() {
-    TypeName consumerType = ParameterizedTypeName.get(
-        ClassName.get(targetPackage.getQualifiedName().toString(), consumer.name),
-        TypeVariableName.get("A"));
+    TypeName consumerType =
+        ParameterizedTypeName.get(
+            ClassName.get(targetPackage.getQualifiedName().toString(), consumer.name),
+            TypeVariableName.get("A"));
 
     return MethodSpec.methodBuilder("getConsumer")
         .addAnnotation(Override.class)
@@ -118,7 +134,8 @@ public class BuilderGenerator extends BaseActivityGenerator {
         .beginControlFlow("if($L == null)", "consumer")
         .addStatement("$L = new $L<>()", "consumer", consumer.name)
         .endControlFlow()
-        .addStatement("return ($T) $L", consumerType, "consumer").build();
+        .addStatement("return ($T) $L", consumerType, "consumer")
+        .build();
   }
 
   private MethodSpec buildResultCallbackWithContext(ResultModel result) throws IOException {
@@ -132,12 +149,18 @@ public class BuilderGenerator extends BaseActivityGenerator {
   }
 
   private MethodSpec buildResultCallback(ResultModel result) throws IOException {
-    StringBuilder literal = new StringBuilder("getConsumer().").append(result.getConsumerName())
-        .append(" = (activity");
+    StringBuilder literal =
+        new StringBuilder("getConsumer().").append(result.getConsumerName()).append(" = (activity");
 
-    StringBuilder parameters = result.getParameters().stream()
-        .reduce(new StringBuilder(), (stringBuilder, parameterModel) -> stringBuilder.append(", ")
-            .append(parameterModel.getName()), (stringBuilder, stringBuilder2) -> stringBuilder2);
+    StringBuilder parameters =
+        result
+            .getParameters()
+            .stream()
+            .reduce(
+                new StringBuilder(),
+                (stringBuilder, parameterModel) ->
+                    stringBuilder.append(", ").append(parameterModel.getName()),
+                (stringBuilder, stringBuilder2) -> stringBuilder2);
     String accept;
     if (result.getParameters().isEmpty()) {
       accept = "$L.run()";

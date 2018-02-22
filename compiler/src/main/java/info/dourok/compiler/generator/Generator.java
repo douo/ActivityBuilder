@@ -7,9 +7,9 @@ import java.io.IOException;
 import javax.lang.model.element.PackageElement;
 
 /**
- * Created by tiaolins on 2017/9/13.
+ * @author tiaolins
+ * @date 2017/9/13
  */
-
 public abstract class Generator {
   protected PackageElement targetPackage;
   protected TypeSpec typeSpec;

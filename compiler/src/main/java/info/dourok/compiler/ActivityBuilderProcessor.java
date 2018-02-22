@@ -18,8 +18,10 @@ import static info.dourok.compiler.EasyUtils.error;
 import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.warn;
 
+/** @author tiaolins */
 @SupportedAnnotationTypes({
-    "info.dourok.esactivity.Builder", "info.dourok.esactivity.BuilderUtilPackage"
+  "info.dourok.esactivity.Builder",
+  "info.dourok.esactivity.BuilderUtilPackage"
 })
 @AutoService(Processor.class)
 public class ActivityBuilderProcessor extends AbstractProcessor {
@@ -27,7 +29,8 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
   private ActivityProcessorFactory mFactory;
   private boolean firstRound;
 
-  @Override public synchronized void init(ProcessingEnvironment processingEnvironment) {
+  @Override
+  public synchronized void init(ProcessingEnvironment processingEnvironment) {
     super.init(processingEnvironment);
     EasyUtils.getInstance().init(processingEnvironment);
     mFactory = new ActivityProcessorFactory(processingEnvironment);
@@ -35,19 +38,17 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
   }
 
   @Override
-  public boolean process(
-      Set<? extends TypeElement> annotations,
-      RoundEnvironment env) {
+  public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
     try {
       for (Element element : env.getElementsAnnotatedWith(Builder.class)) {
         if (mFactory.isEasyActivity(element)) {
-          ActivityProcessorFactory.ActivityProcessor processor = mFactory.create(
-              (TypeElement) element);
+          ActivityProcessorFactory.ActivityProcessor processor =
+              mFactory.create((TypeElement) element);
           processor.generate();
         } else {
-          warn("annotate "
-              + Builder.class.getName()
-              + " to not Activity subclass make no sense!", element);
+          warn(
+              "annotate " + Builder.class.getName() + " to not Activity subclass make no sense!",
+              element);
         }
       }
 
@@ -62,8 +63,10 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
 
         OptionalConsumer.of(set.stream().findFirst())
             .ifPresent(ele -> mFactory.generateBuilderUtil((PackageElement) ele))
-            .ifNotPresent(() -> mFactory.generateBuilderUtil(
-                getElements().getPackageElement("info.dourok.esactivity")));
+            .ifNotPresent(
+                () ->
+                    mFactory.generateBuilderUtil(
+                        getElements().getPackageElement("info.dourok.esactivity")));
       }
       firstRound = false;
     } catch (IllegalStateException e) {
@@ -73,7 +76,8 @@ public class ActivityBuilderProcessor extends AbstractProcessor {
     return false;
   }
 
-  @Override public SourceVersion getSupportedSourceVersion() {
+  @Override
+  public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
   }
 }

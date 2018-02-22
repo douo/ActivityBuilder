@@ -22,9 +22,9 @@ import javax.lang.model.element.TypeElement;
 import static info.dourok.compiler.EasyUtils.error;
 
 /**
- * Created by tiaolins on 2017/9/5.
+ * @author tiaolins
+ * @date 2017/9/5.
  */
-
 public class ConsumerGenerator extends BaseActivityGenerator {
 
   private TypeElement baseResultConsumer;
@@ -33,8 +33,11 @@ public class ConsumerGenerator extends BaseActivityGenerator {
 
   private TypeSpec helper;
 
-  public ConsumerGenerator(TypeElement activity, TypeElement targetActivity,
-      PackageElement targetPackage, TypeElement baseResultConsumer,
+  public ConsumerGenerator(
+      TypeElement activity,
+      TypeElement targetActivity,
+      PackageElement targetPackage,
+      TypeElement baseResultConsumer,
       TypeSpec helper,
       List<ResultModel> resultList) {
     super(activity, targetActivity, targetPackage);
@@ -46,8 +49,8 @@ public class ConsumerGenerator extends BaseActivityGenerator {
   @Override
   public void write() throws IOException {
     JavaFile.builder(targetPackage.getQualifiedName().toString(), getTypeSpec())
-        .addStaticImport(ClassName.get(targetPackage.getQualifiedName().toString(),
-            helper.name), "*")
+        .addStaticImport(
+            ClassName.get(targetPackage.getQualifiedName().toString(), helper.name), "*")
         .build()
         .writeTo(EasyUtils.getFiler());
   }
@@ -55,88 +58,87 @@ public class ConsumerGenerator extends BaseActivityGenerator {
   @Override
   protected TypeSpec generate() {
     TypeSpec.Builder consumer =
-        TypeSpec.classBuilder(ClassName.get(targetPackage.getQualifiedName().toString(),
-            targetActivity.getSimpleName() + "Consumer"))
+        TypeSpec.classBuilder(
+                ClassName.get(
+                    targetPackage.getQualifiedName().toString(),
+                    targetActivity.getSimpleName() + "Consumer"))
             .addTypeVariable(TypeVariableName.get("A", TypeName.get(activity.asType())))
-            .superclass(ParameterizedTypeName.get(ClassName.get(baseResultConsumer),
-                TypeVariableName.get("A")));
+            .superclass(
+                ParameterizedTypeName.get(
+                    ClassName.get(baseResultConsumer), TypeVariableName.get("A")));
 
-    MethodSpec.Builder hasConsumer = MethodSpec.methodBuilder("hasConsumer")
-        .addAnnotation(Override.class)
-        .addModifiers(Modifier.PUBLIC)
-        .returns(boolean.class);
+    MethodSpec.Builder hasConsumer =
+        MethodSpec.methodBuilder("hasConsumer")
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .returns(boolean.class);
 
-    MethodSpec.Builder handleResult = MethodSpec.methodBuilder("handleResult")
-        .addAnnotation(Override.class)
-        .addModifiers(Modifier.PROTECTED)
-        .returns(boolean.class)
-        .addParameter(TypeVariableName.get("A"), "activity")
-        .addParameter(int.class, "result")
-        .addParameter(Intent.class, "intent");
+    MethodSpec.Builder handleResult =
+        MethodSpec.methodBuilder("handleResult")
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PROTECTED)
+            .returns(boolean.class)
+            .addParameter(TypeVariableName.get("A"), "activity")
+            .addParameter(int.class, "result")
+            .addParameter(Intent.class, "intent");
 
     handleResult.beginControlFlow("switch ($L)", "result");
 
     StringBuilder literal = new StringBuilder("return ");
     for (ResultModel result : resultList) {
       handleResult.addCode("case $L:\n", result.getResultConstant());
-      handleResult.addStatement("return process$L($L,$L)", result.getCapitalizeName(), "activity",
-          "intent");
+      handleResult.addStatement(
+          "return process$L($L,$L)", result.getCapitalizeName(), "activity", "intent");
       try {
         consumer.addField(buildField(result));
       } catch (IOException e) {
-        //TODO 生成 consumer 接口失败
+        // TODO 生成 consumer 接口失败
         error("create consumer failed:" + e.getMessage());
       }
       consumer.addMethod(buildResultProcessor(result));
 
-      literal.append(result.getConsumerName())
-          .append(" != null ||");
+      literal.append(result.getConsumerName()).append(" != null ||");
     }
     literal.append("super.hasConsumer()");
     hasConsumer.addStatement(literal.toString());
-    handleResult.addCode("default:")
-        .addStatement("return false").endControlFlow();
+    handleResult.addCode("default:").addStatement("return false").endControlFlow();
 
-    consumer.addMethod(handleResult.build())
-        .addMethod(hasConsumer.build());
+    consumer.addMethod(handleResult.build()).addMethod(hasConsumer.build());
 
     return consumer.build();
   }
 
   private FieldSpec buildField(ResultModel result) throws IOException {
-    return FieldSpec.builder(result.getConsumerTypeWithContext(), result.getConsumerName())
-        .build();
+    return FieldSpec.builder(result.getConsumerTypeWithContext(), result.getConsumerName()).build();
   }
 
   private MethodSpec buildResultProcessor(ResultModel result) {
-    MethodSpec.Builder builder = MethodSpec.methodBuilder("process" + result.getCapitalizeName())
-        .addModifiers(Modifier.PRIVATE)
-        .returns(boolean.class)
-        .addParameter(TypeVariableName.get("A"), "activity")
-        .addParameter(Intent.class, "intent")
-        .beginControlFlow("if($L != null)", result.getConsumerName());
-    //if (!result.getParameters().isEmpty()) {
-      StringBuilder literal =
-          new StringBuilder(result.getConsumerName()).append(".accept(activity");
-      String[] names = new String[result.getParameters().size()];
-      for (int i = 0; i < result.getParameters().size(); i++) {
-        ParameterModel parameter = result.getParameters().get(i);
-        //FIXME 重构 parameter writer
-        ParameterWriter writer = ParameterWriter.newWriter(parameter);
-        writer.writeConsumerGetter(builder);
-        names[i] = parameter.getName();
-        literal.append(", $L");
-      }
-      literal.append(")");
-      builder.addStatement(literal.toString(), (Object[]) names);
-    //} else {
+    MethodSpec.Builder builder =
+        MethodSpec.methodBuilder("process" + result.getCapitalizeName())
+            .addModifiers(Modifier.PRIVATE)
+            .returns(boolean.class)
+            .addParameter(TypeVariableName.get("A"), "activity")
+            .addParameter(Intent.class, "intent")
+            .beginControlFlow("if($L != null)", result.getConsumerName());
+    // if (!result.getParameters().isEmpty()) {
+    StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(activity");
+    String[] names = new String[result.getParameters().size()];
+    for (int i = 0; i < result.getParameters().size(); i++) {
+      ParameterModel parameter = result.getParameters().get(i);
+      // FIXME 重构 parameter writer
+      ParameterWriter writer = ParameterWriter.newWriter(parameter);
+      writer.writeConsumerGetter(builder);
+      names[i] = parameter.getName();
+      literal.append(", $L");
+    }
+    literal.append(")");
+    builder.addStatement(literal.toString(), (Object[]) names);
+    // } else {
     //  builder.addStatement("$L.run()", result.getConsumerName());
-    //}
+    // }
     builder.addStatement("return true");
     builder.endControlFlow();
-    builder.beginControlFlow("else")
-        .addStatement("return false")
-        .endControlFlow();
+    builder.beginControlFlow("else").addStatement("return false").endControlFlow();
     return builder.build();
   }
 }

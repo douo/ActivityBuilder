@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tiaolins on 2017/10/23.
+ * @author tiaolins
+ * @date 2017/10/23
  */
-
 public class BookViewModel extends AndroidViewModel {
   ObservableField<List<Book>> mBooks;
 
@@ -60,16 +60,18 @@ public class BookViewModel extends AndroidViewModel {
   public void showBookDetail(Book book, Context context) {
     BookDetailActivityBuilder.create((Activity) context)
         .bookId(book.id)
-        .forDelete(() -> {
-          mBooks.get().remove(book);
-          mBooks.notifyChange();
-        })
-        .forUpdate((_b) -> {
-          int idx = mBooks.get().indexOf(getBookById(_b.id));
-          mBooks.get().remove(idx);
-          mBooks.get().add(idx, _b);
-          mBooks.notifyChange();
-        })
+        .forDelete(
+            () -> {
+              mBooks.get().remove(book);
+              mBooks.notifyChange();
+            })
+        .forUpdate(
+            (_b) -> {
+              int idx = mBooks.get().indexOf(getBookById(_b.id));
+              mBooks.get().remove(idx);
+              mBooks.get().add(idx, _b);
+              mBooks.notifyChange();
+            })
         .start();
   }
 }

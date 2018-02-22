@@ -15,7 +15,8 @@ import java.util.Map;
 import static info.dourok.esactivity.MessengerFragment.fragmentFor;
 
 /**
- * Created by tiaolins on 2017/8/15.
+ * @author tiaolins
+ * @date 2017/8/15
  */
 public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A extends Activity>
     implements BaseBuilder {
@@ -42,10 +43,7 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return consumer;
   }
 
-  /**
-   * intent 应该在构造函数的时候就初始化
-   * 因为 Intent 可能会和 RefMap 绑定在一起
-   */
+  /** intent 应该在构造函数的时候就初始化 因为 Intent 可能会和 RefMap 绑定在一起 */
   public void setIntent(Intent intent) {
     if (intentWrapper != null) {
       RefManager.getInstance().rebindRefMap(intentWrapper.getIntent(), intent);
@@ -60,7 +58,8 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return intentWrapper.getIntent();
   }
 
-  @Override public IntentWrapper<T> asIntent() {
+  @Override
+  public IntentWrapper<T> asIntent() {
     if (intentWrapper == null) {
       setIntent(new Intent());
     }
@@ -117,11 +116,12 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
   /**
    * See {@link BaseActivityBuilder#start()}
    *
-   * @param options Additional options for how the Activity should be started.
-   * See {@link android.content.Context#startActivity(Intent, Bundle)
-   * Context.startActivity(Intent, Bundle)} for more details.
+   * @param options Additional options for how the Activity should be started. See {@link
+   *     android.content.Context#startActivity(Intent, Bundle) Context.startActivity(Intent,
+   *     Bundle)} for more details.
    */
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public void start(Bundle options) {
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void start(Bundle options) {
     if (getConsumer().hasConsumer()) {
       fragment.startActivityForResult(getIntent(), getConsumer(), options);
     } else {
@@ -132,46 +132,34 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     }
   }
 
-  /**
-   * same as {@link Activity#startActivityForResult(Intent, int)}
-   */
+  /** same as {@link Activity#startActivityForResult(Intent, int)} */
   public void startForResult(int requestCode) {
     context.startActivityForResult(getIntent(), requestCode);
   }
 
-  /**
-   * same as {@link Fragment#startActivityForResult(Intent, int)}
-   */
+  /** same as {@link Fragment#startActivityForResult(Intent, int)} */
   public void startForResult(Fragment f, int requestCode) {
     f.startActivityForResult(getIntent(), requestCode);
   }
 
-  /**
-   * same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int)}
-   */
+  /** same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int)} */
   public void startForResult(android.support.v4.app.Fragment f, int requestCode) {
     f.startActivityForResult(getIntent(), requestCode);
   }
 
-  /**
-   * same as {@link Activity#startActivityForResult(Intent, int, Bundle)}
-   */
+  /** same as {@link Activity#startActivityForResult(Intent, int, Bundle)} */
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
   public void startForResult(int requestCode, Bundle options) {
     context.startActivityForResult(getIntent(), requestCode, options);
   }
 
-  /**
-   * same as {@link Fragment#startActivityForResult(Intent, int, Bundle)}
-   */
-  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN) public void startForResult(Fragment f,
-      int requestCode, Bundle options) {
+  /** same as {@link Fragment#startActivityForResult(Intent, int, Bundle)} */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void startForResult(Fragment f, int requestCode, Bundle options) {
     f.startActivityForResult(getIntent(), requestCode, options);
   }
 
-  /**
-   * same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int, Bundle)}
-   */
+  /** same as {@link android.support.v4.app.Fragment#startActivityForResult(Intent, int, Bundle)} */
   public void startForResult(android.support.v4.app.Fragment f, int requestCode, Bundle options) {
     f.startActivityForResult(getIntent(), requestCode, options);
   }
@@ -187,13 +175,14 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return refMap;
   }
 
-  @NonNull public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
-      Class<? extends Activity> clazz) {
+  @NonNull
+  public static <A extends Activity> BaseActivityBuilder<?, A> create(
+      A activity, Class<? extends Activity> clazz) {
     return new ActivityBuilderImpl<>(activity, clazz);
   }
 
-  @NonNull public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity,
-      Intent intent) {
+  @NonNull
+  public static <A extends Activity> BaseActivityBuilder<?, A> create(A activity, Intent intent) {
     return new ActivityBuilderImpl<>(activity, intent);
   }
 }

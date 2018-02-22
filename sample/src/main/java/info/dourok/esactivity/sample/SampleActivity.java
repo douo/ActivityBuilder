@@ -21,22 +21,27 @@ import java.util.HashSet;
 import java.util.function.Consumer;
 import info.dourok.esactivity.BuilderUtil;
 
+/** @author tiaolins */
 @RequiresApi(api = Build.VERSION_CODES.N)
 @Builder
-
-@Result(name = "wtf", parameters = {
-    @ResultParameter(name = "ids", type = ArrayList.class)
-})
+@Result(
+  name = "wtf",
+  parameters = {@ResultParameter(name = "ids", type = ArrayList.class)}
+)
 public class SampleActivity extends AppCompatActivity {
 
   @BuilderParameter(key = "wtf", keep = true, transmit = TransmitType.REF)
   String text;
+
   @BuilderParameter float f;
   @BuilderParameter byte b;
   @BuilderParameter Double dd;
   @BuilderParameter byte[] bytes;
   @BuilderParameter ArrayList<Integer> ids;
-  @BuilderParameter(transmit = TransmitType.REF) HashSet set;
+
+  @BuilderParameter(transmit = TransmitType.REF)
+  HashSet set;
+
   SampleActivityHelper mHelper = BuilderUtil.createHelper(this);
 
   @Override
@@ -50,14 +55,16 @@ public class SampleActivity extends AppCompatActivity {
     setContentView(R.layout.activity_sample);
     TextView tv = findViewById(R.id.text);
     tv.setText(text);
-    tv.setOnClickListener(view -> {
-      ArrayList<Double> ids = new ArrayList<>();
-      ids.add(0.1);
-      mHelper.finishText(ids);
-    });
+    tv.setOnClickListener(
+        view -> {
+          ArrayList<Double> ids = new ArrayList<>();
+          ids.add(0.1);
+          mHelper.finishText(ids);
+        });
   }
 
-  @Override public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+  @Override
+  public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
     super.onSaveInstanceState(outState, outPersistentState);
     mHelper.save(outState);
   }
@@ -77,8 +84,7 @@ public class SampleActivity extends AppCompatActivity {
     builder = builder.asIntent().asBuilder();
   }
 
-  public static class MyConsumer<A extends Activity> extends BaseResultConsumer<A> {
-  }
+  public static class MyConsumer<A extends Activity> extends BaseResultConsumer<A> {}
 
   public static class Builder<A extends Activity> extends BaseActivityBuilder<Builder<A>, A> {
 
@@ -94,17 +100,18 @@ public class SampleActivity extends AppCompatActivity {
       return this;
     }
 
-    public void forText(Consumer<String> consumer) {
-    }
+    public void forText(Consumer<String> consumer) {}
 
-    @Override public MyConsumer<A> getConsumer() {
+    @Override
+    public MyConsumer<A> getConsumer() {
       if (consumer != null) {
         consumer = new MyConsumer<A>();
       }
       return (MyConsumer<A>) consumer;
     }
 
-    @Override public Builder self() {
+    @Override
+    public Builder self() {
       return this;
     }
   }

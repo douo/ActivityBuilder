@@ -14,34 +14,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Created by tiaolins on 2017/10/24.
- */
-
+/** Created by tiaolins on 2017/10/24. */
 class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookViewHolder> {
   List<Book> mItems;
-  // each time data is set, we update this variable so that if DiffUtil calculation returns
-  // after repetitive updates, we can ignore the old calculation
+  /**
+   * each time data is set, we update this variable so that if DiffUtil calculation returns after
+   * repetitive updates, we can ignore the old calculation
+   */
   private int dataVersion = 0;
+
   private BookViewModel mViewModel;
 
   public BookListAdapter(BookViewModel viewModel) {
     mViewModel = viewModel;
   }
 
-  @Override public BookViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    LayoutInflater layoutInflater =
-        LayoutInflater.from(parent.getContext());
-    ViewDataBinding binding = DataBindingUtil.inflate(
-        layoutInflater, R.layout.item_book, parent, false);
+  @Override
+  public BookViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+    ViewDataBinding binding =
+        DataBindingUtil.inflate(layoutInflater, R.layout.item_book, parent, false);
     return new BookViewHolder(binding, BR.item);
   }
 
-  @Override public void onBindViewHolder(BookViewHolder holder, int position) {
+  @Override
+  public void onBindViewHolder(BookViewHolder holder, int position) {
     holder.bind(mItems.get(position), mViewModel);
   }
 
-  @Override public int getItemCount() {
+  @Override
+  public int getItemCount() {
     return mItems == null ? 0 : mItems.size();
   }
 
@@ -72,32 +74,33 @@ class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookViewHolde
       new AsyncTask<Void, Void, DiffUtil.DiffResult>() {
         @Override
         protected DiffUtil.DiffResult doInBackground(Void... voids) {
-          return DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-              return oldItems.size();
-            }
+          return DiffUtil.calculateDiff(
+              new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                  return oldItems.size();
+                }
 
-            @Override
-            public int getNewListSize() {
-              return update.size();
-            }
+                @Override
+                public int getNewListSize() {
+                  return update.size();
+                }
 
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-              Book oldItem = oldItems.get(oldItemPosition);
-              Book newItem = update.get(newItemPosition);
-              return oldItem == newItem;
-            }
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                  Book oldItem = oldItems.get(oldItemPosition);
+                  Book newItem = update.get(newItemPosition);
+                  return oldItem == newItem;
+                }
 
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-              Book oldItem = oldItems.get(oldItemPosition);
-              Book newItem = update.get(newItemPosition);
-              return Objects.equals(oldItem.title, newItem.title) && Objects.equals(oldItem.author,
-                  newItem.author);
-            }
-          });
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                  Book oldItem = oldItems.get(oldItemPosition);
+                  Book newItem = update.get(newItemPosition);
+                  return Objects.equals(oldItem.title, newItem.title)
+                      && Objects.equals(oldItem.author, newItem.author);
+                }
+              });
         }
 
         @Override

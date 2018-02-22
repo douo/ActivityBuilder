@@ -16,6 +16,7 @@ import info.dourok.esactivity.sample.R;
 import java.io.File;
 import java.io.IOException;
 
+/** @author tiaolins */
 public class CameraActivity extends AppCompatActivity {
 
   @Override
@@ -49,11 +50,9 @@ public class CameraActivity extends AppCompatActivity {
   }
 
   private Uri getUri(ComponentName componentName, File file) {
-    Uri fileUri = FileProvider.getUriForFile(this,
-        BuildConfig.APPLICATION_ID + ".provider",
-        file);
-    grantUriPermission(componentName.getPackageName(), fileUri,
-        Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    Uri fileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file);
+    grantUriPermission(
+        componentName.getPackageName(), fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
     return fileUri;
   }
 
@@ -62,7 +61,6 @@ public class CameraActivity extends AppCompatActivity {
    *
    * @param type 文件类型
    */
-
   public File getTempFile(FileType type) {
     try {
       File cacheDir = getFilesDir();

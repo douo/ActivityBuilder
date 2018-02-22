@@ -23,9 +23,9 @@ import static info.dourok.compiler.EasyUtils.getElements;
 import static info.dourok.compiler.EasyUtils.getTypes;
 
 /**
- * Created by tiaolins on 2017/9/4.
+ * @author tiaolins
+ * @date 2017/9/4
  */
-
 public class ParameterModel {
   private String key;
   private String name;
@@ -44,8 +44,9 @@ public class ParameterModel {
     name = element.getSimpleName().toString();
     // 将 mVar 转换为 var
     if (name.matches("m[A-Z].*$")) {
-      displayName = name.substring(1, 2).toLowerCase()
-          + (name.length() > 2 ? name.substring(2, name.length()) : "");
+      displayName =
+          name.substring(1, 2).toLowerCase()
+              + (name.length() > 2 ? name.substring(2, name.length()) : "");
     } else {
       displayName = name;
     }
@@ -71,11 +72,9 @@ public class ParameterModel {
     this.transmit = transmit;
   }
 
-  /**
-   * 用于 {@link Result} 注解 {@link Activity}
-   */
+  /** 用于 {@link Result} 注解 {@link Activity} */
   public ParameterModel(AnnotationMirror annotationMirror) {
-    //FIXME 优化，可提取为全局变量
+    // FIXME 优化，可提取为全局变量
     TypeElement element = getElements().getTypeElement(ResultParameter.class.getName());
     List<? extends Element> elements = element.getEnclosedElements();
     ExecutableElement name = null;
@@ -102,17 +101,17 @@ public class ParameterModel {
     this.key = this.name;
     this.type = (TypeMirror) map.get(type).getValue();
     AnnotationValue transmitValue = map.get(transmit);
-    this.transmit = transmitValue == null ? TransmitType.AUTO
-        : TransmitType.valueOf(transmitValue.getValue().toString());
+    this.transmit =
+        transmitValue == null
+            ? TransmitType.AUTO
+            : TransmitType.valueOf(transmitValue.getValue().toString());
   }
 
   public TypeMirror getType() {
     return type;
   }
 
-  /**
-   * 如果是原生类型则返回装箱类型
-   */
+  /** 如果是原生类型则返回装箱类型 */
   public TypeMirror getObjectType() {
     if (isPrimitive()) {
       return getTypes().boxedClass((PrimitiveType) getType()).asType();
@@ -129,9 +128,7 @@ public class ParameterModel {
     return name;
   }
 
-  /**
-   * 用于 Builder 方法名和方法参数
-   */
+  /** 用于 Builder 方法名和方法参数 */
   public String getDisplayName() {
     return displayName;
   }

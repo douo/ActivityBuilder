@@ -31,9 +31,9 @@ import javax.lang.model.util.Types;
 import static info.dourok.compiler.EasyUtils.getElements;
 
 /**
- * Created by tiaolins on 2017/8/30.
+ * @author tiaolins
+ * @date 2017/8/30
  */
-
 public class ActivityProcessorFactory {
   private Filer filer;
   private Messager messager;
@@ -53,10 +53,8 @@ public class ActivityProcessorFactory {
     elements = processingEnvironment.getElementUtils();
 
     activity = elements.getTypeElement(Activity.class.getName());
-    baseActivityBuilder =
-        elements.getTypeElement("info.dourok.esactivity.BaseActivityBuilder");
-    baseResultConsumer =
-        elements.getTypeElement("info.dourok.esactivity.BaseResultConsumer");
+    baseActivityBuilder = elements.getTypeElement("info.dourok.esactivity.BaseActivityBuilder");
+    baseResultConsumer = elements.getTypeElement("info.dourok.esactivity.BaseResultConsumer");
 
     targetActivityList = new LinkedList<>();
   }
@@ -98,15 +96,15 @@ public class ActivityProcessorFactory {
       parameterList = new LinkedList<>();
       resultList = new LinkedList<>();
       for (Element element : targetActivity.getEnclosedElements()) {
-        //find parameters
+        // find parameters
         if (element.getKind() == ElementKind.FIELD) {
           BuilderParameter activityParameter = element.getAnnotation(BuilderParameter.class);
           if (activityParameter != null) {
-            parameterList.add(ParameterWriter.newWriter(activityParameter,
-                (VariableElement) element));
+            parameterList.add(
+                ParameterWriter.newWriter(activityParameter, (VariableElement) element));
           }
         }
-        //Result 注解的方法
+        // Result 注解的方法
         if (element.getKind() == ElementKind.METHOD) {
           Result result = element.getAnnotation(Result.class);
           if (result != null) {
@@ -115,25 +113,26 @@ public class ActivityProcessorFactory {
         }
       }
 
-      //处理直接注解于 Activity 的 Result 注解
-      TypeMirror result = getElements().getTypeElement(
-          Result.class.getName()).asType();
-      TypeMirror resultSet = getElements().getTypeElement(
-          ResultSet.class.getName()).asType();
+      // 处理直接注解于 Activity 的 Result 注解
+      TypeMirror result = getElements().getTypeElement(Result.class.getName()).asType();
+      TypeMirror resultSet = getElements().getTypeElement(ResultSet.class.getName()).asType();
 
       for (AnnotationMirror annotationMirror : targetActivity.getAnnotationMirrors()) {
         if (annotationMirror.getAnnotationType().equals(result)) {
           resultList.add(new ResultModel(annotationMirror));
         }
         if (annotationMirror.getAnnotationType().equals(resultSet)) {
-          annotationMirror.getElementValues().forEach((o, o2) -> {
-            if (o.getSimpleName().toString().equals("results")) {
-              List<AnnotationMirror> list = (List<AnnotationMirror>) o2.getValue();
-              for (AnnotationMirror mirror : list) {
-                resultList.add(new ResultModel(mirror));
-              }
-            }
-          });
+          annotationMirror
+              .getElementValues()
+              .forEach(
+                  (o, o2) -> {
+                    if (o.getSimpleName().toString().equals("results")) {
+                      List<AnnotationMirror> list = (List<AnnotationMirror>) o2.getValue();
+                      for (AnnotationMirror mirror : list) {
+                        resultList.add(new ResultModel(mirror));
+                      }
+                    }
+                  });
         }
       }
     }
@@ -142,20 +141,26 @@ public class ActivityProcessorFactory {
       boolean needCustomConsumer = !resultList.isEmpty();
       ConsumerGenerator consumerGenerator = null;
       HelperGenerator helperGenerator =
-          new HelperGenerator(activity, targetActivity, targetPackage,
-              parameterList,
-              resultList);
-      //需要自定义结果时，才需要子类化 BaseResultConsumer
+          new HelperGenerator(activity, targetActivity, targetPackage, parameterList, resultList);
+      // 需要自定义结果时，才需要子类化 BaseResultConsumer
       if (needCustomConsumer) {
         consumerGenerator =
-            new ConsumerGenerator(activity, targetActivity, targetPackage, baseResultConsumer,
+            new ConsumerGenerator(
+                activity,
+                targetActivity,
+                targetPackage,
+                baseResultConsumer,
                 helperGenerator.getTypeSpec(),
                 resultList);
       }
       BuilderGenerator builderGenerator =
-          new BuilderGenerator(activity, targetActivity, targetPackage,
+          new BuilderGenerator(
+              activity,
+              targetActivity,
+              targetPackage,
               parameterList,
-              resultList, baseActivityBuilder,
+              resultList,
+              baseActivityBuilder,
               needCustomConsumer ? consumerGenerator.getTypeSpec() : null);
       try {
         builderGenerator.write();

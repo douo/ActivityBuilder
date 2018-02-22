@@ -15,7 +15,6 @@ import javax.tools.JavaFileObject
 
 class ActivitySource extends Source {
 
-
   def params = []
   def results = []
   def resultMethods = []
@@ -25,7 +24,8 @@ class ActivitySource extends Source {
     addImport(Activity, Builder)
   }
 
-  ActivitySource param(paramType, name, imports = [], key = Source._, transmit = Source._, keep = Source._) {
+  ActivitySource param(paramType, name, imports = [], key = Source._, transmit = Source._,
+      keep = Source._) {
     addImport(BuilderParameter, *imports)
     def annotation = writeAnnotation(BuilderParameter,
         [key: key ? "\"${key}\"" : Source._, transmit: transmit, keep: keep])

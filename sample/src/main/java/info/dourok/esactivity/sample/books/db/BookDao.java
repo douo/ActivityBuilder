@@ -7,7 +7,8 @@ import info.dourok.esactivity.sample.books.Book;
 import java.util.List;
 
 /**
- * Created by tiaolins on 2017/10/23.
+ * @author tiaolins
+ * @date 2017/10/23
  */
 @Dao
 public interface BookDao {

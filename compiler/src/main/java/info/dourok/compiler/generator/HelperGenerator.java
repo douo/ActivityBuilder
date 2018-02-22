@@ -17,59 +17,76 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Created by tiaolins on 2017/9/5.
+ * @author tiaolins
+ * @date 2017/9/5
  */
-
 public class HelperGenerator extends BaseActivityGenerator {
   public static final String TARGET_ACTIVITY_VARIABLE_NAME = "activity";
   private List<ParameterWriter> parameterList;
   private List<ResultModel> resultList;
 
-  public HelperGenerator(TypeElement activity,
+  public HelperGenerator(
+      TypeElement activity,
       TypeElement targetActivity,
-      PackageElement targetPackage, List<ParameterWriter> parameterList,
+      PackageElement targetPackage,
+      List<ParameterWriter> parameterList,
       List<ResultModel> resultList) {
     super(activity, targetActivity, targetPackage);
     this.parameterList = parameterList;
     this.resultList = resultList;
   }
 
-  @Override protected TypeSpec generate() {
+  @Override
+  protected TypeSpec generate() {
     TypeSpec.Builder helper =
-        TypeSpec.classBuilder(ClassName.get(targetPackage.getQualifiedName().toString(),
-            targetActivity.getSimpleName() + "Helper"))
-            .addModifiers(Modifier.PUBLIC) //PUBLIC is not safe, but BuilderUtils need it.
-            .addField(FieldSpec.builder(ClassName.get(targetActivity),
-                TARGET_ACTIVITY_VARIABLE_NAME,
-                Modifier.PRIVATE, Modifier.FINAL).build())
-            .addMethod(MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
-                .addStatement("this($L, false)", TARGET_ACTIVITY_VARIABLE_NAME).build())
-            .addMethod(MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
-                .addParameter(TypeName.BOOLEAN, "autoInject")
-                .addStatement("this.$L = $L", TARGET_ACTIVITY_VARIABLE_NAME,
-                    TARGET_ACTIVITY_VARIABLE_NAME)
-                .beginControlFlow("if(autoInject)")
-                .addStatement("inject()")
-                .endControlFlow()
-                .build());
+        TypeSpec.classBuilder(
+                ClassName.get(
+                    targetPackage.getQualifiedName().toString(),
+                    targetActivity.getSimpleName() + "Helper"))
+            // PUBLIC is not safe, but BuilderUtils need it.
+            .addModifiers(Modifier.PUBLIC)
+            .addField(
+                FieldSpec.builder(
+                        ClassName.get(targetActivity),
+                        TARGET_ACTIVITY_VARIABLE_NAME,
+                        Modifier.PRIVATE,
+                        Modifier.FINAL)
+                    .build())
+            .addMethod(
+                MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
+                    .addStatement("this($L, false)", TARGET_ACTIVITY_VARIABLE_NAME)
+                    .build())
+            .addMethod(
+                MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(ClassName.get(targetActivity), TARGET_ACTIVITY_VARIABLE_NAME)
+                    .addParameter(TypeName.BOOLEAN, "autoInject")
+                    .addStatement(
+                        "this.$L = $L",
+                        TARGET_ACTIVITY_VARIABLE_NAME,
+                        TARGET_ACTIVITY_VARIABLE_NAME)
+                    .beginControlFlow("if(autoInject)")
+                    .addStatement("inject()")
+                    .endControlFlow()
+                    .build());
 
-    MethodSpec.Builder helperInject = MethodSpec.methodBuilder("inject")
-        .addStatement("$T intent = $L.getIntent()", Intent.class, TARGET_ACTIVITY_VARIABLE_NAME);
+    MethodSpec.Builder helperInject =
+        MethodSpec.methodBuilder("inject")
+            .addStatement(
+                "$T intent = $L.getIntent()", Intent.class, TARGET_ACTIVITY_VARIABLE_NAME);
 
-    MethodSpec.Builder helperRestore = MethodSpec.methodBuilder("restore")
-        .addParameter(Bundle.class, "savedInstanceState");
+    MethodSpec.Builder helperRestore =
+        MethodSpec.methodBuilder("restore").addParameter(Bundle.class, "savedInstanceState");
 
-    MethodSpec.Builder helperSave = MethodSpec.methodBuilder("save")
-        .addParameter(Bundle.class, "savedInstanceState");
+    MethodSpec.Builder helperSave =
+        MethodSpec.methodBuilder("save").addParameter(Bundle.class, "savedInstanceState");
 
     for (ParameterWriter parameterWriter : parameterList) {
       parameterWriter.writeInjectActivity(helperInject, TARGET_ACTIVITY_VARIABLE_NAME);
-      parameterWriter.writeRestore(helperRestore, TARGET_ACTIVITY_VARIABLE_NAME,
-          "savedInstanceState");
+      parameterWriter.writeRestore(
+          helperRestore, TARGET_ACTIVITY_VARIABLE_NAME, "savedInstanceState");
       parameterWriter.writeSave(helperSave, TARGET_ACTIVITY_VARIABLE_NAME, "savedInstanceState");
     }
 
@@ -77,15 +94,21 @@ public class HelperGenerator extends BaseActivityGenerator {
       ResultModel result = resultList.get(i);
       // 为每个 Result 生成一个常量，用于表示 Result code
       helper.addField(
-          FieldSpec.builder(int.class, result.getResultConstant(), Modifier.PUBLIC,
-              Modifier.FINAL, Modifier.STATIC)
-              .initializer("$T.RESULT_FIRST_USER + $L", Activity.class, i + 1).build());
+          FieldSpec.builder(
+                  int.class,
+                  result.getResultConstant(),
+                  Modifier.PUBLIC,
+                  Modifier.FINAL,
+                  Modifier.STATIC)
+              .initializer("$T.RESULT_FIRST_USER + $L", Activity.class, i + 1)
+              .build());
       MethodSpec resultSetter = buildResultSetter(result);
       helper.addMethod(resultSetter);
       helper.addMethod(buildFinishWithResult(result, resultSetter));
     }
 
-    helper.addMethod(helperInject.build())
+    helper
+        .addMethod(helperInject.build())
         .addMethod(helperRestore.build())
         .addMethod(helperSave.build());
 
@@ -100,7 +123,7 @@ public class HelperGenerator extends BaseActivityGenerator {
       for (int i = 0; i < result.getParameters().size(); i++) {
         ParameterModel parameter = result.getParameters().get(i);
         builder.addParameter(TypeName.get(parameter.getType()), parameter.getName());
-        //FIXME 重构 parameter writer
+        // FIXME 重构 parameter writer
         names[i] = parameter.getName();
         if (i == 0) {
           literal.append("$L");
@@ -122,7 +145,7 @@ public class HelperGenerator extends BaseActivityGenerator {
       for (int i = 0; i < result.getParameters().size(); i++) {
         ParameterModel parameter = result.getParameters().get(i);
         builder.addParameter(TypeName.get(parameter.getType()), parameter.getName());
-        //FIXME 重构 parameter writer
+        // FIXME 重构 parameter writer
         ParameterWriter writer = ParameterWriter.newWriter(parameter);
         writer.writeConsumerSetter(builder);
       }

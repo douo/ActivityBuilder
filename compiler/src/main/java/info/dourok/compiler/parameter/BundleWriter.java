@@ -23,7 +23,9 @@ import static info.dourok.compiler.EasyUtils.isString;
 
 /**
  * 生成 Bundle 支持类型的写入读取代码
- * Created by tiaolins on 2017/8/30.
+ *
+ * @author tiaolins
+ * @date 2017/8/30
  */
 class BundleWriter extends ParameterWriter {
 
@@ -50,83 +52,87 @@ class BundleWriter extends ParameterWriter {
   }
 
   static String generatePrefix(final TypeMirror mirror, int type) {
-    TypeVisitor<String, Integer> visitor = new SimpleTypeVisitor8<String, Integer>() {
-      @Override public String visitPrimitive(PrimitiveType primitiveType, Integer type) {
-        String prefix = capitalize(primitiveType.getKind().name());
-        switch (type) {
-          case TYPE_ARRAY:
-            return prefix + "Array";
-          case TYPE_ARRAY_LIST:
-            if (primitiveType.getKind() == TypeKind.INT) {
-              return "IntegerArrayList";
+    TypeVisitor<String, Integer> visitor =
+        new SimpleTypeVisitor8<String, Integer>() {
+          @Override
+          public String visitPrimitive(PrimitiveType primitiveType, Integer type) {
+            String prefix = capitalize(primitiveType.getKind().name());
+            switch (type) {
+              case TYPE_ARRAY:
+                return prefix + "Array";
+              case TYPE_ARRAY_LIST:
+                if (primitiveType.getKind() == TypeKind.INT) {
+                  return "IntegerArrayList";
+                } else {
+                  return null; // 列表不支持其他原生类型,泛型也不支持 boxing
+                }
+              default:
+                return prefix;
+            }
+          }
+
+          @Override
+          public String visitArray(ArrayType arrayType, Integer type) {
+            switch (type) {
+              case TYPE_ARRAY:
+                return null; // 只支持一维数组
+              case TYPE_ARRAY_LIST:
+                return null; // Bundle 不支持泛型数组
+              default:
+                return generatePrefix(arrayType.getComponentType(), TYPE_ARRAY);
+            }
+          }
+
+          @Override
+          public String visitDeclared(DeclaredType declaredType, Integer type) {
+            String prefix = null;
+            if (isString(declaredType)) {
+              prefix = "String";
+            } else if (isCharSequence(declaredType)) {
+              prefix = "CharSequence";
+            } else if (isBundle(declaredType)) {
+              prefix = "Bundle";
+            } else if (isParcelable(declaredType, false)) {
+              prefix = "Parcelable";
+            }
+            if (prefix != null) {
+              switch (type) {
+                case TYPE_ARRAY:
+                  return prefix + "Array";
+
+                case TYPE_ARRAY_LIST:
+                  return prefix + "ArrayList";
+                default:
+                  return prefix;
+              }
             } else {
-              return null; //列表不支持其他原生类型,泛型也不支持 boxing
-            }
-          default:
-            return prefix;
-        }
-      }
 
-      @Override public String visitArray(ArrayType arrayType, Integer type) {
-        switch (type) {
-          case TYPE_ARRAY:
-            return null; //只支持一维数组
-          case TYPE_ARRAY_LIST:
-            return null; // Bundle 不支持泛型数组
-          default:
-            return generatePrefix(arrayType.getComponentType(), TYPE_ARRAY);
-        }
-      }
+              if (isArrayList(declaredType)) {
+                List<? extends TypeMirror> list = declaredType.getTypeArguments();
+                if (list.isEmpty()) { // 无泛型参数的 ArrayList 处理不了
+                  return null;
+                } else {
+                  return generatePrefix(declaredType.getTypeArguments().get(0), TYPE_ARRAY_LIST);
+                }
+              }
+              // 拆箱
+              try {
+                PrimitiveType primitiveType = getTypes().unboxedType(declaredType);
+                if (primitiveType != null) {
+                  return generatePrefix(primitiveType, type);
+                }
+              } catch (IllegalArgumentException e) {
+                // ignore;
+              }
 
-      @Override public String visitDeclared(DeclaredType declaredType, Integer type) {
-        String prefix = null;
-        if (isString(declaredType)) {
-          prefix = "String";
-        } else if (isCharSequence(declaredType)) {
-          prefix = "CharSequence";
-        } else if (isBundle(declaredType)) {
-          prefix = "Bundle";
-        } else if (isParcelable(declaredType, false)) {
-          prefix = "Parcelable";
-        }
-        if (prefix != null) {
-          switch (type) {
-            case TYPE_ARRAY:
-              return prefix + "Array";
-
-            case TYPE_ARRAY_LIST:
-              return prefix + "ArrayList";
-            default:
-              return prefix;
-          }
-        } else {
-
-          if (isArrayList(declaredType)) {
-            List<? extends TypeMirror> list = declaredType.getTypeArguments();
-            if (list.isEmpty()) { //无泛型参数的 ArrayList 处理不了
-              return null;
-            } else {
-              return generatePrefix(declaredType.getTypeArguments().get(0), TYPE_ARRAY_LIST);
+              if (isSerializable(declaredType, false)) {
+                return "Serializable";
+              } else {
+                return null;
+              }
             }
           }
-          //拆箱
-          try {
-            PrimitiveType primitiveType = getTypes().unboxedType(declaredType);
-            if (primitiveType != null) {
-              return generatePrefix(primitiveType, type);
-            }
-          } catch (IllegalArgumentException e) {
-            // ignore;
-          }
-
-          if (isSerializable(declaredType, false)) {
-            return "Serializable";
-          } else {
-            return null;
-          }
-        }
-      }
-    };
+        };
     return mirror.accept(visitor, type);
   }
 
@@ -134,73 +140,81 @@ class BundleWriter extends ParameterWriter {
   public void writeInjectActivity(MethodSpec.Builder paper, String activityName) {
     String defaultValue = getDefaultValue(parameter.getType());
     if (defaultValue != null) { // isPrimitive() || isBoxed()
-      paper.addStatement("$L.$L = intent.get$LExtra($S,$L)", activityName,
+      paper.addStatement(
+          "$L.$L = intent.get$LExtra($S,$L)",
+          activityName,
           parameter.getName(),
           prefix,
-          parameter.getKey(), getDefaultValue(parameter.getType()));
+          parameter.getKey(),
+          getDefaultValue(parameter.getType()));
     } else {
       if (isSubTypeOfParcelableOrSerializable()) {
-        paper.addStatement("$L.$L =($T) intent.get$LExtra($S)", activityName,
-            getName(), parameter.getType(),
+        paper.addStatement(
+            "$L.$L =($T) intent.get$LExtra($S)",
+            activityName,
+            getName(),
+            parameter.getType(),
             prefix,
             getKey());
       } else {
-        paper.addStatement("$L.$L = intent.get$LExtra($S)", activityName,
-            getName(), prefix,
-            getKey());
+        paper.addStatement(
+            "$L.$L = intent.get$LExtra($S)", activityName, getName(), prefix, getKey());
       }
     }
   }
 
-  @Override public void writeConsumerGetter(MethodSpec.Builder paper) {
+  @Override
+  public void writeConsumerGetter(MethodSpec.Builder paper) {
     String defaultValue = getDefaultValue(parameter.getType());
-    if (defaultValue != null) { // isPrimitive() || isBoxed()
-      paper.addStatement("$T $L = intent.get$LExtra($S,$L)", getType(),
+    // isPrimitive() || isBoxed()
+    if (defaultValue != null) {
+      paper.addStatement(
+          "$T $L = intent.get$LExtra($S,$L)",
+          getType(),
           parameter.getName(),
           prefix,
-          parameter.getKey(), getDefaultValue(parameter.getType()));
+          parameter.getKey(),
+          getDefaultValue(parameter.getType()));
     } else {
       if (isSubTypeOfParcelableOrSerializable()) {
-        paper.addStatement("$T $L =($T) intent.get$LExtra($S)", getType(),
-            getName(), parameter,
-            prefix,
-            getKey());
+        paper.addStatement(
+            "$T $L =($T) intent.get$LExtra($S)", getType(), getName(), parameter, prefix, getKey());
       } else {
-        paper.addStatement("$T $L = intent.get$LExtra($S)", getType(),
-            getName(), prefix,
-            getKey());
+        paper.addStatement("$T $L = intent.get$LExtra($S)", getType(), getName(), prefix, getKey());
       }
     }
   }
 
-  @Override public void writeConsumerSetter(MethodSpec.Builder paper) {
-    paper.addStatement("intent.putExtra($S,$L)",
-        getKey(),
-        getName());
+  @Override
+  public void writeConsumerSetter(MethodSpec.Builder paper) {
+    paper.addStatement("intent.putExtra($S,$L)", getKey(), getName());
   }
 
-  @Override public void writeSetter(MethodSpec.Builder paper) {
-    paper.addStatement("getIntent().putExtra($S,$L)",
-        getKey(),
-        getDisplayName());
+  @Override
+  public void writeSetter(MethodSpec.Builder paper) {
+    paper.addStatement("getIntent().putExtra($S,$L)", getKey(), getDisplayName());
   }
 
   @Override
   public void doWriteRestore(MethodSpec.Builder paper, String activityName, String bundleName) {
     if (isSubTypeOfParcelableOrSerializable()) {
-      paper.addStatement("$L.$L = ($T) $L.get$L($S)", activityName, getName(), parameter,
-          bundleName, prefix,
+      paper.addStatement(
+          "$L.$L = ($T) $L.get$L($S)",
+          activityName,
+          getName(),
+          parameter,
+          bundleName,
+          prefix,
           getKey());
     } else {
-      paper.addStatement("$L.$L = $L.get$L($S)", activityName, getName(), bundleName, prefix,
-          getKey());
+      paper.addStatement(
+          "$L.$L = $L.get$L($S)", activityName, getName(), bundleName, prefix, getKey());
     }
   }
 
   @Override
   public void doWriteSave(MethodSpec.Builder paper, String activityName, String bundleName) {
-    paper.addStatement("$L.put$L($S,$L.$L)", bundleName, prefix,
-        getKey(), activityName, getName());
+    paper.addStatement("$L.put$L($S,$L.$L)", bundleName, prefix, getKey(), activityName, getName());
   }
 
   private boolean isSubTypeOfParcelableOrSerializable() {

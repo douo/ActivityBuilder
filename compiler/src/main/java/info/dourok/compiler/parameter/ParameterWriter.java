@@ -9,14 +9,14 @@ import javax.lang.model.type.TypeMirror;
 import static info.dourok.compiler.EasyUtils.getTypes;
 
 /**
- * Created by tiaolins on 2017/8/30.
+ * @author tiaolins
+ * @date 2017/8/30
  */
-
 public abstract class ParameterWriter {
 
-  protected final static int TYPE_UNKNOWN = 0;
-  protected final static int TYPE_ARRAY = 1;
-  protected final static int TYPE_ARRAY_LIST = 2;
+  protected static final int TYPE_UNKNOWN = 0;
+  protected static final int TYPE_ARRAY = 1;
+  protected static final int TYPE_ARRAY_LIST = 2;
   protected ParameterModel parameter;
 
   public ParameterWriter(ParameterModel parameter) {
@@ -47,24 +47,21 @@ public abstract class ParameterWriter {
     return parameter.isKeep();
   }
 
-  /**
-   * #{activityName}.name = xx 的形式
-   */
+  /** #{activityName}.name = xx 的形式 */
   public abstract void writeInjectActivity(MethodSpec.Builder paper, String activityName);
 
   public abstract void writeConsumerGetter(MethodSpec.Builder paper);
 
   public abstract void writeConsumerSetter(MethodSpec.Builder paper);
 
-  public final void writeRestore(MethodSpec.Builder paper, String activityName,
-      String bundleName) {
+  public final void writeRestore(MethodSpec.Builder paper, String activityName, String bundleName) {
     if (parameter.isKeep()) {
       doWriteRestore(paper, activityName, bundleName);
     }
   }
 
-  protected abstract void doWriteRestore(MethodSpec.Builder paper, String activityName,
-      String bundleName);
+  protected abstract void doWriteRestore(
+      MethodSpec.Builder paper, String activityName, String bundleName);
 
   public final void writeSave(MethodSpec.Builder paper, String activityName, String bundleName) {
     if (parameter.isKeep()) {
@@ -72,13 +69,12 @@ public abstract class ParameterWriter {
     }
   }
 
-  protected abstract void doWriteSave(MethodSpec.Builder paper, String activityName,
-      String bundleName);
+  protected abstract void doWriteSave(
+      MethodSpec.Builder paper, String activityName, String bundleName);
 
   public abstract void writeSetter(MethodSpec.Builder paper);
 
-  public static ParameterWriter newWriter(BuilderParameter annotation,
-      VariableElement variable) {
+  public static ParameterWriter newWriter(BuilderParameter annotation, VariableElement variable) {
     return newWriter(new ParameterModel(annotation, variable));
   }
 
@@ -95,15 +91,13 @@ public abstract class ParameterWriter {
           return new RefWriter(parameter);
         }
       case UNSAFE:
-        return null; //TODO
+        return null; // TODO
       default:
         return null;
     }
   }
 
-  /**
-   * @return 返回原生类型或者装箱类型的默认值，其他类型返回 null
-   */
+  /** @return 返回原生类型或者装箱类型的默认值，其他类型返回 null */
   static String getDefaultValue(TypeMirror typeMirror) {
     switch (typeMirror.getKind()) {
       case BOOLEAN:
