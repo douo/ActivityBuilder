@@ -65,4 +65,5 @@ ext {
   artifact = 'activity-builder-compiler'
   publishedPackaging = 'jar'
 }
+apply from: '../config/quality.gradle'
 apply from: '../release.gradle'

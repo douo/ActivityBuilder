@@ -42,4 +42,5 @@ ext {
   artifact = 'activity-builder'
   publishedPackaging = 'aar'
 }
+apply from: '../config/quality.gradle'
 apply from: '../release.gradle'

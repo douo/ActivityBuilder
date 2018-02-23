@@ -1,0 +1,95 @@
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+def configDir = "${project.rootDir}/config"
+def reportsDir = "${project.buildDir}/reports"
+
+
+/**
+ * Checkstyle
+ **/
+checkstyle {
+  toolVersion "8.7"
+}
+
+task checkstyle(type: Checkstyle) {
+  configFile file("$configDir/checkstyle/checkstyle.xml")
+  configProperties.checkstyleSuppressionsPath =
+      file("$configDir/checkstyle/suppressions.xml").absolutePath
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+  classpath = files()
+  ignoreFailures false
+}
+
+/**
+ * FindBugs http://findbugs.sourceforge.net/manual/
+ */
+findbugs {
+  toolVersion = "3.0.1" // 支持 java 8
+}
+task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
+  ignoreFailures = true
+  effort = "max"
+  reportLevel = "high" // low  medium high
+  excludeFilter = new File("$configDir/findbugs/findbugs-filter.xml")
+  classes = files("${project.rootDir}/${project.name}/build/intermediates/classes")
+
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+
+  reports {
+    xml.enabled = false
+    html.enabled = true
+    xml {
+      destination "$reportsDir/findbugs/findbugs.xml"
+    }
+    html {
+      destination "$reportsDir/findbugs/findbugs.html"
+    }
+  }
+  classpath = files()
+}
+
+
+/**
+ * PMD https://pmd.github.io/
+ * p3c https://github.com/alibaba/p3c
+ */
+ext {
+  p3cPmdVersion = "1.3.0"
+  pmdVersion = '5.5.2' // 与p3c-pmd 中使用pmd的版本一致
+}
+
+// PMD配置
+pmd {
+  toolVersion = pmdVersion // 避免使用比较旧的版本，需要指定pmd的版本
+  ignoreFailures = true
+}
+
+dependencies {
+  pmd "com.alibaba.p3c:p3c-pmd:${p3cPmdVersion}"
+}
+task pmd(type: Pmd) {
+  ignoreFailures = true
+  ruleSetFiles = files("$configDir/pmd/pmd-ruleset.xml")
+  ruleSets = []
+
+  source 'src'
+  include '**/*.java'
+  exclude '**/gen/**'
+
+  reports {
+    xml.enabled = false
+    html.enabled = true
+    xml {
+      destination "$reportsDir/pmd/pmd.xml"
+    }
+    html {
+      destination "$reportsDir/pmd/pmd.html"
+    }
+  }
+}

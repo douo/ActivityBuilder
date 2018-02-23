@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--http://findbugs.sourceforge.net/manual/filter.html#d0e2197-->
+<FindBugsFilter>
+  <!-- http://stackoverflow.com/questions/7568579/eclipsefindbugs-exclude-filter-files-doesnt-work -->
+  <Match>
+    <Or>
+      <Class name="~.*\.R\$.*"/>
+      <Class name="~.*\.Manifest\$.*"/>
+    </Or>
+  </Match>
+  <!-- All bugs in test classes, except for JUnit-specific bugs -->
+  <Match>
+    <Class name="~.*\.*Test"/>
+    <Not>
+      <Bug code="IJU"/>
+    </Not>
+  </Match>
+
+  <!--https://github.com/ChaitanyaPramod/findbugs-android/blob/master/src/main/groovy/com/chaitanyapramod/gradle/android/findbugs/FindBugsAndroidPlugin.groovy -->
+  <!--Databinding-->
+  <Match>
+    <Or>
+      <Class name="~.*\.BR.*"/>
+      <Class name="~android\.databinding\..*"/>
+      <Class name="~.*\.android\.databinding\..*Binding"/>
+    </Or>
+  </Match>
+  <!--Dagger2-->
+  <Match>
+    <Or>
+      <Class name="~.*\..*_MembersInjector"/>
+      <Class name="~.*\.Dagger.*Component"/>
+      <Class name="~.*\.Dagger.*Component\$Builder"/>
+      <Class name="~.*\..*Module_.*Factory"/>
+    </Or>
+  </Match>
+  <!--ButterKnife-->
+  <Match>
+    <Or>
+      <Class name="~.*\..*\$ViewInjector.*"/>
+      <Class name="~.*\..*\$ViewBinder.*"/>
+    </Or>
+  </Match>
+</FindBugsFilter>
