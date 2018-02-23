@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import info.dourok.esactivity.BuilderUtil;
 import info.dourok.esactivity.sample.books.BookListActivity;
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             view ->
                 EditorActivityBuilder.create(this)
                     .hint("say something!")
-                    .forContent(System.out::println)
+                    .forContent(this::showContent)
                     .start());
   }
 
@@ -106,13 +107,15 @@ public class MainActivity extends AppCompatActivity {
       case REQUEST_SOME_TEXT:
         if (resultCode == EditorActivityHelper.RESULT_CONTENT) {
           String text = data.getStringExtra("content");
-          showToast(text);
+          showContent(text);
         }
     }
   }
 
-  private void showToast(String text) {
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+  private void showContent(String text) {
+    // Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    TextView textView = findViewById(R.id.content);
+    textView.setText(text);
   }
 
   public void handleOk(Intent data) {

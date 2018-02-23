@@ -1,13 +1,24 @@
 package info.dourok.esactivity.sample;
 
-import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.replaceText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -15,12 +26,30 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class ExampleInstrumentedTest {
-  @Test
-  public void useAppContext() throws Exception {
-    // Context of the app under test.
-    Context appContext = InstrumentationRegistry.getTargetContext();
+  @Rule
+  public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class);
 
-    assertEquals("info.dourok.esactivity.sample", appContext.getPackageName());
+  @Test
+  public void everythingIsOk() throws Exception {
+    final String text = "text";
+    onView(withText("Editor")).perform(click());
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void shouldWorkAfterActivityRecreate() throws Exception {
+    final String text = "text";
+    onView(withText("Editor")).perform(click());
+    onView(isRoot()).perform(OrientationChangeAction.orientationLandscape());
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    InstrumentationRegistry.getInstrumentation()
+        .runOnMainSync(() -> mActivityRule.getActivity().recreate());
+    onView(withId(R.id.action_ok)).perform(click());
+    // onView(isRoot()).perform(OrientationChangeAction.orientationLandscape());
+    onView(withId(R.id.content)).check(matches(withText(text)));
   }
 }

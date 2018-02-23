@@ -25,7 +25,7 @@ public class BookViewModel extends AndroidViewModel {
   }
 
   private void fillBook() {
-    List<Book> books = new ArrayList<>();
+    final List<Book> books = new ArrayList<>();
     Book a = new Book();
     a.id = 1;
     a.title = "Code Complete";
@@ -66,10 +66,10 @@ public class BookViewModel extends AndroidViewModel {
               mBooks.notifyChange();
             })
         .forUpdate(
-            (_b) -> {
-              int idx = mBooks.get().indexOf(getBookById(_b.id));
+            (b) -> {
+              int idx = mBooks.get().indexOf(getBookById(b.id));
               mBooks.get().remove(idx);
-              mBooks.get().add(idx, _b);
+              mBooks.get().add(idx, b);
               mBooks.notifyChange();
             })
         .start();
