@@ -109,7 +109,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
   }
 
   private FieldSpec buildField(ResultModel result) throws IOException {
-    return FieldSpec.builder(result.getConsumerTypeWithContext(), result.getConsumerName()).build();
+    return FieldSpec.builder(result.getConsumerType(), result.getConsumerName()).build();
   }
 
   private MethodSpec buildResultProcessor(ResultModel result) {
@@ -119,23 +119,28 @@ public class ConsumerGenerator extends BaseActivityGenerator {
             .returns(boolean.class)
             .addParameter(TypeVariableName.get("A"), "activity")
             .addParameter(Intent.class, "intent")
-            .beginControlFlow("if($L != null)", result.getConsumerName());
-    // if (!result.getParameters().isEmpty()) {
-    StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(activity");
-    String[] names = new String[result.getParameters().size()];
-    for (int i = 0; i < result.getParameters().size(); i++) {
-      ParameterModel parameter = result.getParameters().get(i);
-      // FIXME 重构 parameter writer
-      ParameterWriter writer = ParameterWriter.newWriter(parameter);
-      writer.writeConsumerGetter(builder);
-      names[i] = parameter.getName();
-      literal.append(", $L");
+            .beginControlFlow("if($L != null)", result.getConsumerName())
+            .addStatement("doCheck(activity,$L)", result.getConsumerName());
+    if (!result.getParameters().isEmpty()) {
+      StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(");
+      String[] names = new String[result.getParameters().size()];
+      for (int i = 0; i < result.getParameters().size(); i++) {
+        ParameterModel parameter = result.getParameters().get(i);
+        // FIXME 重构 parameter writer
+        ParameterWriter writer = ParameterWriter.newWriter(parameter);
+        writer.writeConsumerGetter(builder);
+        names[i] = parameter.getName();
+        if (i == 0) {
+          literal.append("$L");
+        } else {
+          literal.append(", $L");
+        }
+      }
+      literal.append(")");
+      builder.addStatement(literal.toString(), (Object[]) names);
+    } else {
+      builder.addStatement("$L.run()", result.getConsumerName());
     }
-    literal.append(")");
-    builder.addStatement(literal.toString(), (Object[]) names);
-    // } else {
-    //  builder.addStatement("$L.run()", result.getConsumerName());
-    // }
     builder.addStatement("return true");
     builder.endControlFlow();
     builder.beginControlFlow("else").addStatement("return false").endControlFlow();

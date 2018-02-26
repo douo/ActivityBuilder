@@ -5,16 +5,18 @@ import android.content.Intent;
 import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.function.TriConsumer;
 
-
-public  class BaseResultConsumer<A extends Activity>
+public class BaseResultConsumer<A extends Activity>
     implements TriConsumer<Activity, Integer, Intent> {
   TriConsumer<A, Integer, Intent> biConsumer;
   BiConsumer<A, Intent> okConsumer;
   BiConsumer<A, Intent> cancelConsumer;
 
-  @Override public final void accept(Activity context, Integer result, Intent intent) {
+  @Override
+  public final void accept(Activity context, Integer result, Intent intent) {
     //
   }
+
+  protected void doCheck(Activity activity, Object lambda) {}
 
   protected boolean handleResult(A context, int result, Intent intent) {
     return false;

@@ -27,26 +27,16 @@ class ResultSetSpec extends Specification {
     expect:
     def builder = Source.builder()
         .hasConsumer()
-        .method(""" 
-                public EmptyActivityBuilder<A> forDate(Consumer<Long> dateConsumer) {
-                  getConsumer().dateConsumer = (activity, date) -> dateConsumer.accept(date);
-                  return this;
-                }""", ["info.dourok.esactivity.function.Consumer", Long])
         .method("""
-                public EmptyActivityBuilder<A> forDate(BiConsumer<A, Long> dateConsumer) {
+                public EmptyActivityBuilder<A> forDate(Consumer<Long> dateConsumer) {
                   getConsumer().dateConsumer = dateConsumer;
                   return this;
-                }""", ["info.dourok.esactivity.function.BiConsumer"])
+                }""", ["info.dourok.esactivity.function.Consumer", Long])
         .method(""" 
                 public EmptyActivityBuilder<A> forText(BiConsumer<ArrayList, Character> textConsumer) {
-                  getConsumer().textConsumer = (activity, ids, name) -> textConsumer.accept(ids, name);
-                  return this;
-                }""", ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
-        .method("""
-                public EmptyActivityBuilder<A> forText(TriConsumer<A, ArrayList, Character> textConsumer) {
                   getConsumer().textConsumer = textConsumer;
                   return this;
-                }""", ["info.dourok.esactivity.function.TriConsumer"])
+                }""", ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
         .source()
     def helper = Source.helper()
         .resultCode("DATE")
@@ -76,13 +66,14 @@ class ResultSetSpec extends Specification {
                }""")
         .source()
     def consumer = Source.consumer()
-        .field("BiConsumer<A,Long> dateConsumer;",
-        ["info.dourok.esactivity.function.BiConsumer", Long])
+        .field("Consumer<Long> dateConsumer;",
+        ["info.dourok.esactivity.function.Consumer", Long])
         .method("""
                private boolean processDate(A activity,Intent intent) {
                  if(dateConsumer != null) {
+                   doCheck(activity, dateConsumer);
                    Long date = intent.getLongExtra("date",0);
-                   dateConsumer.accept(activity,date);
+                   dateConsumer.accept(date);
                    return true;
                  }
                  else {
@@ -90,14 +81,15 @@ class ResultSetSpec extends Specification {
                  }
                }
                """)
-        .field("TriConsumer<A,ArrayList,Character> textConsumer;",
-        ["info.dourok.esactivity.function.TriConsumer", ArrayList, Character])
+        .field("BiConsumer<ArrayList,Character> textConsumer;",
+        ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
         .method("""
                private boolean processText(A activity,Intent intent) {
                  if(textConsumer != null) {
+                   doCheck(activity, textConsumer);
                    ArrayList ids = RefManager.getInstance().get(intent,"ids");
                    Character name = intent.getCharExtra("name",(char)0);
-                   textConsumer.accept(activity,ids,name);
+                   textConsumer.accept(ids,name);
                    return true;
                  }
                  else {

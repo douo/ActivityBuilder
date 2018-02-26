@@ -111,7 +111,6 @@ public class BuilderGenerator extends BaseActivityGenerator {
           resultModel -> {
             try {
               builder.addMethod(buildResultCallback(resultModel));
-              builder.addMethod(buildResultCallbackWithContext(resultModel));
             } catch (IOException e) {
               error("create builder consumer failed:" + e.getMessage());
             }
@@ -138,42 +137,12 @@ public class BuilderGenerator extends BaseActivityGenerator {
         .build();
   }
 
-  private MethodSpec buildResultCallbackWithContext(ResultModel result) throws IOException {
-    return MethodSpec.methodBuilder("for" + result.getCapitalizeName())
-        .returns(builderWithParameter)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(result.getConsumerTypeWithContext(), result.getConsumerName())
-        .addStatement("getConsumer().$L = $L", result.getConsumerName(), result.getConsumerName())
-        .addStatement("return this")
-        .build();
-  }
-
   private MethodSpec buildResultCallback(ResultModel result) throws IOException {
-    StringBuilder literal =
-        new StringBuilder("getConsumer().").append(result.getConsumerName()).append(" = (activity");
-
-    StringBuilder parameters =
-        result
-            .getParameters()
-            .stream()
-            .reduce(
-                new StringBuilder(),
-                (stringBuilder, parameterModel) ->
-                    stringBuilder.append(", ").append(parameterModel.getName()),
-                (stringBuilder, stringBuilder2) -> stringBuilder2);
-    String accept;
-    if (result.getParameters().isEmpty()) {
-      accept = "$L.run()";
-    } else {
-      accept = "$L.accept(" + parameters.substring(2) + ")";
-    }
-
     return MethodSpec.methodBuilder("for" + result.getCapitalizeName())
         .returns(builderWithParameter)
         .addModifiers(Modifier.PUBLIC)
         .addParameter(result.getConsumerType(), result.getConsumerName())
-        .addCode(literal.append(parameters).append(") -> ").toString())
-        .addStatement(accept, result.getConsumerName())
+        .addStatement("getConsumer().$L = $L", result.getConsumerName(), result.getConsumerName())
         .addStatement("return this")
         .build();
   }

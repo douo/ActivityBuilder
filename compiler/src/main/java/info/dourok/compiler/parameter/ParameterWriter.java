@@ -78,6 +78,7 @@ public abstract class ParameterWriter {
     return newWriter(new ParameterModel(annotation, variable));
   }
 
+
   public static ParameterWriter newWriter(ParameterModel parameter) {
     switch (parameter.getTransmit()) {
       case REF:
@@ -91,7 +92,7 @@ public abstract class ParameterWriter {
           return new RefWriter(parameter);
         }
       case UNSAFE:
-        return null; // TODO
+        // TODO
       default:
         return null;
     }

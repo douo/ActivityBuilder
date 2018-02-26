@@ -314,7 +314,7 @@ keep，表示参数会在 `Helper#save` 和 `Helper#restore` 方法中进行保�
     
 ## Builder
 
-对于 Builder 来说，每个 Result 也会生成两个方法：
+对于 Builder 来说，每个 Result 会生成一个方法：
 
     public class EditorActivityBuilder<A extends Activity> extends BaseActivityBuilder<EditorActivityBuilder<A>, A>{
       ...
@@ -322,17 +322,10 @@ keep，表示参数会在 `Helper#save` 和 `Helper#restore` 方法中进行保�
         getConsumer().contentConsumer = (activity, content) -> contentConsumer.accept(content);
         return this;
       }
-      
-      public EditorActivityBuilder<A> forContent(BiConsumer<A, String> contentConsumer) {
-        getConsumer().contentConsumer = contentConsumer;
-        return this;
-      }
       ...
     }
 
 然后便可以这样使用 `EditorActivityBuilder.create(this).forContent(System.out::println).start()`，一行代码完成启动 Activity 并处理 onActivityResult 的回调。
-
-类型参数 `A` 就是调用者 Activity 的实例引用，为什么要有两个回调，见 [lambda 的引用问题](#lambda-引用的问题)，现在先来说说 Result Parameter
 
 ## Result Parameter
 
@@ -360,18 +353,9 @@ ActivityBuilder 会为我们创建新的 Consumer：
       void accept(T0 t0, T1 t1, T2 t2, T3 t3);
     }
 
-和 
-
-    package info.dourok.esactivity.function;
-    
-    public interface Consumer5<T0, T1, T2, T3, T4> {
-      void accept(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4);
-    }
-
 相应的 Builder 方法
 
     public ${ActivityName}Builder<A> forAbcd(Consumer4<String, String, String, String> abcdConsumer) {...}
-    public ${ActivityName}}Builder<A> forAbcd(Consumer5<A, String, String, String, String> abcdConsumer) {...}
     
 ### TransmitType
 

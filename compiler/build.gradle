@@ -20,7 +20,7 @@ dependencies {
   implementation deps.google.auto
   implementation deps.android.runtime
   // 打包的时候需注释,运行测试需打开
-  // implementation deps.google.guava
+   implementation deps.google.guava
   testImplementation deps.google.truth
   testImplementation deps.google.compile
   testImplementation deps.groovy

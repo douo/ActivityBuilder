@@ -129,14 +129,4 @@ public class ResultModel {
       return ConsumerHelper.get(0);
     }
   }
-
-  public TypeName getConsumerTypeWithContext() throws IOException {
-    int count = getParameters().size() + 1;
-    TypeName[] types = new TypeName[count];
-    types[0] = TypeVariableName.get("A");
-    for (int i = 1; i < count; i++) {
-      types[i] = TypeName.get(getParameters().get(i - 1).getObjectType());
-    }
-    return ParameterizedTypeName.get(ConsumerHelper.get(count), types);
-  }
 }
