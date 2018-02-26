@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
@@ -77,6 +78,17 @@ public class MessengerFragment extends Fragment {
     startActivityForResult(intent, requestCode);
   }
 
+  @Override public void onDetach() {
+    Log.d(TAG,"detach");
+    for(int i = 0; i < consumerMap.size(); i++) {
+      consumerMap.valueAt(i).detach();
+    }
+    super.onDetach();
+  }
+
+  /**
+   * 获取 Activity 的 MessengerFragment 实例，Activity recreate 仍能获取同一个 fragment 实例。
+   */
   public static MessengerFragment fragmentFor(Activity activity) {
     FragmentManager fm = activity.getFragmentManager();
     if (fm.isDestroyed()) {
