@@ -31,6 +31,7 @@ import android.support.test.espresso.ViewAction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import android.view.View;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import org.hamcrest.Matcher;
 
@@ -57,7 +58,8 @@ public class OrientationChangeAction implements ViewAction {
   @Override
   public void perform(UiController uiController, View view) {
     uiController.loopMainThreadUntilIdle();
-    final Activity activity = (Activity) view.getContext();
+    final Activity activity = getActivity(view);
+
     activity.setRequestedOrientation(orientation);
 
     Collection<Activity> resumedActivities =
@@ -65,6 +67,27 @@ public class OrientationChangeAction implements ViewAction {
     if (resumedActivities.isEmpty()) {
       throw new RuntimeException("Could not change orientation");
     }
+  }
+
+  private static Activity getActivity(View view) {
+    Activity activity = null;
+    if (view.getContext()
+        .getClass()
+        .getName()
+        .contains("com.android.internal.policy.DecorContext")) {
+      try {
+        Field field = view.getContext().getClass().getDeclaredField("mPhoneWindow");
+        field.setAccessible(true);
+        Object obj = field.get(view.getContext());
+        java.lang.reflect.Method m1 = obj.getClass().getMethod("getContext");
+        activity = (Activity) (m1.invoke(obj));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else {
+      activity = (Activity) view.getContext();
+    }
+    return activity;
   }
 
   public static ViewAction orientationLandscape() {

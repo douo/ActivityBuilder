@@ -41,6 +41,7 @@ dependencies {
   implementation deps.arch.persistence.room
 
 
+  implementation 'com.android.support.constraint:constraint-layout:1.0.2'
   testImplementation deps.junit
   androidTestImplementation deps.support.test.runner
   androidTestImplementation deps.support.test.espresso

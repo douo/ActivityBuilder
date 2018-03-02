@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import info.dourok.esactivity.BuilderUtil;
+import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.sample.books.BookListActivity;
 import info.dourok.esactivity.sample.camera.CameraActivity;
 import info.dourok.esactivity.sample.editor.EditorActivity;
@@ -49,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
             view ->
                 EditorActivityBuilder.create(this)
                     .hint("say something!")
+                    .forCancel(
+                        (mainActivity, intent) -> showContent("cancel"))
                     .forContent(this::showContent)
                     .start());
   }
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                 Snackbar.LENGTH_LONG)
                             .setAction("Action", null)
                             .show())
-                .forText((context, s) -> Toast.makeText(context, "" + s, Toast.LENGTH_SHORT).show())
+                .forText(s -> Toast.makeText(this, "" + s, Toast.LENGTH_SHORT).show())
                 .start());
   }
 
