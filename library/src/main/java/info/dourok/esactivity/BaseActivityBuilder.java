@@ -68,33 +68,18 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
 
   protected abstract T self();
 
-  public T result(TriConsumer<A, Integer, Intent> resultConsumer) {
+  public T result(BiConsumer<Integer, Intent> resultConsumer) {
     getConsumer().setBiConsumer(resultConsumer);
     return self();
   }
 
-  public T forCancel(BiConsumer<A, Intent> cancelConsumer) {
+  public T forCancel(Consumer<Intent> cancelConsumer) {
     getConsumer().setCancelConsumer(cancelConsumer);
     return self();
   }
 
-  public T forOk(BiConsumer<A, Intent> okConsumer) {
-    getConsumer().setOkConsumer(okConsumer);
-    return self();
-  }
-
-  public T result(BiConsumer<Integer, Intent> resultConsumer) {
-    getConsumer().setBiConsumer((context, i, intent) -> resultConsumer.accept(i, intent));
-    return self();
-  }
-
-  public T forCancel(Consumer<Intent> cancelConsumer) {
-    getConsumer().setCancelConsumer((context, intent) -> cancelConsumer.accept(intent));
-    return self();
-  }
-
   public T forOk(Consumer<Intent> okConsumer) {
-    getConsumer().setOkConsumer((context, intent) -> okConsumer.accept(intent));
+    getConsumer().setOkConsumer(okConsumer);
     return self();
   }
 

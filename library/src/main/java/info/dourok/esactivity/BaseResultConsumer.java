@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.view.View;
 import info.dourok.esactivity.function.BiConsumer;
+import info.dourok.esactivity.function.Consumer;
 import info.dourok.esactivity.function.TriConsumer;
 import java.lang.reflect.Field;
 
@@ -16,37 +17,39 @@ import java.lang.reflect.Field;
  */
 public class BaseResultConsumer<A extends Activity>
     implements TriConsumer<Activity, Integer, Intent> {
-  private TriConsumer<A, Integer, Intent> biConsumer;
-  private BiConsumer<A, Intent> okConsumer;
-  private BiConsumer<A, Intent> cancelConsumer;
+  private BiConsumer<Integer, Intent> biConsumer;
+  private Consumer<Intent> okConsumer;
+  private Consumer<Intent> cancelConsumer;
 
   @Override
   public final void accept(Activity context, Integer result, @Nullable Intent intent) {
     A starter = (A) context;
     if (!handleResult(starter, result, intent)) {
       if (result == Activity.RESULT_OK && okConsumer != null) {
-        okConsumer.accept(starter, intent);
+        doCheck(context, result);
+        okConsumer.accept(intent);
       }
       if (result == Activity.RESULT_CANCELED && cancelConsumer != null) {
         doCheck(context, cancelConsumer);
-        cancelConsumer.accept(starter, intent);
+        cancelConsumer.accept(intent);
       }
       if (biConsumer != null) {
-        biConsumer.accept(starter, result, intent);
+        doCheck(context, cancelConsumer);
+        biConsumer.accept(result, intent);
       }
     }
     RefManager.getInstance().clearRefs(intent);
   }
 
-  void setBiConsumer(TriConsumer<A, Integer, Intent> biConsumer) {
+  void setBiConsumer(BiConsumer<Integer, Intent> biConsumer) {
     this.biConsumer = biConsumer;
   }
 
-  void setOkConsumer(BiConsumer<A, Intent> okConsumer) {
+  void setOkConsumer(Consumer<Intent> okConsumer) {
     this.okConsumer = okConsumer;
   }
 
-  void setCancelConsumer(BiConsumer<A, Intent> cancelConsumer) {
+  void setCancelConsumer(Consumer<Intent> cancelConsumer) {
     this.cancelConsumer = cancelConsumer;
   }
 
