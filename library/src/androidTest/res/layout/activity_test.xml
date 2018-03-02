@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.CaptureTestActivity"
+    >
+
+  <TextView
+      android:id="@+id/content"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="TextView"
+      />
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:onClick="methodRef"
+      android:text="methodRef"
+      />
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:onClick="captureActivity"
+      android:text="captureActivity"
+      />
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:onClick="captureView"
+      android:text="captureView"
+      />
+  <fragment
+      android:id="@+id/fragment"
+      android:name="info.dourok.esactivity.activity.OneButtonFragment"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      />
+</LinearLayout>
