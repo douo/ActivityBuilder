@@ -29,7 +29,6 @@ public class CaptureInstrumentedTest {
   public ActivityTestRule<CaptureTestActivity> mActivityRule =
       new ActivityTestRule<>(CaptureTestActivity.class);
 
-
   @Test
   public void activity__ref_should_be_updated_after_activity_recreate() {
     String id = getActivityInstance().toString();
@@ -46,7 +45,7 @@ public class CaptureInstrumentedTest {
   @Test
   public void view_with_id__ref_should_be_updated_after_activity_recreate() {
     final String text = "text";
-    onView(withText("captureView")).perform(click());
+    onView(withText("captureViewWithId")).perform(click());
 
     getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
 
@@ -56,9 +55,45 @@ public class CaptureInstrumentedTest {
   }
 
   @Test
-  public void fragment_with_id__ref_should_be_updated_after_activity_recreate(){
+  public void fragment_with_id__ref_should_be_updated_after_activity_recreate() {
     final String text = "text";
-    onView(withText("captureFragment")).perform(click());
+    onView(withText("captureFragmentWithId")).perform(click());
+
+    getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void fragment_with_tag__ref_should_be_updated_after_activity_recreate() {
+    final String text = "text";
+    onView(withText("captureFragmentWithTag")).perform(click());
+
+    getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void support_fragment_with_id__ref_should_be_updated_after_activity_recreate() {
+    final String text = "text";
+    onView(withText("captureSupportFragmentWithId")).perform(click());
+
+    getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void support_fragment_with_tag__ref_should_be_updated_after_activity_recreate() {
+    final String text = "text";
+    onView(withText("captureSupportFragmentWithTag")).perform(click());
 
     getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
 

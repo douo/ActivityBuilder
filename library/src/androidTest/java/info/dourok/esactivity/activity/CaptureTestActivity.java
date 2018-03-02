@@ -1,11 +1,9 @@
 package info.dourok.esactivity.activity;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
-import info.dourok.esactivity.BuilderUtil;
 import info.dourok.esactivity.test.R;
 
 public class CaptureTestActivity extends AppCompatActivity {
@@ -17,13 +15,27 @@ public class CaptureTestActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_test);
     textView = findViewById(R.id.content);
+    if (savedInstanceState == null) {
+      prepareFragmentWithTag();
+    }
+  }
+
+  private void prepareFragmentWithTag() {
+    OneButtonFragment fragment = OneButtonFragment.newInstance("captureFragmentWithTag");
+    getFragmentManager().beginTransaction().add(R.id.parent, fragment, "fragment").commit();
+  }
+
+  private void prepareSupportFragmentWithTag() {
+    OneButtonSupportFragment fragment =
+        OneButtonSupportFragment.newInstance("captureSupportFragmentWithTag");
+    getSupportFragmentManager().beginTransaction().add(R.id.parent, fragment, "fragment").commit();
   }
 
   public void captureActivity(View v) {
     EditorActivityBuilder.create(this).forCancel(intent -> showContent(this.toString())).start();
   }
 
-  public void captureView(View v) {
+  public void captureViewWithId(View v) {
     TextView localTextView = findViewById(R.id.content);
     EditorActivityBuilder.create(this).forContent(localTextView::setText).start();
   }

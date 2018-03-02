@@ -1,20 +1,21 @@
 package info.dourok.esactivity.activity;
 
-import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 /** A simple {@link Fragment} subclass. */
-public class OneButtonFragment extends Fragment {
+public class OneButtonSupportFragment extends Fragment {
 
   private CaptureTestActivity activity;
   private String btnText;
 
-  public OneButtonFragment() {
+  public OneButtonSupportFragment() {
     // Required empty public constructor
   }
 
@@ -22,9 +23,9 @@ public class OneButtonFragment extends Fragment {
    * Use this factory method to create a new instance of this fragment using the provided
    * parameters.
    */
-  public static OneButtonFragment newInstance(String btnText) {
+  public static OneButtonSupportFragment newInstance(String btnText) {
     Bundle arguments = new Bundle();
-    OneButtonFragment fragment = new OneButtonFragment();
+    OneButtonSupportFragment fragment = new OneButtonSupportFragment();
     arguments.putString("btnText", btnText);
     fragment.setArguments(arguments);
     return fragment;
@@ -34,7 +35,7 @@ public class OneButtonFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (getArguments() == null) {
-      btnText = "captureFragmentWithId";
+      btnText = "captureSupportFragmentWithId";
     } else {
       btnText = getArguments().getString("btnText");
     }
@@ -50,6 +51,14 @@ public class OneButtonFragment extends Fragment {
     return btn;
   }
 
+  @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  private void showContent(String s) {
+    activity.showContent(s);
+  }
+
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
@@ -58,10 +67,6 @@ public class OneButtonFragment extends Fragment {
     } else {
       throw new RuntimeException(context.toString() + " must implement CaptureTestActivity");
     }
-  }
-
-  private void showContent(String s) {
-    activity.showContent(s);
   }
 
   @Override
