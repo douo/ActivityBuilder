@@ -34,15 +34,22 @@ class ResultParameterSpec extends Specification {
                }""")
         .source()
     def consumer = Source.consumer()
-        .field("BiConsumer<ArrayList,Character> textConsumer;",
+        .field("private BiConsumer<ArrayList,Character> textConsumer;",
         ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
+        .method("""
+               void setTextConsumer(BiConsumer<ArrayList,Character> consumer) {
+                 beforeAdd(consumer);
+                 this.textConsumer = consumer;
+               }
+               """)
         .method("""
                private boolean processText(A activity,Intent intent) {
                  if(textConsumer != null) {
-                   doCheck(activity, textConsumer);
+                   beforeExecute(activity, textConsumer);
                    ArrayList ids = RefManager.getInstance().get(intent,"ids");
                    Character name = RefManager.getInstance().get(intent,"name");
                    textConsumer.accept(ids,name);
+                   afterExecute(activity, textConsumer);
                    return true;
                  }
                  else {

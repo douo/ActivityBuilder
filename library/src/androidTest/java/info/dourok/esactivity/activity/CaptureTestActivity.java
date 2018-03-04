@@ -17,6 +17,7 @@ public class CaptureTestActivity extends AppCompatActivity {
     textView = findViewById(R.id.content);
     if (savedInstanceState == null) {
       prepareFragmentWithTag();
+      prepareSupportFragmentWithTag();
     }
   }
 

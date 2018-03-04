@@ -142,7 +142,8 @@ public class BuilderGenerator extends BaseActivityGenerator {
         .returns(builderWithParameter)
         .addModifiers(Modifier.PUBLIC)
         .addParameter(result.getConsumerType(), result.getConsumerName())
-        .addStatement("getConsumer().$L = $L", result.getConsumerName(), result.getConsumerName())
+        .addStatement(
+            "getConsumer().set$LConsumer($L)", result.getCapitalizeName(), result.getConsumerName())
         .addStatement("return this")
         .build();
   }

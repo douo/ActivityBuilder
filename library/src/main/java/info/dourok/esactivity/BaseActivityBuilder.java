@@ -43,6 +43,10 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return consumer;
   }
 
+  public void addClosureStateCallback(ClosureStateCallback callback) {
+    getConsumer().addClosureStateCallback(callback);
+  }
+
   /** intent 应该在构造函数的时候就初始化 因为 Intent 可能会和 RefMap 绑定在一起 */
   public void setIntent(Intent intent) {
     if (intentWrapper != null) {

@@ -29,12 +29,12 @@ class ResultSetSpec extends Specification {
         .hasConsumer()
         .method("""
                 public EmptyActivityBuilder<A> forDate(Consumer<Long> dateConsumer) {
-                  getConsumer().dateConsumer = dateConsumer;
+                  getConsumer().setDateConsumer(dateConsumer);
                   return this;
                 }""", ["info.dourok.esactivity.function.Consumer", Long])
         .method(""" 
                 public EmptyActivityBuilder<A> forText(BiConsumer<ArrayList, Character> textConsumer) {
-                  getConsumer().textConsumer = textConsumer;
+                  getConsumer().setTextConsumer(textConsumer);
                   return this;
                 }""", ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
         .source()
@@ -66,14 +66,21 @@ class ResultSetSpec extends Specification {
                }""")
         .source()
     def consumer = Source.consumer()
-        .field("Consumer<Long> dateConsumer;",
+        .field("private Consumer<Long> dateConsumer;",
         ["info.dourok.esactivity.function.Consumer", Long])
+        .method("""
+               void setDateConsumer(Consumer<Long> consumer) {
+                 beforeAdd(consumer);
+                 this.dateConsumer = consumer;
+               }
+               """)
         .method("""
                private boolean processDate(A activity,Intent intent) {
                  if(dateConsumer != null) {
-                   doCheck(activity, dateConsumer);
+                   beforeExecute(activity, dateConsumer);
                    Long date = intent.getLongExtra("date",0);
                    dateConsumer.accept(date);
+                   afterExecute(activity, dateConsumer);
                    return true;
                  }
                  else {
@@ -81,15 +88,22 @@ class ResultSetSpec extends Specification {
                  }
                }
                """)
-        .field("BiConsumer<ArrayList,Character> textConsumer;",
+        .field("private BiConsumer<ArrayList,Character> textConsumer;",
         ["info.dourok.esactivity.function.BiConsumer", ArrayList, Character])
+        .method("""
+               void setTextConsumer(BiConsumer<ArrayList,Character> consumer) {
+                 beforeAdd(consumer);
+                 this.textConsumer = consumer;
+               }
+               """)
         .method("""
                private boolean processText(A activity,Intent intent) {
                  if(textConsumer != null) {
-                   doCheck(activity, textConsumer);
+                   beforeExecute(activity, textConsumer);
                    ArrayList ids = RefManager.getInstance().get(intent,"ids");
                    Character name = intent.getCharExtra("name",(char)0);
                    textConsumer.accept(ids,name);
+                   afterExecute(activity, textConsumer);
                    return true;
                  }
                  else {

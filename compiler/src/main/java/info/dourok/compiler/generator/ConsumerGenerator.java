@@ -1,6 +1,7 @@
 package info.dourok.compiler.generator;
 
 import android.content.Intent;
+import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -91,6 +92,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
           "return process$L($L,$L)", result.getCapitalizeName(), "activity", "intent");
       try {
         consumer.addField(buildField(result));
+        consumer.addMethod(buildSetter(result));
       } catch (IOException e) {
         // TODO 生成 consumer 接口失败
         error("create consumer failed:" + e.getMessage());
@@ -109,7 +111,17 @@ public class ConsumerGenerator extends BaseActivityGenerator {
   }
 
   private FieldSpec buildField(ResultModel result) throws IOException {
-    return FieldSpec.builder(result.getConsumerType(), result.getConsumerName()).build();
+    return FieldSpec.builder(result.getConsumerType(), result.getConsumerName())
+        .addModifiers(Modifier.PRIVATE)
+        .build();
+  }
+
+  private MethodSpec buildSetter(ResultModel result) throws IOException {
+    return MethodSpec.methodBuilder("set" + result.getCapitalizeName() + "Consumer")
+        .addParameter(result.getConsumerType(), "consumer")
+        .addStatement("beforeAdd($L)","consumer")
+        .addStatement("this.$L = $L", result.getConsumerName(), "consumer")
+        .build();
   }
 
   private MethodSpec buildResultProcessor(ResultModel result) {
@@ -120,7 +132,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
             .addParameter(TypeVariableName.get("A"), "activity")
             .addParameter(Intent.class, "intent")
             .beginControlFlow("if($L != null)", result.getConsumerName())
-            .addStatement("doCheck(activity,$L)", result.getConsumerName());
+            .addStatement("beforeExecute(activity,$L)", result.getConsumerName());
     if (!result.getParameters().isEmpty()) {
       StringBuilder literal = new StringBuilder(result.getConsumerName()).append(".accept(");
       String[] names = new String[result.getParameters().size()];
@@ -141,6 +153,7 @@ public class ConsumerGenerator extends BaseActivityGenerator {
     } else {
       builder.addStatement("$L.run()", result.getConsumerName());
     }
+    builder.addStatement("afterExecute(activity,$L)", result.getConsumerName());
     builder.addStatement("return true");
     builder.endControlFlow();
     builder.beginControlFlow("else").addStatement("return false").endControlFlow();

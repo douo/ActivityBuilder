@@ -102,12 +102,70 @@ public class CaptureInstrumentedTest {
     onView(withId(R.id.content)).check(matches(withText(text)));
   }
 
-
   @Test
   public void method__ref_should_be_updated_after_activity_recreate() throws Exception {
     final String text = "text";
     onView(withText("methodRef")).perform(click());
     getInstrumentation().runOnMainSync(() -> mActivityRule.getActivity().recreate());
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void view_with_id__ref_should_work() {
+    final String text = "text";
+    onView(withText("captureViewWithId")).perform(click());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void fragment_with_id__ref_should_work() {
+    final String text = "text";
+    onView(withText("captureFragmentWithId")).perform(click());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void fragment_with_tag__ref_should_work() {
+    final String text = "text";
+    onView(withText("captureFragmentWithTag")).perform(click());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void support_fragment_with_id__ref_should_work() {
+    final String text = "text";
+    onView(withText("captureSupportFragmentWithId")).perform(click());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void support_fragment_with_tag__ref_should_work() {
+    final String text = "text";
+    onView(withText("captureSupportFragmentWithTag")).perform(click());
+
+    onView(withId(R.id.edit_text)).perform(replaceText(text));
+    onView(withId(R.id.action_ok)).perform(click());
+    onView(withId(R.id.content)).check(matches(withText(text)));
+  }
+
+  @Test
+  public void method__ref_should_work() throws Exception {
+    final String text = "text";
+    onView(withText("methodRef")).perform(click());
     onView(withId(R.id.edit_text)).perform(replaceText(text));
     onView(withId(R.id.action_ok)).perform(click());
     onView(withId(R.id.content)).check(matches(withText(text)));

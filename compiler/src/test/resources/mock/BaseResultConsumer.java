@@ -16,7 +16,11 @@ public class BaseResultConsumer<A extends Activity>
     //
   }
 
-  protected void doCheck(Activity activity, Object lambda) {}
+  public void beforeAdd(Object closure) {}
+
+  public void beforeExecute(Activity activity, Object closure) {}
+
+  public void afterExecute(Activity activity, Object closure) {}
 
   protected boolean handleResult(A context, int result, Intent intent) {
     return false;
