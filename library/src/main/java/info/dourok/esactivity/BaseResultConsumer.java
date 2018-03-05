@@ -18,11 +18,11 @@ import java.util.List;
  * @date 2017/8/6
  */
 public class BaseResultConsumer<A extends Activity>
-    implements TriConsumer<Activity, Integer, Intent>, ClosureStateCallback {
+    implements TriConsumer<Activity, Integer, Intent>, LambdaStateCallback {
   private BiConsumer<Integer, Intent> biConsumer;
   private Consumer<Intent> okConsumer;
   private Consumer<Intent> cancelConsumer;
-  private List<ClosureStateCallback> callbackList = new ArrayList<>(4);
+  private List<LambdaStateCallback> callbackList = new ArrayList<>(4);
 
   {
     callbackList.add(new ActivityReferenceUpdater());
@@ -75,27 +75,27 @@ public class BaseResultConsumer<A extends Activity>
   }
 
   @Override
-  public void beforeAdd(Object closure) {
-    for (ClosureStateCallback callback : callbackList) {
-      callback.beforeAdd(closure);
+  public void beforeAdd(Object lambda) {
+    for (LambdaStateCallback callback : callbackList) {
+      callback.beforeAdd(lambda);
     }
   }
 
   @Override
-  public void beforeExecute(Activity activity, Object closure) {
-    for (ClosureStateCallback callback : callbackList) {
-      callback.beforeExecute(activity, closure);
+  public void beforeExecute(Activity activity, Object lambda) {
+    for (LambdaStateCallback callback : callbackList) {
+      callback.beforeExecute(activity, lambda);
     }
   }
 
   @Override
-  public void afterExecute(Activity activity, Object closure) {
-    for (ClosureStateCallback callback : callbackList) {
-      callback.afterExecute(activity, closure);
+  public void afterExecute(Activity activity, Object lambda) {
+    for (LambdaStateCallback callback : callbackList) {
+      callback.afterExecute(activity, lambda);
     }
   }
 
-  public void addClosureStateCallback(ClosureStateCallback callback) {
+  public void addClosureStateCallback(LambdaStateCallback callback) {
     callbackList.add(callback);
   }
 

@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
  */
 public class ActivityReferenceUpdater extends AbstractActivityReferenceUpdater {
   @Override
-  protected Object findNewObject(Activity activity, Field field, Object closure, Object oldObject) {
+  protected Object findNewObject(Activity activity, Field field, Object lambda, Object oldObject) {
     return activity;
   }
 

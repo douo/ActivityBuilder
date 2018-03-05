@@ -19,14 +19,14 @@ public class FragmentReferenceUpdater extends AbstractActivityReferenceUpdater {
 
   /** 缓存 Fragment Finder. fragment makeInactive 之后状态会被清空，所以得提前对 Fragment 的 id 或 tag 进行保存。 */
   @Override
-  public void beforeAdd(Object closure) {
-    Class zlass = closure.getClass();
+  public void beforeAdd(Object lambda) {
+    Class zlass = lambda.getClass();
     for (Field field : zlass.getDeclaredFields()) {
       field.setAccessible(true);
       try {
         Function<Activity, Object> fragmentFinder = null;
         if (Fragment.class.isAssignableFrom(field.getType())) {
-          Fragment fragment = (Fragment) field.get(closure);
+          Fragment fragment = (Fragment) field.get(lambda);
           if (fragment.getId() != NO_ID) {
             int id = fragment.getId();
             fragmentFinder =
@@ -39,7 +39,7 @@ public class FragmentReferenceUpdater extends AbstractActivityReferenceUpdater {
           // Support Fragment
         } else if (android.support.v4.app.Fragment.class.isAssignableFrom(field.getType())) {
           android.support.v4.app.Fragment fragment =
-              (android.support.v4.app.Fragment) field.get(closure);
+              (android.support.v4.app.Fragment) field.get(lambda);
           if (fragment.getId() != NO_ID) {
             int id = fragment.getId();
             fragmentFinder =
@@ -64,7 +64,7 @@ public class FragmentReferenceUpdater extends AbstractActivityReferenceUpdater {
   }
 
   @Override
-  protected Object findNewObject(Activity activity, Field field, Object closure, Object oldObject) {
+  protected Object findNewObject(Activity activity, Field field, Object lambda, Object oldObject) {
     final boolean fragmentNeedUpdate =
         oldObject instanceof Fragment
             // Fragment detach 之后 Activity 应该为空
@@ -75,6 +75,7 @@ public class FragmentReferenceUpdater extends AbstractActivityReferenceUpdater {
             && (((android.support.v4.app.Fragment) oldObject).getActivity() == null
                 || ((android.support.v4.app.Fragment) oldObject).getActivity() != activity);
     if (fragmentNeedUpdate || supportFragmentNeedUpdate) {
+      // isMatch 已经确保了 map.get(field) 不为空
       return map.get(field).apply(activity);
     } else {
       return null;

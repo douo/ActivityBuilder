@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import info.dourok.esactivity.function.BiConsumer;
 import info.dourok.esactivity.function.Consumer;
-import info.dourok.esactivity.function.TriConsumer;
 import java.util.Map;
 
 import static info.dourok.esactivity.MessengerFragment.fragmentFor;
@@ -43,7 +42,7 @@ public abstract class BaseActivityBuilder<T extends BaseActivityBuilder<T, A>, A
     return consumer;
   }
 
-  public void addClosureStateCallback(ClosureStateCallback callback) {
+  public void addClosureStateCallback(LambdaStateCallback callback) {
     getConsumer().addClosureStateCallback(callback);
   }
 
